@@ -1,6 +1,6 @@
 {
   "name": "vinextauth",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Drop-in NextAuth v4 replacement for Vinext + Cloudflare Workers. Zero Node.js dependencies, pure Web Crypto API.",
   "type": "module",
   "engines": {
