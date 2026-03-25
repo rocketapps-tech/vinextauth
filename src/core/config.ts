@@ -16,22 +16,27 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
     );
   }
 
+  // baseUrl: supports string or dynamic function for multi-tenant apps
   const baseUrl =
+    config.baseUrl ??
     (typeof process !== "undefined"
       ? process.env.NEXTAUTH_URL ?? process.env.VINEXTAUTH_URL ?? process.env.VERCEL_URL
-      : undefined) ?? "http://localhost:3000";
+      : undefined) ??
+    "http://localhost:3000";
 
-  const normalizedBaseUrl = baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`;
+  const resolvedBaseUrl = typeof baseUrl === "string"
+    ? (baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`)
+    : baseUrl; // keep as function for multi-tenant
 
-  const useSecureCookies =
-    config.useSecureCookies ?? normalizedBaseUrl.startsWith("https://");
+  const staticBaseUrl = typeof resolvedBaseUrl === "string" ? resolvedBaseUrl : "http://localhost:3000";
+  const useSecureCookies = config.useSecureCookies ?? staticBaseUrl.startsWith("https://");
 
   const sessionMaxAge = config.session?.maxAge ?? DEFAULT_MAX_AGE;
 
   return {
     providers: config.providers,
     secret,
-    baseUrl: normalizedBaseUrl,
+    baseUrl: resolvedBaseUrl,
     basePath: "/api/auth",
     callbacks: config.callbacks ?? {},
     pages: {
@@ -60,5 +65,21 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
       ...config.cookies,
     },
     adapter: config.adapter,
+    accountLinking: {
+      enabled: config.accountLinking?.enabled ?? false,
+      requireVerification: config.accountLinking?.requireVerification ?? true,
+    },
+    credentials: config.credentials ?? {},
   };
+}
+
+/**
+ * Resolve the base URL for a given request (supports multi-tenant).
+ */
+export async function resolveBaseUrl(config: ResolvedConfig, request: Request): Promise<string> {
+  if (typeof config.baseUrl === "function") {
+    const resolved = await config.baseUrl(request);
+    return resolved.startsWith("http") ? resolved : `https://${resolved}`;
+  }
+  return config.baseUrl as string;
 }

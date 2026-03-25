@@ -5,13 +5,20 @@ export type {
   VinextAuthConfig,
   VinextAuthHandlers,
   Session,
+  DefaultSession,
   User,
+  DefaultUser,
   JWT,
+  DefaultJWT,
   OAuthProvider,
+  CredentialsProvider,
+  Provider,
   CallbacksConfig,
   JWTCallbackParams,
   SessionCallbackParams,
   SignInCallbackParams,
+  RefreshTokenCallbackParams,
+  RefreshTokenCallbackResult,
   PagesConfig,
   SessionConfig,
   JWTConfig,
@@ -22,4 +29,11 @@ export type {
   SessionStatus,
   SignInOptions,
   SignOutOptions,
+  AccountLinkingConfig,
+  CredentialsConfig,
+  RateLimiter,
+  VinextAuthErrorCode,
 } from "./types.js";
+
+export { VinextAuthError } from "./types.js";
+export { InMemoryRateLimiter } from "./core/rate-limiter.js";

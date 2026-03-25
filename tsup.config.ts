@@ -8,6 +8,7 @@ export default defineConfig({
     "middleware/index": "src/middleware/index.ts",
     "providers/google": "src/providers/google.ts",
     "providers/github": "src/providers/github.ts",
+    "providers/credentials": "src/providers/credentials.ts",
     "adapters/cloudflare-kv": "src/adapters/cloudflare-kv.ts",
   },
   format: ["esm"],

@@ -1,13 +1,20 @@
 import type { ResolvedConfig } from "../types.js";
-import { clearSessionCookie, clearCallbackUrlCookie } from "../cookies/index.js";
 import { getCsrfCookie } from "../cookies/index.js";
 import { verifyCsrfToken } from "../core/csrf.js";
+import { deleteCookieString } from "../cookies/strategy.js";
 
 export async function handleSignOut(
   request: Request,
   config: ResolvedConfig
 ): Promise<Response> {
-  let callbackUrl = config.baseUrl;
+  let callbackUrl: string;
+
+  if (typeof config.baseUrl === "function") {
+    const resolved = await config.baseUrl(request);
+    callbackUrl = resolved.startsWith("http") ? resolved : `https://${resolved}`;
+  } else {
+    callbackUrl = config.baseUrl as string;
+  }
 
   if (request.method === "POST") {
     let body: Record<string, string> = {};
@@ -26,23 +33,35 @@ export async function handleSignOut(
     // Verify CSRF
     const csrfCookie = getCsrfCookie(request, config);
     const submittedToken = body.csrfToken ?? "";
-    if (csrfCookie) {
+    if (csrfCookie && submittedToken) {
       const valid = await verifyCsrfToken(submittedToken, csrfCookie, config.secret);
       if (!valid && config.debug) {
         console.warn("[VinextAuth] CSRF verification failed on signout");
       }
     }
 
-    callbackUrl = body.callbackUrl ?? config.baseUrl;
+    if (body.callbackUrl) {
+      callbackUrl = body.callbackUrl;
+    }
   }
-
-  const headers = new Headers();
-  clearSessionCookie(headers, config);
-  clearCallbackUrlCookie(headers, config);
 
   const redirectUrl = isAbsoluteUrl(callbackUrl)
     ? callbackUrl
-    : `${config.baseUrl}${callbackUrl}`;
+    : `${typeof config.baseUrl === "string" ? config.baseUrl : ""}${callbackUrl}`;
+
+  const headers = new Headers();
+
+  // ── Clear ALL vinextauth cookies — no stale tokens left behind ────────────
+  const { sessionToken, callbackUrl: cbCookie, csrfToken, state, nonce } = config.cookies;
+
+  for (const cookie of [sessionToken, cbCookie, csrfToken, state, nonce]) {
+    headers.append("Set-Cookie", deleteCookieString(cookie.name, cookie.options));
+    // Also clear the non-prefixed variant in case of prefix migration
+    const unprefixed = cookie.name.replace("__Secure-", "");
+    if (unprefixed !== cookie.name) {
+      headers.append("Set-Cookie", deleteCookieString(unprefixed, { ...cookie.options, secure: false }));
+    }
+  }
 
   headers.set("Location", redirectUrl);
 
