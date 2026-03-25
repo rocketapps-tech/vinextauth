@@ -20,9 +20,12 @@ export class InMemoryRateLimiter implements RateLimiter {
     this.maxAttempts = maxAttempts;
     this.windowMs = windowMs;
 
-    // Auto-cleanup every 5 minutes
+    // Auto-cleanup every 5 minutes — unref so it doesn't keep the process alive
     if (typeof setInterval !== "undefined") {
-      setInterval(() => this.cleanup(), 5 * 60 * 1000);
+      const interval = setInterval(() => this.cleanup(), 5 * 60 * 1000);
+      if (interval && typeof interval === "object" && "unref" in interval) {
+        (interval as { unref(): void }).unref();
+      }
     }
   }
 

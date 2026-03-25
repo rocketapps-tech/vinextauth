@@ -30,24 +30,26 @@ export async function handleSignOut(
       // ignore parse errors
     }
 
-    // Verify CSRF
+    // Verify CSRF — reject if token missing or invalid
     const csrfCookie = getCsrfCookie(request, config);
     const submittedToken = body.csrfToken ?? "";
-    if (csrfCookie && submittedToken) {
-      const valid = await verifyCsrfToken(submittedToken, csrfCookie, config.secret);
-      if (!valid && config.debug) {
-        console.warn("[VinextAuth] CSRF verification failed on signout");
-      }
+    if (!csrfCookie || !submittedToken) {
+      return new Response("CSRF token required", { status: 403 });
+    }
+    const valid = await verifyCsrfToken(submittedToken, csrfCookie, config.secret);
+    if (!valid) {
+      if (config.debug) console.warn("[VinextAuth] CSRF verification failed on signout");
+      return new Response("Invalid CSRF token", { status: 403 });
     }
 
     if (body.callbackUrl) {
-      callbackUrl = body.callbackUrl;
+      callbackUrl = sanitizeRedirectUrl(body.callbackUrl, callbackUrl);
     }
   }
 
-  const redirectUrl = isAbsoluteUrl(callbackUrl)
-    ? callbackUrl
-    : `${typeof config.baseUrl === "string" ? config.baseUrl : ""}${callbackUrl}`;
+  const redirectUrl = callbackUrl.startsWith("/")
+    ? `${typeof config.baseUrl === "string" ? config.baseUrl : ""}${callbackUrl}`
+    : callbackUrl;
 
   const headers = new Headers();
 
@@ -74,6 +76,17 @@ export async function handleSignOut(
   return new Response(null, { status: 302, headers });
 }
 
-function isAbsoluteUrl(url: string): boolean {
-  return url.startsWith("http://") || url.startsWith("https://");
+/** Returns a safe redirect URL restricted to the app's own origin. */
+function sanitizeRedirectUrl(url: string, baseUrl: string): string {
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    return `${baseUrl}${url}`;
+  }
+  try {
+    const redirect = new URL(url);
+    const base = new URL(baseUrl);
+    if (redirect.origin === base.origin) return url;
+  } catch {
+    // fall through
+  }
+  return baseUrl;
 }

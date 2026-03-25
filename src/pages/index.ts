@@ -20,11 +20,7 @@ export function renderSignInPage(
   const providerLinks = providers
     .map(
       (p) => `
-    <a href="${p.signinUrl}?callbackUrl=${encodeURIComponent(callbackUrl)}"
-       style="display:flex;align-items:center;gap:8px;margin:8px 0;padding:12px 20px;
-              border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#1a202c;
-              font-weight:500;background:white;transition:background 0.15s;"
-       onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='white'">
+    <a href="${p.signinUrl}?callbackUrl=${encodeURIComponent(callbackUrl)}" class="provider-btn">
       Sign in with ${p.name}
     </a>`
     )
@@ -45,6 +41,10 @@ export function renderSignInPage(
             text-align: center; }
     h1 { margin: 0 0 24px; font-size: 24px; }
     .providers { text-align: left; }
+    .provider-btn { display:flex;align-items:center;gap:8px;margin:8px 0;padding:12px 20px;
+                    border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#1a202c;
+                    font-weight:500;background:white;transition:background 0.15s; }
+    .provider-btn:hover { background: #f7fafc; }
   </style>
 </head>
 <body>

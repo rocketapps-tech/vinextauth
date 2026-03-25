@@ -37,8 +37,10 @@ export async function handleCallback(
   }
 
   // ── Verify state ─────────────────────────────────────────────────────────
+  // State validation is required by default — providers must explicitly set checks: ["none"] to skip
   const storedState = getStateCookie(request, config);
-  if (provider.checks?.includes("state")) {
+  const skipStateCheck = provider.checks?.includes("none");
+  if (!skipStateCheck) {
     if (!storedState || storedState !== stateParam) {
       return Response.redirect(`${errorBase}?error=OAuthStateError`, 302);
     }
@@ -118,16 +120,27 @@ export async function handleCallback(
 
       if (existingUser) {
         if (!config.accountLinking.enabled) {
-          // Unlike NextAuth, we give a clear error message instead of a cryptic one
           return Response.redirect(
             `${errorBase}?error=OAuthAccountNotLinked&provider=${providerId}&hint=enableAccountLinking`,
             302
           );
         }
 
-        // Safe account linking — link to existing user
+        // When requireVerification is true (default), block automatic linking.
+        // Set requireVerification: false only if you trust the provider's email verification (e.g. Google, GitHub).
+        if (config.accountLinking.requireVerification) {
+          return Response.redirect(
+            `${errorBase}?error=OAuthAccountNotLinked&provider=${providerId}&hint=setRequireVerificationFalse`,
+            302
+          );
+        }
+
+        // Account linking — link to existing user
         if (config.adapter.linkAccount) {
           await config.adapter.linkAccount(existingUser.id, providerId, user.id);
+        }
+        if (config.debug) {
+          console.log(`[VinextAuth] Account linked: ${user.email} via ${providerId}`);
         }
         // Use existing user data
         user.id = existingUser.id;
@@ -148,8 +161,8 @@ export async function handleCallback(
     }
   }
 
-  const callbackUrl = getCallbackUrl(request, config) ?? config.pages.newUser ?? "/";
-  const redirectUrl = isAbsoluteUrl(callbackUrl) ? callbackUrl : `${baseUrl}${callbackUrl}`;
+  const rawCallbackUrl = getCallbackUrl(request, config) ?? config.pages.newUser ?? "/";
+  const redirectUrl = sanitizeRedirectUrl(rawCallbackUrl, baseUrl);
 
   const headers = new Headers();
 
@@ -182,6 +195,20 @@ export async function handleCallback(
   return new Response(null, { status: 302, headers });
 }
 
-function isAbsoluteUrl(url: string): boolean {
-  return url.startsWith("http://") || url.startsWith("https://");
+/** Returns a safe redirect URL restricted to the app's own origin. */
+function sanitizeRedirectUrl(url: string, baseUrl: string): string {
+  // Relative path (not protocol-relative //) → safe
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    return `${baseUrl}${url}`;
+  }
+  // Absolute URL → must match the app's origin
+  try {
+    const redirect = new URL(url);
+    const base = new URL(baseUrl);
+    if (redirect.origin === base.origin) return url;
+  } catch {
+    // fall through
+  }
+  // Unsafe redirect → fall back to home
+  return baseUrl;
 }

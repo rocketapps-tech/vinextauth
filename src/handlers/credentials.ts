@@ -1,7 +1,8 @@
 import type { ResolvedConfig, CredentialsProvider } from "../types.js";
 import { buildJWT, encodeSession, generateId } from "../core/session.js";
-import { applySessionCookie, clearStateCookie, clearCallbackUrlCookie } from "../cookies/index.js";
+import { applySessionCookie, clearStateCookie, clearCallbackUrlCookie, getCsrfCookie } from "../cookies/index.js";
 import { getClientIp } from "../core/rate-limiter.js";
+import { verifyCsrfToken } from "../core/csrf.js";
 
 export async function handleCredentials(
   request: Request,
@@ -10,6 +11,31 @@ export async function handleCredentials(
 ): Promise<Response> {
   if (request.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
+  }
+
+  // ── CSRF verification ────────────────────────────────────────────────────
+  let body: Record<string, string> = {};
+  try {
+    const contentType = request.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      body = await request.json() as Record<string, string>;
+    } else {
+      const text = await request.text();
+      body = Object.fromEntries(new URLSearchParams(text));
+    }
+  } catch {
+    return new Response("Bad Request", { status: 400 });
+  }
+
+  const csrfCookie = getCsrfCookie(request, config);
+  const submittedCsrf = body.csrfToken ?? "";
+  if (!csrfCookie || !submittedCsrf) {
+    return new Response("CSRF token required", { status: 403 });
+  }
+  const csrfValid = await verifyCsrfToken(submittedCsrf, csrfCookie, config.secret);
+  if (!csrfValid) {
+    if (config.debug) console.warn("[VinextAuth] CSRF verification failed on credentials signin");
+    return new Response("Invalid CSRF token", { status: 403 });
   }
 
   // ── Rate limiting ────────────────────────────────────────────────────────
@@ -27,19 +53,6 @@ export async function handleCredentials(
   }
 
   // ── Parse credentials ────────────────────────────────────────────────────
-  let body: Record<string, string> = {};
-  try {
-    const contentType = request.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      body = await request.json() as Record<string, string>;
-    } else {
-      const text = await request.text();
-      body = Object.fromEntries(new URLSearchParams(text));
-    }
-  } catch {
-    return new Response("Bad Request", { status: 400 });
-  }
-
   const callbackUrl = body.callbackUrl ?? config.pages.newUser ?? "/";
   delete body.callbackUrl;
   delete body.csrfToken;
@@ -85,7 +98,7 @@ export async function handleCredentials(
   }
 
   const baseUrl = await resolveBase(config, request);
-  const redirectUrl = isAbsoluteUrl(callbackUrl) ? callbackUrl : `${baseUrl}${callbackUrl}`;
+  const redirectUrl = sanitizeRedirectUrl(callbackUrl, baseUrl);
 
   const headers = new Headers();
 
@@ -121,6 +134,17 @@ async function resolveBase(config: ResolvedConfig, request: Request): Promise<st
   return config.baseUrl as string;
 }
 
-function isAbsoluteUrl(url: string): boolean {
-  return url.startsWith("http://") || url.startsWith("https://");
+/** Returns a safe redirect URL restricted to the app's own origin. */
+function sanitizeRedirectUrl(url: string, baseUrl: string): string {
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    return `${baseUrl}${url}`;
+  }
+  try {
+    const redirect = new URL(url);
+    const base = new URL(baseUrl);
+    if (redirect.origin === base.origin) return url;
+  } catch {
+    // fall through
+  }
+  return baseUrl;
 }

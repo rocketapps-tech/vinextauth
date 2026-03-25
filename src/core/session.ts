@@ -158,7 +158,7 @@ export async function getSessionFromToken<TSession = {}>(
 }
 
 export function generateId(): string {
-  const bytes = new Uint8Array(16);
+  const bytes = new Uint8Array(32); // 256 bits of entropy
   crypto.getRandomValues(bytes);
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, "0"))

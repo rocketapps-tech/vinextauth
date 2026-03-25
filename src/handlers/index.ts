@@ -153,7 +153,12 @@ async function handleSignInPage(
   }));
 
   return new Response(renderSignInPage(providers, callbackUrl, config.theme), {
-    headers: { "Content-Type": "text/html" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; img-src 'self' https: data:; script-src 'none'; frame-ancestors 'none'",
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 }
 
@@ -163,7 +168,12 @@ function handleErrorPage(url: URL, config: ReturnType<typeof resolveConfig>): Re
 
   return new Response(renderErrorPage(error, retryAfter, config.pages.signIn, config.theme), {
     status: 400,
-    headers: { "Content-Type": "text/html" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; img-src 'none'; script-src 'none'; frame-ancestors 'none'",
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 }
 

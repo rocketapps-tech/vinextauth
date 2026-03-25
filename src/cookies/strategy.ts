@@ -32,7 +32,7 @@ export function buildCookieNames(useSecure: boolean): CookiesConfig {
       },
     },
     csrfToken: {
-      name: `${CSRF_TOKEN_COOKIE}`,
+      name: `${prefix}${CSRF_TOKEN_COOKIE}`,
       options: {
         httpOnly: true,
         sameSite: "lax",

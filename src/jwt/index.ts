@@ -55,6 +55,11 @@ export async function verify(token: string, secret: string): Promise<JWT | null>
     if (parts.length !== 3) return null;
 
     const [header, payload, sig] = parts;
+
+    // Validate algorithm to prevent confusion attacks
+    const decodedHeader = decodeJson(header) as { alg?: string; typ?: string };
+    if (decodedHeader.alg !== "HS256") return null;
+
     const message = `${header}.${payload}`;
 
     const key = await deriveKey(secret);
@@ -71,8 +76,8 @@ export async function verify(token: string, secret: string): Promise<JWT | null>
 
     const decoded = decodeJson(payload) as JWT;
 
-    // Check expiry
-    if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
+    // Check expiry (use <= so tokens are invalid at exactly exp time)
+    if (decoded.exp && decoded.exp <= Math.floor(Date.now() / 1000)) {
       return null;
     }
 
