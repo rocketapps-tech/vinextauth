@@ -56,16 +56,6 @@ export class InMemoryRateLimiter implements RateLimiter {
   }
 }
 
-// Singleton for default use
-let defaultLimiter: InMemoryRateLimiter | null = null;
-
-export function getDefaultRateLimiter(maxAttempts = 5, windowMs = 15 * 60 * 1000): InMemoryRateLimiter {
-  if (!defaultLimiter) {
-    defaultLimiter = new InMemoryRateLimiter(maxAttempts, windowMs);
-  }
-  return defaultLimiter;
-}
-
 export function getClientIp(request: Request): string {
   return (
     request.headers.get("cf-connecting-ip") ??

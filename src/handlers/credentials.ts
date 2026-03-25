@@ -1,7 +1,7 @@
 import type { ResolvedConfig, CredentialsProvider } from "../types.js";
-import { buildJWT, buildSession, encodeSession } from "../core/session.js";
+import { buildJWT, encodeSession, generateId } from "../core/session.js";
 import { applySessionCookie, clearStateCookie, clearCallbackUrlCookie } from "../cookies/index.js";
-import { getDefaultRateLimiter, getClientIp } from "../core/rate-limiter.js";
+import { getClientIp } from "../core/rate-limiter.js";
 
 export async function handleCredentials(
   request: Request,
@@ -13,13 +13,7 @@ export async function handleCredentials(
   }
 
   // ── Rate limiting ────────────────────────────────────────────────────────
-  const rateLimitConfig = config.credentials.rateLimit;
-  const limiter =
-    rateLimitConfig?.store ??
-    getDefaultRateLimiter(
-      rateLimitConfig?.maxAttempts ?? 5,
-      rateLimitConfig?.windowMs ?? 15 * 60 * 1000
-    );
+  const limiter = config._rateLimiter;
 
   const ip = getClientIp(request);
   const rateLimitKey = `credentials:${provider.id}:${ip}`;
@@ -90,14 +84,27 @@ export async function handleCredentials(
     }
   }
 
-  // ── Build JWT + session ──────────────────────────────────────────────────
-  const jwtPayload = await buildJWT(user, account, undefined, config);
-  const sessionToken = await encodeSession(jwtPayload, config);
-
   const baseUrl = await resolveBase(config, request);
   const redirectUrl = isAbsoluteUrl(callbackUrl) ? callbackUrl : `${baseUrl}${callbackUrl}`;
 
   const headers = new Headers();
+
+  // ── Database strategy ────────────────────────────────────────────────────
+  if (config.session.strategy === "database" && config.adapter) {
+    const sessionToken = generateId();
+    const expires = new Date(Date.now() + config.session.maxAge * 1000);
+    await config.adapter.createSession({ sessionToken, userId: user.id, expires });
+    applySessionCookie(headers, sessionToken, config);
+    clearStateCookie(headers, config);
+    clearCallbackUrlCookie(headers, config);
+    headers.set("Location", redirectUrl);
+    return new Response(null, { status: 302, headers });
+  }
+
+  // ── JWT strategy ─────────────────────────────────────────────────────────
+  const jwtPayload = await buildJWT(user, account, undefined, config);
+  const sessionToken = await encodeSession(jwtPayload, config);
+
   applySessionCookie(headers, sessionToken, config);
   clearStateCookie(headers, config);
   clearCallbackUrlCookie(headers, config);

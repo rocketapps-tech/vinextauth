@@ -1,5 +1,7 @@
-import type { VinextAuthConfig, VinextAuthHandlers, CredentialsProvider } from "../types.js";
+import type { VinextAuthConfig, VinextAuthHandlers, CredentialsProvider, Session } from "../types.js";
 import { resolveConfig, resolveBaseUrl } from "../core/config.js";
+import { getSessionFromToken } from "../core/session.js";
+import { renderSignInPage, renderErrorPage } from "../pages/index.js";
 import { handleSignIn } from "./signin.js";
 import { handleCallback } from "./callback.js";
 import { handleSignOut } from "./signout.js";
@@ -117,7 +119,24 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
     return new Response("Not Found", { status: 404 });
   }
 
-  return { GET: handler, POST: handler };
+  async function auth<T = TSession>(): Promise<Session<T> | null> {
+    let token: string | null = null;
+    try {
+      const { cookies } = await import("next/headers");
+      const store = await cookies();
+      const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace("__Secure-", "")}`;
+      token =
+        store.get(secureName)?.value ??
+        store.get(resolved.cookies.sessionToken.name)?.value ??
+        null;
+    } catch {
+      return null;
+    }
+    if (!token) return null;
+    return getSessionFromToken<T>(token, resolved);
+  }
+
+  return { GET: handler, POST: handler, auth };
 }
 
 async function handleSignInPage(
@@ -127,93 +146,25 @@ async function handleSignInPage(
   const baseUrl = await resolveBaseUrl(config, request);
   const callbackUrl = new URL(request.url).searchParams.get("callbackUrl") ?? "/";
 
-  const providers = config.providers
-    .map(
-      (p) => `
-    <a href="${baseUrl}${config.basePath}/signin/${p.id}?callbackUrl=${encodeURIComponent(callbackUrl)}"
-       style="display:flex;align-items:center;gap:8px;margin:8px 0;padding:12px 20px;
-              border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#1a202c;
-              font-weight:500;transition:background 0.15s;"
-       onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background=''">
-      Sign in with ${p.name}
-    </a>`
-    )
-    .join("");
+  const providers = config.providers.map((p) => ({
+    id: p.id,
+    name: p.name,
+    signinUrl: `${baseUrl}${config.basePath}/signin/${p.id}`,
+  }));
 
-  return new Response(
-    `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Sign In</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-           background: #f7fafc; display: flex; align-items: center;
-           justify-content: center; min-height: 100vh; margin: 0; }
-    .card { background: white; border-radius: 12px; padding: 32px 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1); width: 100%; max-width: 380px; }
-    h1 { margin: 0 0 24px; font-size: 24px; text-align: center; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Sign In</h1>
-    ${providers}
-  </div>
-</body>
-</html>`,
-    { headers: { "Content-Type": "text/html" } }
-  );
+  return new Response(renderSignInPage(providers, callbackUrl, config.theme), {
+    headers: { "Content-Type": "text/html" },
+  });
 }
 
 function handleErrorPage(url: URL, config: ReturnType<typeof resolveConfig>): Response {
   const error = url.searchParams.get("error") ?? "Unknown";
-  const retryAfter = url.searchParams.get("retryAfter");
+  const retryAfter = url.searchParams.get("retryAfter") ?? null;
 
-  const messages: Record<string, string> = {
-    OAuthAccountNotLinked:
-      "This email is already associated with another account. Enable account linking or sign in with your original provider.",
-    OAuthCallbackError: "Authentication failed. Please try again.",
-    OAuthStateError: "Authentication state mismatch. Please try again.",
-    AccessDenied: "You do not have permission to sign in.",
-    RateLimitExceeded: `Too many sign-in attempts. Please wait${retryAfter ? ` ${retryAfter} seconds` : ""} before trying again.`,
-    InvalidCredentials: "Invalid email or password.",
-    SessionExpired: "Your session has expired. Please sign in again.",
-    Configuration: "Server configuration error.",
-    Unknown: "An unexpected error occurred.",
-  };
-
-  const message = messages[error] ?? messages.Unknown;
-
-  return new Response(
-    `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Authentication Error</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-           background: #f7fafc; display: flex; align-items: center;
-           justify-content: center; min-height: 100vh; margin: 0; }
-    .card { background: white; border-radius: 12px; padding: 32px 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1); width: 100%; max-width: 420px; text-align: center; }
-    h1 { color: #e53e3e; margin-bottom: 12px; }
-    p { color: #4a5568; line-height: 1.6; }
-    a { display:inline-block; margin-top:20px; padding:10px 24px;
-        background:#3182ce; color:white; border-radius:6px; text-decoration:none; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Authentication Error</h1>
-    <p>${message}</p>
-    <a href="${config.pages.signIn}">Try again</a>
-  </div>
-</body>
-</html>`,
-    { status: 400, headers: { "Content-Type": "text/html" } }
-  );
+  return new Response(renderErrorPage(error, retryAfter, config.pages.signIn, config.theme), {
+    status: 400,
+    headers: { "Content-Type": "text/html" },
+  });
 }
 
 export default VinextAuth;

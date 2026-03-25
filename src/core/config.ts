@@ -1,5 +1,6 @@
 import type { VinextAuthConfig, ResolvedConfig } from "../types.js";
 import { buildCookieNames } from "../cookies/strategy.js";
+import { InMemoryRateLimiter } from "./rate-limiter.js";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
@@ -70,6 +71,18 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
       requireVerification: config.accountLinking?.requireVerification ?? true,
     },
     credentials: config.credentials ?? {},
+    theme: {
+      brandName: config.theme?.brandName ?? "Sign In",
+      logoUrl: config.theme?.logoUrl ?? "",
+      colorScheme: config.theme?.colorScheme ?? "light",
+      buttonColor: config.theme?.buttonColor ?? "#3182ce",
+    },
+    _rateLimiter:
+      config.credentials?.rateLimit?.store ??
+      new InMemoryRateLimiter(
+        config.credentials?.rateLimit?.maxAttempts ?? 5,
+        config.credentials?.rateLimit?.windowMs ?? 15 * 60 * 1000
+      ),
   };
 }
 

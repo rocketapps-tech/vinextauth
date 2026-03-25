@@ -1,4 +1,4 @@
-import type { DefaultJWT, DefaultSession, ResolvedConfig, DefaultUser } from "../types.js";
+import type { DefaultJWT, DefaultSession, ResolvedConfig, DefaultUser, AdapterSession, Session } from "../types.js";
 import * as jwtLib from "../jwt/index.js";
 import { buildSessionFromJWT } from "../cookies/index.js";
 import { withRefreshLock } from "./refresh-lock.js";
@@ -103,6 +103,58 @@ export async function refreshTokenIfNeeded(
     }
     return result.token as DefaultJWT;
   });
+}
+
+/**
+ * Build a session from a database adapter result.
+ * Used when session.strategy = "database".
+ */
+export async function buildDatabaseSession(
+  adapterSession: AdapterSession & { user: DefaultUser },
+  config: ResolvedConfig
+): Promise<DefaultSession> {
+  const baseSession: DefaultSession = {
+    user: adapterSession.user,
+    expires: adapterSession.expires.toISOString(),
+  };
+
+  if (config.callbacks.session) {
+    return config.callbacks.session({
+      session: baseSession,
+      token: {},
+      user: adapterSession.user,
+    }) as Promise<DefaultSession>;
+  }
+
+  return baseSession;
+}
+
+/**
+ * Unified session reader — handles both JWT and database strategies.
+ * Use this in session-route, getServerSession and auth() to avoid duplication.
+ */
+export async function getSessionFromToken<TSession = {}>(
+  token: string,
+  config: ResolvedConfig
+): Promise<Session<TSession> | null> {
+  if (config.session.strategy === "database" && config.adapter) {
+    const adapterSession = await config.adapter.getSession(token);
+    if (!adapterSession) return null;
+
+    if (adapterSession.expires < new Date()) {
+      await config.adapter.deleteSession(token);
+      return null;
+    }
+
+    return buildDatabaseSession(adapterSession, config) as Promise<Session<TSession>>;
+  }
+
+  // JWT strategy
+  let jwt = await decodeSession(token, config);
+  if (!jwt) return null;
+
+  jwt = await refreshTokenIfNeeded(jwt, config);
+  return buildSession(jwt, config) as Promise<Session<TSession>>;
 }
 
 export function generateId(): string {

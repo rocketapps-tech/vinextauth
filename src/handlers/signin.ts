@@ -1,4 +1,4 @@
-import type { ResolvedConfig } from "../types.js";
+import type { ResolvedConfig, OAuthProvider } from "../types.js";
 import { applyStateCookie, applyCallbackUrlCookie } from "../cookies/index.js";
 
 function randomBase64url(bytes: number): string {
@@ -13,7 +13,7 @@ export async function handleSignIn(
   providerId: string,
   config: ResolvedConfig
 ): Promise<Response> {
-  const provider = config.providers.find((p) => p.id === providerId);
+  const provider = config.providers.find((p) => p.id === providerId) as OAuthProvider | undefined;
 
   if (!provider) {
     return new Response(`Unknown provider: ${providerId}`, { status: 404 });
@@ -36,7 +36,7 @@ export async function handleSignIn(
   // Merge provider default params
   const params = provider.authorization.params ?? {};
   for (const [key, value] of Object.entries(params)) {
-    authUrl.searchParams.set(key, value);
+    authUrl.searchParams.set(key, String(value));
   }
 
   const headers = new Headers();

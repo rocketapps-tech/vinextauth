@@ -1,5 +1,5 @@
 import type { ResolvedConfig } from "../types.js";
-import { getCsrfCookie } from "../cookies/index.js";
+import { getCsrfCookie, getSessionToken } from "../cookies/index.js";
 import { verifyCsrfToken } from "../core/csrf.js";
 import { deleteCookieString } from "../cookies/strategy.js";
 
@@ -50,6 +50,12 @@ export async function handleSignOut(
     : `${typeof config.baseUrl === "string" ? config.baseUrl : ""}${callbackUrl}`;
 
   const headers = new Headers();
+
+  // ── Delete database session ───────────────────────────────────────────────
+  if (config.session.strategy === "database" && config.adapter?.deleteSession) {
+    const token = getSessionToken(request, config);
+    if (token) await config.adapter.deleteSession(token);
+  }
 
   // ── Clear ALL vinextauth cookies — no stale tokens left behind ────────────
   const { sessionToken, callbackUrl: cbCookie, csrfToken, state, nonce } = config.cookies;

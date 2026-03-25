@@ -58,7 +58,7 @@ export async function verify(token: string, secret: string): Promise<JWT | null>
     const message = `${header}.${payload}`;
 
     const key = await deriveKey(secret);
-    const signatureBytes = base64urlDecode(sig);
+    const signatureBytes = base64urlDecode(sig).buffer as ArrayBuffer;
 
     const valid = await crypto.subtle.verify(
       "HMAC",

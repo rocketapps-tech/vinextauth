@@ -1,6 +1,6 @@
 import type { ResolvedConfig } from "../types.js";
 import { getSessionToken } from "../cookies/index.js";
-import { decodeSession, buildSession, refreshTokenIfNeeded, encodeSession } from "../core/session.js";
+import { decodeSession, buildSession, refreshTokenIfNeeded, encodeSession, getSessionFromToken } from "../core/session.js";
 import { applySessionCookie } from "../cookies/index.js";
 
 export async function handleSessionRoute(
@@ -13,25 +13,29 @@ export async function handleSessionRoute(
     return Response.json({}, { headers: noCacheHeaders() });
   }
 
+  // ── Database strategy ─────────────────────────────────────────────────────
+  if (config.session.strategy === "database" && config.adapter) {
+    const session = await getSessionFromToken(token, config);
+    if (!session) return Response.json({}, { headers: noCacheHeaders() });
+    return Response.json(session, { headers: noCacheHeaders() });
+  }
+
+  // ── JWT strategy — with automatic token rotation ──────────────────────────
   let jwt = await decodeSession(token, config);
   if (!jwt) {
     return Response.json({}, { headers: noCacheHeaders() });
   }
 
-  // ── Refresh token if needed (automatic rotation) ──────────────────────────
   const refreshed = await refreshTokenIfNeeded(jwt, config);
   const headers = new Headers(noCacheHeaders());
 
   if (refreshed !== jwt) {
-    // Token was refreshed — reissue the session cookie
     const newToken = await encodeSession(refreshed, config);
     applySessionCookie(headers, newToken, config);
     jwt = refreshed;
   }
 
   const session = await buildSession(jwt, config);
-
-  // Include refresh error in response so client can handle it
   const refreshError = jwt.refreshError as string | undefined;
   const responseBody = refreshError ? { ...session, refreshError } : session;
 

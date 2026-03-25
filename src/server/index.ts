@@ -1,6 +1,6 @@
 import type { DefaultSession, VinextAuthConfig, Session } from "../types.js";
 import { resolveConfig } from "../core/config.js";
-import { decodeSession, buildSession, refreshTokenIfNeeded, encodeSession, generateId } from "../core/session.js";
+import { decodeSession, buildSession, encodeSession, generateId, getSessionFromToken } from "../core/session.js";
 import { getResolvedConfig } from "../handlers/index.js";
 
 /**
@@ -48,13 +48,7 @@ export async function getServerSession<TSession = {}>(
 
   if (!token) return null;
 
-  let jwt = await decodeSession(token, resolved);
-  if (!jwt) return null;
-
-  // Auto-refresh token if needed (server-side)
-  jwt = await refreshTokenIfNeeded(jwt, resolved);
-
-  return buildSession(jwt, resolved) as Promise<Session<TSession>>;
+  return getSessionFromToken<TSession>(token, resolved);
 }
 
 /**
@@ -141,12 +135,16 @@ export async function invalidateSession(config?: VinextAuthConfig): Promise<void
     const store = await cookies();
     const { name, options } = resolved.cookies.sessionToken;
 
-    // Get token to check for database session
+    // Delete database session if applicable
     const token = store.get(name)?.value;
     if (token && resolved.adapter?.deleteSession) {
-      const jwt = await decodeSession(token, resolved);
-      if (jwt?.jti) {
-        await resolved.adapter.deleteSession(jwt.jti);
+      if (resolved.session.strategy === "database") {
+        // Cookie IS the session token
+        await resolved.adapter.deleteSession(token);
+      } else {
+        // JWT strategy — extract jti to use as session token
+        const jwt = await decodeSession(token, resolved);
+        if (jwt?.jti) await resolved.adapter.deleteSession(jwt.jti);
       }
     }
 

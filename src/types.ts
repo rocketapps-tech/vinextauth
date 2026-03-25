@@ -213,6 +213,11 @@ export interface VinextAuthConfig<TSession = {}, TToken = {}, TUser = {}> {
   secret?: string;
 
   /**
+   * Branding and visual customization for built-in sign-in and error pages.
+   */
+  theme?: ThemeConfig;
+
+  /**
    * Dynamic base URL — supports multi-tenant apps with custom domains.
    * Can be a static string or a function that receives the request.
    *
@@ -281,6 +286,18 @@ export interface ResolvedConfig {
   adapter?: AdapterInterface;
   accountLinking: Required<AccountLinkingConfig>;
   credentials: CredentialsConfig;
+  theme: Required<ThemeConfig>;
+  /** @internal Rate limiter instance — one per VinextAuth() call, not global */
+  _rateLimiter: RateLimiter;
+}
+
+// ─── Theme config ─────────────────────────────────────────────────────────────
+
+export interface ThemeConfig {
+  brandName?: string;
+  logoUrl?: string;
+  colorScheme?: "light" | "dark";
+  buttonColor?: string;
 }
 
 // ─── Handler return ───────────────────────────────────────────────────────────
@@ -288,6 +305,21 @@ export interface ResolvedConfig {
 export interface VinextAuthHandlers {
   GET: (request: Request) => Promise<Response>;
   POST: (request: Request) => Promise<Response>;
+  /**
+   * Pre-bound server session helper — Auth.js v5 style.
+   * Equivalent to getServerSession() but uses this instance's config automatically.
+   *
+   * @example
+   * ```ts
+   * // auth.ts
+   * export const { GET, POST, auth } = VinextAuth({ ... })
+   *
+   * // server component
+   * import { auth } from "@/auth"
+   * const session = await auth()
+   * ```
+   */
+  auth: <TSession = {}>() => Promise<Session<TSession> | null>;
 }
 
 // ─── React types ──────────────────────────────────────────────────────────────

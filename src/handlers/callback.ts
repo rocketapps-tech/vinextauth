@@ -6,7 +6,7 @@ import {
   clearStateCookie,
   clearCallbackUrlCookie,
 } from "../cookies/index.js";
-import { buildJWT, buildSession, encodeSession } from "../core/session.js";
+import { buildJWT, encodeSession, generateId } from "../core/session.js";
 import { resolveBaseUrl } from "../core/config.js";
 
 export async function handleCallback(
@@ -148,21 +148,35 @@ export async function handleCallback(
     }
   }
 
-  // ── Build JWT and session ─────────────────────────────────────────────────
-  const jwtPayload = await buildJWT(user, account, rawProfile, config);
-  const sessionToken = await encodeSession(jwtPayload, config);
-
   const callbackUrl = getCallbackUrl(request, config) ?? config.pages.newUser ?? "/";
   const redirectUrl = isAbsoluteUrl(callbackUrl) ? callbackUrl : `${baseUrl}${callbackUrl}`;
 
   const headers = new Headers();
+
+  // ── Database strategy ─────────────────────────────────────────────────────
+  if (config.session.strategy === "database" && config.adapter) {
+    const sessionToken = generateId();
+    const expires = new Date(Date.now() + config.session.maxAge * 1000);
+    await config.adapter.createSession({ sessionToken, userId: user.id, expires });
+    applySessionCookie(headers, sessionToken, config);
+    clearStateCookie(headers, config);
+    clearCallbackUrlCookie(headers, config);
+    headers.set("Location", redirectUrl);
+    if (config.debug) console.log("[VinextAuth] DB session created for:", user.email ?? user.id);
+    return new Response(null, { status: 302, headers });
+  }
+
+  // ── JWT strategy ──────────────────────────────────────────────────────────
+  const jwtPayload = await buildJWT(user, account, rawProfile, config);
+  const sessionToken = await encodeSession(jwtPayload, config);
+
   applySessionCookie(headers, sessionToken, config);
   clearStateCookie(headers, config);
   clearCallbackUrlCookie(headers, config);
   headers.set("Location", redirectUrl);
 
   if (config.debug) {
-    console.log("[VinextAuth] Signed in:", session(jwtPayload, config));
+    console.log("[VinextAuth] Signed in:", jwtPayload.email ?? jwtPayload.sub ?? "unknown");
   }
 
   return new Response(null, { status: 302, headers });
@@ -170,8 +184,4 @@ export async function handleCallback(
 
 function isAbsoluteUrl(url: string): boolean {
   return url.startsWith("http://") || url.startsWith("https://");
-}
-
-function session(jwt: Record<string, unknown>, _config: ResolvedConfig): string {
-  return `${jwt.email ?? jwt.sub ?? "unknown"}`;
 }
