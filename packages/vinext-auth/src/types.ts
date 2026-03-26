@@ -382,6 +382,19 @@ export interface VinextAuthHandlers {
    * ```
    */
   pagesAuth: <TSession = {}>(req: PagesRequest) => Promise<Session<TSession> | null>;
+  /**
+   * Get (or generate) a CSRF token for server-side rendered credentials forms.
+   * Sets the CSRF cookie on the response if one doesn't exist yet.
+   *
+   * @example
+   * ```ts
+   * export const getServerSideProps = async (ctx) => {
+   *   const csrfToken = await pagesCsrf(ctx.req, ctx.res)
+   *   return { props: { csrfToken } }
+   * }
+   * ```
+   */
+  pagesCsrf: (req: PagesRequest, res: PagesResponse) => Promise<string>;
 }
 
 // ─── React types ──────────────────────────────────────────────────────────────
