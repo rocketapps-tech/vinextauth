@@ -9,6 +9,9 @@ import type {
 import { resolveConfig, resolveBaseUrl } from '../core/config.js';
 import { getSessionFromToken } from '../core/session.js';
 import { renderSignInPage, renderErrorPage } from '../pages/index.js';
+import { generateCsrfToken } from '../core/csrf.js';
+import { getCsrfCookie, applyCsrfCookie } from '../cookies/index.js';
+import { serializeCookie } from '../cookies/strategy.js';
 import { handleSignIn } from './signin.js';
 import { handleCallback } from './callback.js';
 import { handleSignOut } from './signout.js';
@@ -86,8 +89,12 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
       return handleSignInPage(resolved, request);
     }
 
-    // OAuth callback
+    // OAuth callback — or credentials (NextAuth v4 compat: POST /api/auth/callback/credentials)
     if (verb === 'callback' && param) {
+      const provider = resolved.providers.find((p) => p.id === param);
+      if (provider?.type === 'credentials') {
+        return handleCredentials(request, provider as CredentialsProvider, resolved);
+      }
       return handleCallback(request, param, resolved);
     }
 
@@ -160,24 +167,53 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
         }
       }
 
-      // Serialize body for POST: support both JSON and form-encoded payloads
+      // Serialize body for POST: support both JSON and form-encoded payloads.
+      // When the framework pre-parses the body into an object, we re-serialize it
+      // as JSON and override content-type — regardless of whatever content-type the
+      // original request had — because the original encoding is lost at this point.
       let body: string | undefined;
       if (req.method !== 'GET' && req.method !== 'HEAD' && req.body != null) {
         if (typeof req.body === 'string') {
           body = req.body;
         } else {
           body = JSON.stringify(req.body);
-          if (!headers.has('content-type')) {
-            headers.set('content-type', 'application/json');
-          }
+          headers.set('content-type', 'application/json');
         }
+      }
+
+      if (resolved.debug) {
+        const incomingCookie = headers.get('cookie') ?? '(none)';
+        console.log(
+          `[VinextAuth] toPages → ${req.method} ${url.pathname} | cookies: ${incomingCookie}`
+        );
       }
 
       const request = new Request(url, { method: req.method ?? 'GET', headers, body });
       const response = await handler(request);
 
       res.status(response.status);
-      response.headers.forEach((value, key) => res.setHeader(key, value));
+
+      // Set-Cookie must be forwarded as an array — Headers.forEach combines
+      // multiple values with ", " which produces one malformed cookie instead of many.
+      // Use getSetCookie() when available; fall back to get() for older runtimes
+      // (safe for single-cookie responses, imperfect for multiple).
+      const rawSetCookie = response.headers.get('set-cookie');
+      if (rawSetCookie !== null) {
+        const setCookies =
+          typeof (response.headers as Headers & { getSetCookie?: () => string[] }).getSetCookie ===
+          'function'
+            ? (response.headers as Headers & { getSetCookie: () => string[] }).getSetCookie()
+            : [rawSetCookie];
+        if (resolved.debug) {
+          console.log(`[VinextAuth] toPages ← Set-Cookie (${setCookies.length}):`, setCookies);
+        }
+        res.setHeader('Set-Cookie', setCookies);
+      }
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() === 'set-cookie') return;
+        res.setHeader(key, value);
+      });
+
       res.send(await response.text());
     };
   }
@@ -185,12 +221,65 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
   async function pagesAuth<T = TSession>(req: PagesRequest): Promise<Session<T> | null> {
     const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace('__Secure-', '')}`;
     const token =
-      req.cookies[secureName] ?? req.cookies[resolved.cookies.sessionToken.name] ?? null;
+      getPagesRequestCookie(req, secureName) ??
+      getPagesRequestCookie(req, resolved.cookies.sessionToken.name) ??
+      null;
     if (!token) return null;
     return getSessionFromToken<T>(token, resolved);
   }
 
-  return { GET: handler, POST: handler, auth, toPages, pagesAuth };
+  /**
+   * pagesCsrf — get (or generate) a CSRF token for use in server-side rendered forms.
+   *
+   * Call from getServerSideProps to embed the token in your credentials form.
+   * The CSRF cookie is set on the response so it's available when the form is submitted.
+   *
+   * @example
+   * ```ts
+   * export const getServerSideProps = async (ctx) => {
+   *   const csrfToken = await pagesCsrf(ctx.req, ctx.res);
+   *   return { props: { csrfToken } };
+   * };
+   * ```
+   */
+  async function pagesCsrf(req: PagesRequest, res: PagesResponse): Promise<string> {
+    const { name, options } = resolved.cookies.csrfToken;
+    const existing = getPagesRequestCookie(req, name);
+
+    if (existing) {
+      return existing.split('|')[0];
+    }
+
+    const { token, cookieValue } = await generateCsrfToken(resolved.secret);
+    res.setHeader('Set-Cookie', serializeCookie(name, cookieValue, options));
+    return token;
+  }
+
+  return { GET: handler, POST: handler, auth, toPages, pagesAuth, pagesCsrf };
+}
+
+/**
+ * Read a cookie from a PagesRequest.
+ * Falls back to parsing the Cookie header when req.cookies is not populated
+ * (e.g. Vinext dev server does not pre-parse cookies onto req.cookies).
+ */
+function getPagesRequestCookie(req: PagesRequest, name: string): string | null {
+  // Try req.cookies first (Next.js / some Vinext configs populate this)
+  if (req.cookies && typeof req.cookies === 'object') {
+    const val = req.cookies[name];
+    if (val) return val;
+  }
+
+  // Fallback: parse the Cookie header manually
+  const cookieHeader =
+    (Array.isArray(req.headers['cookie']) ? req.headers['cookie'][0] : req.headers['cookie']) ?? '';
+
+  for (const part of cookieHeader.split(';')) {
+    const [key, ...val] = part.trim().split('=');
+    if (key.trim() === name) return decodeURIComponent(val.join('='));
+  }
+
+  return null;
 }
 
 async function handleSignInPage(
@@ -201,20 +290,39 @@ async function handleSignInPage(
   const rawCallbackUrl = new URL(request.url).searchParams.get('callbackUrl') ?? '/';
   const callbackUrl = sanitizeRedirectUrl(rawCallbackUrl, baseUrl);
 
+  const hasCredentials = config.providers.some((p) => p.type === 'credentials');
+
+  // Get or generate CSRF token for credentials forms
+  let csrfToken: string | undefined;
+  const responseHeaders = new Headers({
+    'Content-Type': 'text/html; charset=utf-8',
+    'Content-Security-Policy':
+      "default-src 'self'; style-src 'unsafe-inline'; img-src 'self' https: data:; script-src 'none'; frame-ancestors 'none'",
+    'X-Frame-Options': 'DENY',
+    'X-Content-Type-Options': 'nosniff',
+  });
+
+  if (hasCredentials) {
+    const existing = getCsrfCookie(request, config);
+    if (existing) {
+      csrfToken = existing.split('|')[0];
+    } else {
+      const { token, cookieValue } = await generateCsrfToken(config.secret);
+      csrfToken = token;
+      applyCsrfCookie(responseHeaders, cookieValue, config);
+    }
+  }
+
   const providers = config.providers.map((p) => ({
     id: p.id,
     name: p.name,
+    type: p.type as 'oauth' | 'credentials',
     signinUrl: `${baseUrl}${config.basePath}/signin/${p.id}`,
+    csrfToken: p.type === 'credentials' ? csrfToken : undefined,
   }));
 
   return new Response(renderSignInPage(providers, callbackUrl, config.theme), {
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Content-Security-Policy':
-        "default-src 'self'; style-src 'unsafe-inline'; img-src 'self' https: data:; script-src 'none'; frame-ancestors 'none'",
-      'X-Frame-Options': 'DENY',
-      'X-Content-Type-Options': 'nosniff',
-    },
+    headers: responseHeaders,
   });
 }
 

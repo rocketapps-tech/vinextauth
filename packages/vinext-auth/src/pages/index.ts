@@ -3,7 +3,9 @@ import type { ThemeConfig } from '../types.js';
 export interface SignInProvider {
   id: string;
   name: string;
+  type: 'oauth' | 'credentials';
   signinUrl: string;
+  csrfToken?: string;
 }
 
 function escapeHtml(str: string): string {
@@ -38,12 +40,23 @@ export function renderSignInPage(
     : '';
 
   const providerLinks = providers
-    .map(
-      (p) => `
+    .map((p) => {
+      if (p.type === 'credentials' && p.csrfToken) {
+        const action = p.signinUrl.replace('/signin/', '/callback/');
+        return `
+    <form method="POST" action="${action}" class="credentials-form">
+      <input type="hidden" name="csrfToken" value="${escapeHtml(p.csrfToken)}">
+      <input type="hidden" name="callbackUrl" value="${escapeHtml(callbackUrl)}">
+      <input type="email" name="email" placeholder="Email" required class="credentials-input">
+      <input type="password" name="password" placeholder="Password" required class="credentials-input">
+      <button type="submit" class="provider-btn">Sign in with ${escapeHtml(p.name)}</button>
+    </form>`;
+      }
+      return `
     <a href="${p.signinUrl}?callbackUrl=${encodeURIComponent(callbackUrl)}" class="provider-btn">
-      Sign in with ${p.name}
-    </a>`
-    )
+      Sign in with ${escapeHtml(p.name)}
+    </a>`;
+    })
     .join('');
 
   return `<!DOCTYPE html>
@@ -63,8 +76,13 @@ export function renderSignInPage(
     .providers { text-align: left; }
     .provider-btn { display:flex;align-items:center;gap:8px;margin:8px 0;padding:12px 20px;
                     border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#1a202c;
-                    font-weight:500;background:white;transition:background 0.15s; }
+                    font-weight:500;background:white;transition:background 0.15s;cursor:pointer;
+                    width:100%;box-sizing:border-box;font-size:14px; }
     .provider-btn:hover { background: #f7fafc; }
+    .credentials-form { margin: 8px 0; display:flex;flex-direction:column;gap:8px; }
+    .credentials-input { padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;
+                         font-size:14px;outline:none;box-sizing:border-box;width:100%; }
+    .credentials-input:focus { border-color:#3182ce; }
   </style>
 </head>
 <body>

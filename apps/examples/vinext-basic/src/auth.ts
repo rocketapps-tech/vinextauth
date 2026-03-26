@@ -1,6 +1,11 @@
 import VinextAuth from "vinextauth";
 import Google from "vinextauth/providers/google";
 import GitHub from "vinextauth/providers/github";
+import Credentials from "vinextauth/providers/credentials";
+import type { JWTCallbackParams, SessionCallbackParams } from "vinextauth";
+
+type TokenExtras = { id?: string };
+type SessionExtras = { id?: string };
 
 const config = {
   secret: process.env.VINEXTAUTH_SECRET!,
@@ -13,15 +18,33 @@ const config = {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
+    /**
+     * Credentials provider — example with hardcoded demo user.
+     * In production, replace the authorize function with a real DB lookup.
+     */
+    Credentials({
+      async authorize(credentials) {
+        // Demo: accept a single hardcoded user
+        if (
+          credentials?.email === "demo@example.com" &&
+          credentials?.password === "password123"
+        ) {
+          return { id: "demo-user-1", name: "Demo User", email: credentials.email };
+        }
+        return null;
+      },
+    }),
   ],
+  pages: {
+    signIn: "/",
+  },
   callbacks: {
-    async jwt({ token, user }: { token: Record<string, unknown>; user?: { id?: string } }) {
+    async jwt({ token, user }: JWTCallbackParams<TokenExtras>) {
       if (user) token.id = user.id;
       return token;
     },
-    async session({ session, token }: { session: Record<string, unknown>; token: Record<string, unknown> }) {
-      const s = session as { user?: { id?: string } };
-      if (s.user) s.user.id = token.id as string;
+    async session({ session, token }: SessionCallbackParams<SessionExtras, TokenExtras>) {
+      if (session.user) session.user.id = token.id;
       return session;
     },
   },
