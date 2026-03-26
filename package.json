@@ -7,11 +7,11 @@
     "apps/**"
   ],
   "scripts": {
-    "build": "npm run build --workspace=packages/vinextauth",
-    "dev": "npm run dev --workspace=packages/vinextauth",
-    "typecheck": "npm run typecheck --workspace=packages/vinextauth",
-    "test": "npm run test --workspace=packages/vinextauth",
-    "test:watch": "npm run test:watch --workspace=packages/vinextauth",
+    "build": "npm run build --workspace=packages/vinext-auth",
+    "dev": "npm run dev --workspace=packages/vinext-auth",
+    "typecheck": "npm run typecheck --workspace=packages/vinext-auth",
+    "test": "npm run test --workspace=packages/vinext-auth",
+    "test:watch": "npm run test:watch --workspace=packages/vinext-auth",
     "dev:vinext": "npm run dev --workspace=apps/dev/vinext",
     "dev:example-vinext": "npm run dev --workspace=apps/examples/vinext-basic"
   }

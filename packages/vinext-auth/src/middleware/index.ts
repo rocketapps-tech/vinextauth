@@ -48,7 +48,7 @@ export function withAuth(
     const secret =
       opts.secret ??
       (typeof process !== "undefined"
-        ? process.env.NEXTAUTH_SECRET ?? process.env.VINEXTAUTH_SECRET
+        ? process.env.VINEXTAUTH_SECRET
         : undefined);
 
     if (!secret) {
