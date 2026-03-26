@@ -1,3 +1,10 @@
+## [0.6.1-beta.1](https://github.com/rocketapps-tech/vinextauth/compare/v0.6.0...v0.6.1-beta.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* package version ([a8b04bf](https://github.com/rocketapps-tech/vinextauth/commit/a8b04bf2dd17ba2945e54094e4df9e5234c99ed3))
+
 # [0.6.0](https://github.com/rocketapps-tech/vinextauth/compare/v0.5.0...v0.6.0) (2026-03-26)
 
 
