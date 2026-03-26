@@ -7,27 +7,21 @@ on:
 
 jobs:
   update-description:
-    name: Update PR description from commits
+    name: Update PR description and labels from commits
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate and update PR description
+      - name: Generate description and apply labels
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-
-            // Fetch commits on this PR
             const { data: commits } = await github.rest.pulls.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -35,17 +29,24 @@ jobs:
               per_page: 100,
             });
 
-            // Categorize commits by type
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+
+            // ── Categorize commits ────────────────────────────────────────────
             const categories = {
-              feat:     { label: '🚀 Features',       items: [] },
-              fix:      { label: '🐛 Bug Fixes',       items: [] },
-              perf:     { label: '⚡ Performance',     items: [] },
-              refactor: { label: '♻️ Refactoring',     items: [] },
-              docs:     { label: '📚 Documentation',   items: [] },
-              test:     { label: '🧪 Tests',            items: [] },
-              ci:       { label: '⚙️ CI/CD',            items: [] },
-              chore:    { label: '🔧 Chores',           items: [] },
-              style:    { label: '💄 Style',            items: [] },
+              feat:     { label: '🚀 Features',     items: [] },
+              fix:      { label: '🐛 Bug Fixes',     items: [] },
+              perf:     { label: '⚡ Performance',   items: [] },
+              refactor: { label: '♻️ Refactoring',   items: [] },
+              docs:     { label: '📚 Documentation', items: [] },
+              test:     { label: '🧪 Tests',          items: [] },
+              ci:       { label: '⚙️ CI/CD',          items: [] },
+              chore:    { label: '🔧 Chores',         items: [] },
+              style:    { label: '💄 Style',          items: [] },
             };
 
             const breaking = [];
@@ -54,43 +55,58 @@ jobs:
               const msg = commit.message.split('\n')[0].trim();
               const match = msg.match(/^(\w+)(\(.+\))?(!)?:\s*(.+)$/);
               if (!match) continue;
-
               const [, type, scope, bang, description] = match;
               const scopeStr = scope ? ` ${scope}` : '';
               const entry = `- **${scopeStr.trim() || type}**: ${description}`;
+              if (bang || commit.message.includes('BREAKING CHANGE')) breaking.push(`- ${description}`);
+              if (categories[type]) categories[type].items.push(entry);
+            }
 
-              if (bang || commit.message.includes('BREAKING CHANGE')) {
-                breaking.push(`- ${description}`);
-              }
+            // ── Detect changed areas from file paths ──────────────────────────
+            const changedFiles = files.map(f => f.filename);
+            const touchesLibrary = changedFiles.some(f => f.startsWith('packages/vinext-auth/src/'));
+            const touchesDeps    = changedFiles.some(f => f.includes('package.json') || f.includes('package-lock.json'));
+            const touchesCI      = changedFiles.some(f => f.startsWith('.github/'));
+            const touchesDocs    = changedFiles.some(f => f === 'README.md' || f.includes('CHANGELOG'));
 
-              if (categories[type]) {
-                categories[type].items.push(entry);
+            // ── Build labels list ─────────────────────────────────────────────
+            const labelsToAdd = [];
+
+            if (breaking.length > 0)               labelsToAdd.push('breaking change');
+            if (categories.feat.items.length > 0)  labelsToAdd.push('feature');
+            if (categories.fix.items.length > 0)   labelsToAdd.push('bug');
+            if (touchesLibrary)                    labelsToAdd.push('library');
+            if (touchesCI)                         labelsToAdd.push('ci/cd');
+            if (touchesDocs)                       labelsToAdd.push('docs');
+            if (touchesDeps)                       labelsToAdd.push('deps');
+
+            // Apply labels (ignore if label doesn't exist in the repo)
+            for (const label of labelsToAdd) {
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: [label],
+                });
+              } catch (e) {
+                console.log(`Label "${label}" not found in repo — skipping.`);
               }
             }
 
-            // Determine release type
+            // ── Build PR description ──────────────────────────────────────────
             let releaseType = '';
-            if (breaking.length > 0) {
-              releaseType = '💥 **BREAKING CHANGE** — Major release';
-            } else if (categories.feat.items.length > 0) {
-              releaseType = '✨ Minor release — new features added';
-            } else if (categories.fix.items.length > 0 || categories.perf.items.length > 0) {
-              releaseType = '🩹 Patch release — bug fixes only';
-            } else {
-              releaseType = '⚙️ No npm release — chore/ci/docs only';
-            }
+            if (breaking.length > 0)                                                     releaseType = '💥 **BREAKING CHANGE** — Major release';
+            else if (categories.feat.items.length > 0)                                   releaseType = '✨ Minor release — new features added';
+            else if (categories.fix.items.length > 0 || categories.perf.items.length > 0) releaseType = '🩹 Patch release — bug fixes only';
+            else                                                                          releaseType = '⚙️ No npm release — chore/ci/docs only';
 
-            // Build description
             let body = `## Summary\n\n${releaseType}\n\n`;
 
-            if (breaking.length > 0) {
-              body += `### ⚠️ Breaking Changes\n${breaking.join('\n')}\n\n`;
-            }
+            if (breaking.length > 0) body += `### ⚠️ Breaking Changes\n${breaking.join('\n')}\n\n`;
 
             for (const [, { label, items }] of Object.entries(categories)) {
-              if (items.length > 0) {
-                body += `### ${label}\n${items.join('\n')}\n\n`;
-              }
+              if (items.length > 0) body += `### ${label}\n${items.join('\n')}\n\n`;
             }
 
             body += `## Test plan\n\n`;
@@ -108,4 +124,4 @@ jobs:
               body,
             });
 
-            console.log('PR description updated successfully.');
+            console.log(`Labels applied: ${labelsToAdd.join(', ') || 'none'}`);
