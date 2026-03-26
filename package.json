@@ -17,18 +17,20 @@
     "lint:fix": "eslint packages/vinext-auth/src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "release": "npm run build --workspace=packages/vinext-auth && changeset publish",
+    "release": "semantic-release",
     "prepare": "husky",
     "dev:vinext": "npm run dev --workspace=apps/dev/vinext",
     "dev:example-vinext": "npm run dev --workspace=apps/examples/vinext-basic"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.5",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
+    "semantic-release": "^25.0.3",
     "typescript-eslint": "^8.0.0"
   },
   "lint-staged": {
