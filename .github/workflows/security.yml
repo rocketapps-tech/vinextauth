@@ -23,10 +23,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Audit production dependencies (library only)
-        # The library has zero runtime deps. Apps use vite/esbuild (dev only) — excluded here.
-        working-directory: packages/vinext-auth
-        run: npm audit --audit-level=moderate --omit=dev
+      - name: Verify zero runtime dependencies in library
+        # The library must have zero runtime deps — this is a core architectural constraint.
+        # Apps use vite/esbuild which have known dev-only vulnerabilities; those are excluded.
+        run: |
+          DEPS=$(node -e "const p = require('./packages/vinext-auth/package.json'); console.log(Object.keys(p.dependencies || {}).length)")
+          if [ "$DEPS" != "0" ]; then
+            echo "❌ Library has $DEPS runtime dependencies — must stay at zero."
+            exit 1
+          fi
+          echo "✅ Library has zero runtime dependencies."
+
+      - name: Audit dev dependencies
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
   codeql:
     name: CodeQL
