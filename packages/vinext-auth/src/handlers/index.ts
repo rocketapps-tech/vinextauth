@@ -1,4 +1,4 @@
-import type { VinextAuthConfig, VinextAuthHandlers, CredentialsProvider, Session } from "../types.js";
+import type { VinextAuthConfig, VinextAuthHandlers, PagesRequest, PagesResponse, CredentialsProvider, Session } from "../types.js";
 import { resolveConfig, resolveBaseUrl } from "../core/config.js";
 import { getSessionFromToken } from "../core/session.js";
 import { renderSignInPage, renderErrorPage } from "../pages/index.js";
@@ -136,7 +136,53 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
     return getSessionFromToken<T>(token, resolved);
   }
 
-  return { GET: handler, POST: handler, auth };
+  function toPages(): (req: PagesRequest, res: PagesResponse) => Promise<void> {
+    return async (req, res) => {
+      const host = (req.headers["host"] as string | undefined) ?? "localhost";
+      const protocol = host.startsWith("localhost") || /^127\./.test(host) ? "http" : "https";
+      const url = new URL(req.url ?? "/", `${protocol}://${host}`);
+
+      // Reconstruct headers, flattening any multi-value entries
+      const headers = new Headers();
+      for (const [key, val] of Object.entries(req.headers)) {
+        if (val === undefined) continue;
+        if (Array.isArray(val)) {
+          for (const v of val) headers.append(key, v);
+        } else {
+          headers.set(key, val);
+        }
+      }
+
+      // Serialize body for POST: support both JSON and form-encoded payloads
+      let body: string | undefined;
+      if (req.method !== "GET" && req.method !== "HEAD" && req.body != null) {
+        if (typeof req.body === "string") {
+          body = req.body;
+        } else {
+          body = JSON.stringify(req.body);
+          if (!headers.has("content-type")) {
+            headers.set("content-type", "application/json");
+          }
+        }
+      }
+
+      const request = new Request(url, { method: req.method ?? "GET", headers, body });
+      const response = await handler(request);
+
+      res.status(response.status);
+      response.headers.forEach((value, key) => res.setHeader(key, value));
+      res.send(await response.text());
+    };
+  }
+
+  async function pagesAuth<T = TSession>(req: PagesRequest): Promise<Session<T> | null> {
+    const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace("__Secure-", "")}`;
+    const token = req.cookies[secureName] ?? req.cookies[resolved.cookies.sessionToken.name] ?? null;
+    if (!token) return null;
+    return getSessionFromToken<T>(token, resolved);
+  }
+
+  return { GET: handler, POST: handler, auth, toPages, pagesAuth };
 }
 
 async function handleSignInPage(

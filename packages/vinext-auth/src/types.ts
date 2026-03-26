@@ -300,6 +300,30 @@ export interface ThemeConfig {
   buttonColor?: string;
 }
 
+// ─── Pages Router types ───────────────────────────────────────────────────────
+
+/**
+ * Minimal Pages Router request shape.
+ * Compatible with Next.js / Vinext `NextApiRequest` without importing from the framework.
+ */
+export interface PagesRequest {
+  method?: string;
+  url?: string;
+  headers: Record<string, string | string[] | undefined>;
+  cookies: Record<string, string>;
+  body?: unknown;
+}
+
+/**
+ * Minimal Pages Router response shape.
+ * Compatible with Next.js / Vinext `NextApiResponse`.
+ */
+export interface PagesResponse {
+  status(code: number): PagesResponse;
+  setHeader(key: string, value: string | string[]): void;
+  send(body: string): void;
+}
+
 // ─── Handler return ───────────────────────────────────────────────────────────
 
 export interface VinextAuthHandlers {
@@ -320,6 +344,33 @@ export interface VinextAuthHandlers {
    * ```
    */
   auth: <TSession = {}>() => Promise<Session<TSession> | null>;
+  /**
+   * Returns a Pages Router-compatible API route handler.
+   * Use as the default export in `pages/api/auth/[...vinextauth].ts`.
+   *
+   * @example
+   * ```ts
+   * // pages/api/auth/[...vinextauth].ts
+   * import { toPages } from "@/auth"
+   * export default toPages()
+   * ```
+   */
+  toPages: () => (req: PagesRequest, res: PagesResponse) => Promise<void>;
+  /**
+   * Read the session server-side inside `getServerSideProps`.
+   * Unlike `auth()`, reads cookies from the Pages Router request
+   * instead of `next/headers`.
+   *
+   * @example
+   * ```ts
+   * export const getServerSideProps = async (ctx) => {
+   *   const session = await pagesAuth(ctx.req)
+   *   if (!session) return { redirect: { destination: "/api/auth/signin", permanent: false } }
+   *   return { props: { session } }
+   * }
+   * ```
+   */
+  pagesAuth: <TSession = {}>(req: PagesRequest) => Promise<Session<TSession> | null>;
 }
 
 // ─── React types ──────────────────────────────────────────────────────────────
