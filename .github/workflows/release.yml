@@ -3,6 +3,10 @@ name: Release
 on:
   push:
     branches: [main, develop]
+    paths:
+      - 'packages/vinext-auth/src/**'
+      - 'packages/vinext-auth/package.json'
+      - 'packages/vinext-auth/tsup.config.ts'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
