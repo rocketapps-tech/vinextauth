@@ -157,7 +157,7 @@ export async function handleCallback(
       return Response.redirect(`${errorBase}?error=AccessDenied`, 302);
     }
     if (typeof result === "string") {
-      return Response.redirect(result, 302);
+      return Response.redirect(sanitizeRedirectUrl(result, baseUrl), 302);
     }
   }
 

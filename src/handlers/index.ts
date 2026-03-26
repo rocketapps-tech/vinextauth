@@ -144,7 +144,8 @@ async function handleSignInPage(
   request: Request
 ): Promise<Response> {
   const baseUrl = await resolveBaseUrl(config, request);
-  const callbackUrl = new URL(request.url).searchParams.get("callbackUrl") ?? "/";
+  const rawCallbackUrl = new URL(request.url).searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = sanitizeRedirectUrl(rawCallbackUrl, baseUrl);
 
   const providers = config.providers.map((p) => ({
     id: p.id,
@@ -175,6 +176,19 @@ function handleErrorPage(url: URL, config: ReturnType<typeof resolveConfig>): Re
       "X-Content-Type-Options": "nosniff",
     },
   });
+}
+
+/** Returns a safe redirect URL restricted to the app's own origin. */
+function sanitizeRedirectUrl(url: string, baseUrl: string): string {
+  if (url.startsWith("/") && !url.startsWith("//")) return url;
+  try {
+    const redirect = new URL(url);
+    const base = new URL(baseUrl);
+    if (redirect.origin === base.origin) return url;
+  } catch {
+    // fall through
+  }
+  return "/";
 }
 
 export default VinextAuth;

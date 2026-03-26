@@ -6,15 +6,35 @@ export interface SignInProvider {
   signinUrl: string;
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function safeCssColor(value: string): string {
+  // Allow only hex colors, named colors, and rgb/hsl — block everything else
+  return /^#[0-9a-fA-F]{3,8}$|^[a-zA-Z]+$|^rgb|^hsl/.test(value) ? value : "#3182ce";
+}
+
+function safeImageUrl(url: string): string {
+  // Allow only https:// and data: image URLs
+  return url.startsWith("https://") || url.startsWith("data:image/") ? url : "";
+}
+
 export function renderSignInPage(
   providers: SignInProvider[],
   callbackUrl: string,
   theme: Required<ThemeConfig>
 ): string {
-  const brandName = theme.brandName || "Sign In";
+  const brandName = escapeHtml(theme.brandName || "Sign In");
 
-  const logo = theme.logoUrl
-    ? `<img src="${theme.logoUrl}" alt="${brandName}" style="height:40px;margin-bottom:8px;">`
+  const safeLogoUrl = safeImageUrl(theme.logoUrl);
+  const logo = safeLogoUrl
+    ? `<img src="${safeLogoUrl}" alt="${brandName}" style="height:40px;margin-bottom:8px;">`
     : "";
 
   const providerLinks = providers
@@ -63,7 +83,7 @@ export function renderErrorPage(
   signInUrl: string,
   theme: Required<ThemeConfig>
 ): string {
-  const brandName = theme.brandName !== "Sign In" ? theme.brandName : undefined;
+  const brandName = theme.brandName !== "Sign In" ? escapeHtml(theme.brandName) : undefined;
 
   const messages: Record<string, string> = {
     OAuthAccountNotLinked:
@@ -94,7 +114,7 @@ export function renderErrorPage(
     h1 { color: #e53e3e; margin-bottom: 12px; }
     p { color: #4a5568; line-height: 1.6; }
     a { display:inline-block; margin-top:20px; padding:10px 24px;
-        background:${theme.buttonColor || "#3182ce"}; color:white; border-radius:6px; text-decoration:none; }
+        background:${safeCssColor(theme.buttonColor || "#3182ce")}; color:white; border-radius:6px; text-decoration:none; }
   </style>
 </head>
 <body>

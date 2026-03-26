@@ -93,7 +93,8 @@ export async function handleCredentials(
       return Response.redirect(errorUrl.toString(), 302);
     }
     if (typeof result === "string") {
-      return Response.redirect(result, 302);
+      const baseUrl = await resolveBase(config, request);
+      return Response.redirect(sanitizeRedirectUrl(result, baseUrl), 302);
     }
   }
 
