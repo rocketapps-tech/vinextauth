@@ -8,12 +8,12 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
   const secret =
     config.secret ??
     (typeof process !== "undefined"
-      ? process.env.NEXTAUTH_SECRET ?? process.env.VINEXTAUTH_SECRET
+      ? process.env.VINEXTAUTH_SECRET
       : undefined);
 
   if (!secret) {
     throw new Error(
-      "[VinextAuth] No secret provided. Set NEXTAUTH_SECRET or VINEXTAUTH_SECRET env var, or pass `secret` to VinextAuth()."
+      "[VinextAuth] No secret provided. Set VINEXTAUTH_SECRET env var, or pass `secret` to VinextAuth()."
     );
   }
 
@@ -21,7 +21,7 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
   const baseUrl =
     config.baseUrl ??
     (typeof process !== "undefined"
-      ? process.env.NEXTAUTH_URL ?? process.env.VINEXTAUTH_URL ?? process.env.VERCEL_URL
+      ? process.env.VINEXTAUTH_URL ?? process.env.VERCEL_URL
       : undefined) ??
     "http://localhost:3000";
 
