@@ -357,11 +357,11 @@ export interface VinextAuthHandlers {
   auth: <TSession = {}>() => Promise<Session<TSession> | null>;
   /**
    * Returns a Pages Router-compatible API route handler.
-   * Use as the default export in `pages/api/auth/[...vinext-auth].ts`.
+   * Use as the default export in `pages/api/auth/[...vinextauth].ts`.
    *
    * @example
    * ```ts
-   * // pages/api/auth/[...vinext-auth].ts
+   * // pages/api/auth/[...vinextauth].ts
    * import { toPages } from "@/auth"
    * export default toPages()
    * ```

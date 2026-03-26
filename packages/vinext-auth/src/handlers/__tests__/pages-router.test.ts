@@ -146,9 +146,9 @@ describe('toPages()', () => {
         url: '/api/auth/session',
         headers: {
           host: 'localhost:3001',
-          cookie: `vinext-auth.session-token=${token}`,
+          cookie: `vinextauth.session-token=${token}`,
         },
-        cookies: { 'vinext-auth.session-token': token },
+        cookies: { 'vinextauth.session-token': token },
       }),
       res
     );
@@ -203,7 +203,7 @@ describe('pagesAuth()', () => {
   it('returns null for an invalid / tampered token', async () => {
     const { pagesAuth } = makeAuth();
     const session = await pagesAuth(
-      makeReq({ cookies: { 'vinext-auth.session-token': 'invalid.token.value' } })
+      makeReq({ cookies: { 'vinextauth.session-token': 'invalid.token.value' } })
     );
     expect(session).toBeNull();
   });
@@ -212,7 +212,7 @@ describe('pagesAuth()', () => {
     const token = await signSessionToken();
     const { pagesAuth } = makeAuth();
 
-    const session = await pagesAuth(makeReq({ cookies: { 'vinext-auth.session-token': token } }));
+    const session = await pagesAuth(makeReq({ cookies: { 'vinextauth.session-token': token } }));
 
     expect(session).not.toBeNull();
     expect(session?.user.email).toBe('test@example.com');
@@ -227,7 +227,7 @@ describe('pagesAuth()', () => {
     );
     const { pagesAuth } = makeAuth();
 
-    const session = await pagesAuth(makeReq({ cookies: { 'vinext-auth.session-token': token } }));
+    const session = await pagesAuth(makeReq({ cookies: { 'vinextauth.session-token': token } }));
 
     expect(session).toBeNull();
   });
@@ -240,7 +240,7 @@ describe('pagesAuth()', () => {
 
     const session = await pagesAuth(
       makeReq({
-        cookies: { '__Secure-vinext-auth.session-token': token },
+        cookies: { '__Secure-vinextauth.session-token': token },
       })
     );
 
@@ -265,7 +265,7 @@ describe('pagesAuth()', () => {
     type SessionWithRole = { user: { email?: string; role?: string }; expires: string };
 
     const session = (await pagesAuth<{ role?: string }>(
-      makeReq({ cookies: { 'vinext-auth.session-token': token } })
+      makeReq({ cookies: { 'vinextauth.session-token': token } })
     )) as SessionWithRole | null;
 
     expect(session?.user?.role).toBe('admin');

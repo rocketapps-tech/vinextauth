@@ -4,7 +4,7 @@
 
 **VinextAuth** is a drop-in replacement for NextAuth v4, built specifically for the [Vinext](https://vinext.io/) framework and Cloudflare Workers edge runtime. It has zero Node.js dependencies and uses the pure Web Crypto API for all cryptographic operations.
 
-- **Package name:** `vinext-auth`
+- **Package name:** `vinextauth`
 - **Version:** 0.3.x
 - **License:** MIT
 - **Website:** https://vinext.io/

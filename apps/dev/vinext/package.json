@@ -1,8 +1,8 @@
 {
-  "name": "@vinext-auth/dev-vinext",
+  "name": "@vinextauth/dev-vinext",
   "version": "0.0.1",
   "private": true,
-  "description": "Vinext development app for testing vinext-auth locally",
+  "description": "Vinext development app for testing vinextauth locally",
   "scripts": {
     "dev": "vinext dev --port 3001",
     "build": "vinext build",
@@ -13,7 +13,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "vinext": "latest",
-    "vinext-auth": "*"
+    "vinextauth": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

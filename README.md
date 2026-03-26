@@ -20,7 +20,7 @@ Drop-in NextAuth v4 replacement for **[Vinext](https://vinext.io/) + Cloudflare 
 ## Installation
 
 ```bash
-npm install vinext-auth
+npm install vinextauth
 ```
 
 ---
@@ -33,8 +33,8 @@ npm install vinext-auth
 
 ```ts
 // src/auth.ts
-import VinextAuth from "vinext-auth"
-import Google from "vinext-auth/providers/google"
+import VinextAuth from "vinextauth"
+import Google from "vinextauth/providers/google"
 
 export const { GET, POST, auth, toPages, pagesAuth } = VinextAuth({
   secret: process.env.VINEXTAUTH_SECRET!,
@@ -61,7 +61,7 @@ export default toPages()
 ```tsx
 // src/pages/_app.tsx
 import type { AppProps } from "vinext/app"
-import { SessionProvider } from "vinext-auth/react"
+import { SessionProvider } from "vinextauth/react"
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -159,7 +159,7 @@ VinextAuth({
 ### Google
 
 ```ts
-import Google from "vinext-auth/providers/google"
+import Google from "vinextauth/providers/google"
 
 Google({
   clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -170,7 +170,7 @@ Google({
 ### GitHub
 
 ```ts
-import GitHub from "vinext-auth/providers/github"
+import GitHub from "vinextauth/providers/github"
 
 GitHub({
   clientId: process.env.GITHUB_CLIENT_ID!,
@@ -181,7 +181,7 @@ GitHub({
 ### Credentials
 
 ```ts
-import Credentials from "vinext-auth/providers/credentials"
+import Credentials from "vinextauth/providers/credentials"
 
 Credentials({
   async authorize({ email, password }) {
@@ -266,7 +266,7 @@ session?.user.role // "admin" | "user" ✓
 
 ```tsx
 "use client"
-import { useSession, signIn, signOut } from "vinext-auth/react"
+import { useSession, signIn, signOut } from "vinextauth/react"
 
 export function UserMenu() {
   const { data: session, status } = useSession()
@@ -297,7 +297,7 @@ const session = await auth()
 ### `getServerSession()` — explicit config
 
 ```ts
-import { getServerSession } from "vinext-auth/server"
+import { getServerSession } from "vinextauth/server"
 import { authOptions } from "@/auth"
 
 const session = await getServerSession(authOptions)
@@ -306,14 +306,14 @@ const session = await getServerSession(authOptions)
 ### `updateSession()` — update session data server-side
 
 ```ts
-import { updateSession } from "vinext-auth/server"
+import { updateSession } from "vinextauth/server"
 await updateSession(authOptions, { user: { role: "admin" } })
 ```
 
 ### `invalidateSession()` — revoke server-side
 
 ```ts
-import { invalidateSession } from "vinext-auth/server"
+import { invalidateSession } from "vinextauth/server"
 await invalidateSession(authOptions)
 ```
 
@@ -323,7 +323,7 @@ await invalidateSession(authOptions)
 
 ```ts
 // middleware.ts
-import { withAuth } from "vinext-auth/middleware"
+import { withAuth } from "vinextauth/middleware"
 
 export default withAuth({
   pages: { signIn: "/login" },
@@ -344,7 +344,7 @@ export const config = {
 ## Database sessions (Cloudflare KV)
 
 ```ts
-import { CloudflareKVAdapter } from "vinext-auth/adapters/cloudflare-kv"
+import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv"
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [...],
@@ -361,7 +361,7 @@ When `strategy: "database"`:
 ### Custom adapter
 
 ```ts
-import type { AdapterInterface } from "vinext-auth"
+import type { AdapterInterface } from "vinextauth"
 
 const myAdapter: AdapterInterface = {
   async getSession(sessionToken) { ... },
@@ -389,7 +389,7 @@ VinextAuth({
 ## Custom rate limiter (Redis, KV, etc.)
 
 ```ts
-import type { RateLimiter } from "vinext-auth"
+import type { RateLimiter } from "vinextauth"
 
 const myLimiter: RateLimiter = {
   async check(key) {
@@ -438,7 +438,7 @@ VinextAuth({
 ```
 vinextauth/                     ← monorepo root (private)
 ├── packages/
-│   └── vinext-auth/            ← published npm package (vinext-auth)
+│   └── vinext-auth/            ← published npm package (vinextauth)
 │       ├── src/
 │       │   ├── handlers/       ← HTTP request handlers + Pages Router adapter
 │       │   ├── core/           ← session, JWT, CSRF, rate limiting
