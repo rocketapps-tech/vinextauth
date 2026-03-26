@@ -40,6 +40,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Sync README to package
+        run: cp README.md packages/vinext-auth/README.md
+
       - name: Release
         run: npm run release
         env:
