@@ -1,0 +1,111 @@
+name: Auto PR Description
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, develop]
+
+jobs:
+  update-description:
+    name: Update PR description from commits
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate and update PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            // Fetch commits on this PR
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+
+            // Categorize commits by type
+            const categories = {
+              feat:     { label: '🚀 Features',       items: [] },
+              fix:      { label: '🐛 Bug Fixes',       items: [] },
+              perf:     { label: '⚡ Performance',     items: [] },
+              refactor: { label: '♻️ Refactoring',     items: [] },
+              docs:     { label: '📚 Documentation',   items: [] },
+              test:     { label: '🧪 Tests',            items: [] },
+              ci:       { label: '⚙️ CI/CD',            items: [] },
+              chore:    { label: '🔧 Chores',           items: [] },
+              style:    { label: '💄 Style',            items: [] },
+            };
+
+            const breaking = [];
+
+            for (const { commit } of commits) {
+              const msg = commit.message.split('\n')[0].trim();
+              const match = msg.match(/^(\w+)(\(.+\))?(!)?:\s*(.+)$/);
+              if (!match) continue;
+
+              const [, type, scope, bang, description] = match;
+              const scopeStr = scope ? ` ${scope}` : '';
+              const entry = `- **${scopeStr.trim() || type}**: ${description}`;
+
+              if (bang || commit.message.includes('BREAKING CHANGE')) {
+                breaking.push(`- ${description}`);
+              }
+
+              if (categories[type]) {
+                categories[type].items.push(entry);
+              }
+            }
+
+            // Determine release type
+            let releaseType = '';
+            if (breaking.length > 0) {
+              releaseType = '💥 **BREAKING CHANGE** — Major release';
+            } else if (categories.feat.items.length > 0) {
+              releaseType = '✨ Minor release — new features added';
+            } else if (categories.fix.items.length > 0 || categories.perf.items.length > 0) {
+              releaseType = '🩹 Patch release — bug fixes only';
+            } else {
+              releaseType = '⚙️ No npm release — chore/ci/docs only';
+            }
+
+            // Build description
+            let body = `## Summary\n\n${releaseType}\n\n`;
+
+            if (breaking.length > 0) {
+              body += `### ⚠️ Breaking Changes\n${breaking.join('\n')}\n\n`;
+            }
+
+            for (const [, { label, items }] of Object.entries(categories)) {
+              if (items.length > 0) {
+                body += `### ${label}\n${items.join('\n')}\n\n`;
+              }
+            }
+
+            body += `## Test plan\n\n`;
+            body += `- [ ] \`npm run typecheck\` passes\n`;
+            body += `- [ ] \`npm run test\` passes\n`;
+            body += `- [ ] \`npm run build\` passes\n`;
+            body += `- [ ] No new runtime dependencies added\n`;
+            body += `- [ ] Edge runtime compatible (no Node.js APIs)\n\n`;
+            body += `---\n_Description auto-generated from commits. Feel free to edit._`;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body,
+            });
+
+            console.log('PR description updated successfully.');
