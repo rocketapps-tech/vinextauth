@@ -20,7 +20,7 @@ interface StoredSession {
  *
  * Usage:
  * ```ts
- * import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv"
+ * import { CloudflareKVAdapter } from "vinext-auth/adapters/cloudflare-kv"
  *
  * VinextAuth({
  *   adapter: CloudflareKVAdapter(env.SESSION_KV),

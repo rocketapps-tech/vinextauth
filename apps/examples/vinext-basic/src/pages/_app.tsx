@@ -1,5 +1,5 @@
 import type { AppProps } from "vinext/app";
-import { SessionProvider } from "vinextauth/react";
+import { SessionProvider } from "vinext-auth/react";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

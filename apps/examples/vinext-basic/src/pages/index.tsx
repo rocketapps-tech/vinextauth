@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signIn, signOut } from "vinextauth/react";
+import { useSession, signIn, signOut } from "vinext-auth/react";
 
 export default function HomePage() {
   const { data: session, status } = useSession();

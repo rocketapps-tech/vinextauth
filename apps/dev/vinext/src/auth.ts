@@ -1,7 +1,7 @@
-import VinextAuth from "vinextauth";
-import Google from "vinextauth/providers/google";
-import GitHub from "vinextauth/providers/github";
-import Credentials from "vinextauth/providers/credentials";
+import VinextAuth from "vinext-auth";
+import Google from "vinext-auth/providers/google";
+import GitHub from "vinext-auth/providers/github";
+import Credentials from "vinext-auth/providers/credentials";
 
 const config = {
   secret: process.env.VINEXTAUTH_SECRET!,

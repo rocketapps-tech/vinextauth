@@ -56,7 +56,7 @@ export async function handleSignOut(request: Request, config: ResolvedConfig): P
     if (token) await config.adapter.deleteSession(token);
   }
 
-  // ── Clear ALL vinextauth cookies — no stale tokens left behind ────────────
+  // ── Clear ALL vinext-auth cookies — no stale tokens left behind ────────────
   const { sessionToken, callbackUrl: cbCookie, csrfToken, state, nonce } = config.cookies;
 
   for (const cookie of [sessionToken, cbCookie, csrfToken, state, nonce]) {

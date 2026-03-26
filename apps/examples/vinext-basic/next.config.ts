@@ -1,7 +1,7 @@
 import type { NextConfig } from "vinext";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["vinextauth"],
+  transpilePackages: ["vinext-auth"],
 };
 
 export default nextConfig;
