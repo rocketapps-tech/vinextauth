@@ -1,20 +1,20 @@
-import type { JWT } from "../types.js";
-import { deriveKey } from "./keys.js";
+import type { JWT } from '../types.js';
+import { deriveKey } from './keys.js';
 
 // ─── Base64url helpers ────────────────────────────────────────────────────────
 
 function base64urlEncode(data: ArrayBuffer): string {
   const bytes = new Uint8Array(data);
-  let binary = "";
+  let binary = '';
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function base64urlDecode(str: string): Uint8Array {
-  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+  const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
   const binary = atob(padded);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
@@ -33,32 +33,28 @@ function decodeJson(str: string): unknown {
 
 // ─── JWT operations ───────────────────────────────────────────────────────────
 
-const HEADER = encodeJson({ alg: "HS256", typ: "JWT" });
+const HEADER = encodeJson({ alg: 'HS256', typ: 'JWT' });
 
 export async function sign(payload: JWT, secret: string): Promise<string> {
   const encodedPayload = encodeJson(payload);
   const message = `${HEADER}.${encodedPayload}`;
 
   const key = await deriveKey(secret);
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(message)
-  );
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
 
   return `${message}.${base64urlEncode(signature)}`;
 }
 
 export async function verify(token: string, secret: string): Promise<JWT | null> {
   try {
-    const parts = token.split(".");
+    const parts = token.split('.');
     if (parts.length !== 3) return null;
 
     const [header, payload, sig] = parts;
 
     // Validate algorithm to prevent confusion attacks
     const decodedHeader = decodeJson(header) as { alg?: string; typ?: string };
-    if (decodedHeader.alg !== "HS256") return null;
+    if (decodedHeader.alg !== 'HS256') return null;
 
     const message = `${header}.${payload}`;
 
@@ -66,7 +62,7 @@ export async function verify(token: string, secret: string): Promise<JWT | null>
     const signatureBytes = base64urlDecode(sig).buffer as ArrayBuffer;
 
     const valid = await crypto.subtle.verify(
-      "HMAC",
+      'HMAC',
       key,
       signatureBytes,
       new TextEncoder().encode(message)
@@ -89,7 +85,7 @@ export async function verify(token: string, secret: string): Promise<JWT | null>
 
 export function decode(token: string): JWT | null {
   try {
-    const parts = token.split(".");
+    const parts = token.split('.');
     if (parts.length !== 3) return null;
     return decodeJson(parts[1]) as JWT;
   } catch {

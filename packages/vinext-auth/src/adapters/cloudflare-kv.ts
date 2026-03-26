@@ -1,8 +1,8 @@
-import type { AdapterInterface, User } from "../types.js";
+import type { AdapterInterface, User } from '../types.js';
 
 // Minimal KVNamespace interface (matches Cloudflare Workers types)
 interface KVNamespace {
-  get(key: string, options: { type: "json" }): Promise<unknown>;
+  get(key: string, options: { type: 'json' }): Promise<unknown>;
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
   delete(key: string): Promise<void>;
 }
@@ -35,7 +35,9 @@ export function CloudflareKVAdapter(namespace: KVNamespace): AdapterInterface {
 
   return {
     async getSession(sessionToken) {
-      const data = await namespace.get(key(sessionToken), { type: "json" }) as StoredSession | null;
+      const data = (await namespace.get(key(sessionToken), {
+        type: 'json',
+      })) as StoredSession | null;
       if (!data) return null;
       return {
         ...data,
@@ -58,7 +60,9 @@ export function CloudflareKVAdapter(namespace: KVNamespace): AdapterInterface {
     },
 
     async updateSession(session) {
-      const existing = await namespace.get(key(session.sessionToken), { type: "json" }) as StoredSession | null;
+      const existing = (await namespace.get(key(session.sessionToken), {
+        type: 'json',
+      })) as StoredSession | null;
       if (!existing) return null;
       const updated: StoredSession = {
         ...existing,

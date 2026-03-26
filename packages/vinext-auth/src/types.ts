@@ -28,7 +28,7 @@ export interface DefaultJWT {
 // No module augmentation needed.
 
 export type User<TUser = {}> = DefaultUser & TUser;
-export type Session<TSession = {}> = Omit<DefaultSession, "user"> & {
+export type Session<TSession = {}> = Omit<DefaultSession, 'user'> & {
   user: DefaultUser & TSession;
 };
 export type JWT<TToken = {}> = DefaultJWT & TToken;
@@ -38,7 +38,7 @@ export type JWT<TToken = {}> = DefaultJWT & TToken;
 export interface OAuthProvider {
   id: string;
   name: string;
-  type: "oauth";
+  type: 'oauth';
   clientId: string;
   clientSecret: string;
   authorization: {
@@ -48,14 +48,16 @@ export interface OAuthProvider {
   token: { url: string };
   userinfo: { url: string };
   profile(profile: Record<string, unknown>): DefaultUser;
-  checks?: Array<"state" | "pkce" | "none">;
+  checks?: Array<'state' | 'pkce' | 'none'>;
   scope?: string;
 }
 
-export interface CredentialsProvider<TCredentials extends Record<string, string> = Record<string, string>> {
+export interface CredentialsProvider<
+  TCredentials extends Record<string, string> = Record<string, string>,
+> {
   id: string;
   name: string;
-  type: "credentials";
+  type: 'credentials';
   credentials: {
     [K in keyof TCredentials]: {
       label: string;
@@ -79,11 +81,16 @@ export interface AdapterSession {
 export interface AdapterInterface {
   getSession(sessionToken: string): Promise<(AdapterSession & { user: DefaultUser }) | null>;
   createSession(session: AdapterSession): Promise<AdapterSession>;
-  updateSession(session: Partial<AdapterSession> & { sessionToken: string }): Promise<AdapterSession | null>;
+  updateSession(
+    session: Partial<AdapterSession> & { sessionToken: string }
+  ): Promise<AdapterSession | null>;
   deleteSession(sessionToken: string): Promise<void>;
   getUserByEmail?(email: string): Promise<DefaultUser | null>;
   linkAccount?(userId: string, provider: string, providerAccountId: string): Promise<void>;
-  getAccountByProvider?(provider: string, providerAccountId: string): Promise<{ userId: string } | null>;
+  getAccountByProvider?(
+    provider: string,
+    providerAccountId: string
+  ): Promise<{ userId: string } | null>;
 }
 
 // ─── Rate limiter interface ───────────────────────────────────────────────────
@@ -99,7 +106,7 @@ export interface SignInCallbackParams<TUser = {}> {
   user: User<TUser>;
   account: {
     provider: string;
-    type: "oauth" | "credentials";
+    type: 'oauth' | 'credentials';
     providerAccountId: string;
     access_token?: string;
     refresh_token?: string;
@@ -121,9 +128,9 @@ export interface SessionCallbackParams<TSession = {}, TToken = {}> {
 export interface JWTCallbackParams<TToken = {}, TUser = {}> {
   token: JWT<TToken>;
   user?: User<TUser>;
-  account?: SignInCallbackParams["account"];
+  account?: SignInCallbackParams['account'];
   profile?: Record<string, unknown>;
-  trigger?: "signIn" | "signUp" | "update";
+  trigger?: 'signIn' | 'signUp' | 'update';
   isNewUser?: boolean;
   session?: unknown;
 }
@@ -139,10 +146,14 @@ export interface RefreshTokenCallbackResult<TToken = {}> {
 
 export interface CallbacksConfig<TSession = {}, TToken = {}, TUser = {}> {
   signIn?: (params: SignInCallbackParams<TUser>) => Promise<boolean | string> | boolean | string;
-  session?: (params: SessionCallbackParams<TSession, TToken>) => Promise<Session<TSession>> | Session<TSession>;
+  session?: (
+    params: SessionCallbackParams<TSession, TToken>
+  ) => Promise<Session<TSession>> | Session<TSession>;
   jwt?: (params: JWTCallbackParams<TToken, TUser>) => Promise<JWT<TToken>> | JWT<TToken>;
   redirect?: (params: { url: string; baseUrl: string }) => Promise<string> | string;
-  refreshToken?: (params: RefreshTokenCallbackParams<TToken>) => Promise<RefreshTokenCallbackResult<TToken>>;
+  refreshToken?: (
+    params: RefreshTokenCallbackParams<TToken>
+  ) => Promise<RefreshTokenCallbackResult<TToken>>;
 }
 
 // ─── Pages ───────────────────────────────────────────────────────────────────
@@ -158,7 +169,7 @@ export interface PagesConfig {
 // ─── Session config ───────────────────────────────────────────────────────────
 
 export interface SessionConfig {
-  strategy?: "jwt" | "database";
+  strategy?: 'jwt' | 'database';
   maxAge?: number;
   updateAge?: number;
 }
@@ -253,7 +264,7 @@ export interface CookieOption {
   name: string;
   options: {
     httpOnly?: boolean;
-    sameSite?: "lax" | "strict" | "none";
+    sameSite?: 'lax' | 'strict' | 'none';
     path?: string;
     secure?: boolean;
     maxAge?: number;
@@ -296,7 +307,7 @@ export interface ResolvedConfig {
 export interface ThemeConfig {
   brandName?: string;
   logoUrl?: string;
-  colorScheme?: "light" | "dark";
+  colorScheme?: 'light' | 'dark';
   buttonColor?: string;
 }
 
@@ -375,7 +386,7 @@ export interface VinextAuthHandlers {
 
 // ─── React types ──────────────────────────────────────────────────────────────
 
-export type SessionStatus = "loading" | "authenticated" | "unauthenticated";
+export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 export interface SessionContextValue<TSession = {}> {
   data: Session<TSession> | null;
@@ -408,22 +419,22 @@ export interface WithAuthOptions {
 // ─── Error types ──────────────────────────────────────────────────────────────
 
 export type VinextAuthErrorCode =
-  | "OAuthAccountNotLinked"
-  | "OAuthCallbackError"
-  | "OAuthStateError"
-  | "AccessDenied"
-  | "RateLimitExceeded"
-  | "InvalidCredentials"
-  | "EmailNotVerified"
-  | "SessionExpired"
-  | "Configuration"
-  | "Unknown";
+  | 'OAuthAccountNotLinked'
+  | 'OAuthCallbackError'
+  | 'OAuthStateError'
+  | 'AccessDenied'
+  | 'RateLimitExceeded'
+  | 'InvalidCredentials'
+  | 'EmailNotVerified'
+  | 'SessionExpired'
+  | 'Configuration'
+  | 'Unknown';
 
 export class VinextAuthError extends Error {
   code: VinextAuthErrorCode;
   constructor(code: VinextAuthErrorCode, message: string) {
     super(message);
-    this.name = "VinextAuthError";
+    this.name = 'VinextAuthError';
     this.code = code;
   }
 }

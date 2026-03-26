@@ -9,11 +9,11 @@ export async function deriveKey(secret: string): Promise<CryptoKey> {
   const keyData = encoder.encode(secret);
 
   const key = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     keyData,
-    { name: "HMAC", hash: "SHA-256" },
+    { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ["sign", "verify"]
+    ['sign', 'verify']
   );
 
   keyCache.set(secret, key);

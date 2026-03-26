@@ -1,6 +1,6 @@
 // Type shim for next/headers — avoids requiring next as a devDependency.
 // VinextAuth uses this via dynamic import, so it works in both Next.js and Vinext environments.
-declare module "next/headers" {
+declare module 'next/headers' {
   interface RequestCookies {
     get(name: string): { value: string } | undefined;
     getAll(): Array<{ name: string; value: string }>;

@@ -1,4 +1,4 @@
-import type { OAuthProvider, User } from "../types.js";
+import type { OAuthProvider, User } from '../types.js';
 
 export interface GitHubProviderConfig {
   clientId: string;
@@ -9,28 +9,28 @@ export interface GitHubProviderConfig {
 }
 
 export function GitHubProvider(config: GitHubProviderConfig): OAuthProvider {
-  const clientId = config.clientId ?? process.env.GITHUB_CLIENT_ID ?? "";
-  const clientSecret = config.clientSecret ?? process.env.GITHUB_CLIENT_SECRET ?? "";
+  const clientId = config.clientId ?? process.env.GITHUB_CLIENT_ID ?? '';
+  const clientSecret = config.clientSecret ?? process.env.GITHUB_CLIENT_SECRET ?? '';
 
   return {
-    id: "github",
-    name: "GitHub",
-    type: "oauth",
+    id: 'github',
+    name: 'GitHub',
+    type: 'oauth',
     clientId,
     clientSecret,
     authorization: {
-      url: "https://github.com/login/oauth/authorize",
+      url: 'https://github.com/login/oauth/authorize',
       params: {
-        response_type: "code",
-        scope: "read:user user:email",
+        response_type: 'code',
+        scope: 'read:user user:email',
         ...config.authorization?.params,
       },
     },
     token: {
-      url: "https://github.com/login/oauth/access_token",
+      url: 'https://github.com/login/oauth/access_token',
     },
     userinfo: {
-      url: "https://api.github.com/user",
+      url: 'https://api.github.com/user',
     },
     profile(profile: Record<string, unknown>): User {
       return {
@@ -40,8 +40,8 @@ export function GitHubProvider(config: GitHubProviderConfig): OAuthProvider {
         image: profile.avatar_url as string | null,
       };
     },
-    checks: ["state"],
-    scope: "read:user user:email",
+    checks: ['state'],
+    scope: 'read:user user:email',
   };
 }
 

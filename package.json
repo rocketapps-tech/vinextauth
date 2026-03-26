@@ -2,6 +2,7 @@
   "name": "vinextauth-monorepo",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "npm@11.10.1",
   "workspaces": [
     "packages/*",
     "apps/**"
@@ -12,7 +13,31 @@
     "typecheck": "npm run typecheck --workspace=packages/vinext-auth",
     "test": "npm run test --workspace=packages/vinext-auth",
     "test:watch": "npm run test:watch --workspace=packages/vinext-auth",
+    "lint": "eslint packages/vinext-auth/src",
+    "lint:fix": "eslint packages/vinext-auth/src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "npm run build --workspace=packages/vinext-auth && changeset publish",
+    "prepare": "husky",
     "dev:vinext": "npm run dev --workspace=apps/dev/vinext",
     "dev:example-vinext": "npm run dev --workspace=apps/examples/vinext-basic"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "lint-staged": {
+    "packages/vinext-auth/src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

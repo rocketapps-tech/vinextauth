@@ -1,15 +1,12 @@
-import type { ResolvedConfig } from "../types.js";
-import { getCsrfCookie, applyCsrfCookie } from "../cookies/index.js";
-import { generateCsrfToken } from "../core/csrf.js";
+import type { ResolvedConfig } from '../types.js';
+import { getCsrfCookie, applyCsrfCookie } from '../cookies/index.js';
+import { generateCsrfToken } from '../core/csrf.js';
 
-export async function handleCsrfRoute(
-  request: Request,
-  config: ResolvedConfig
-): Promise<Response> {
+export async function handleCsrfRoute(request: Request, config: ResolvedConfig): Promise<Response> {
   // Reuse existing CSRF cookie if present and valid
   const existing = getCsrfCookie(request, config);
   if (existing) {
-    const token = existing.split("|")[0];
+    const token = existing.split('|')[0];
     return Response.json({ csrfToken: token });
   }
 

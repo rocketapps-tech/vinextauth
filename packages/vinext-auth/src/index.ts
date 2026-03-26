@@ -1,5 +1,5 @@
-export { VinextAuth } from "./handlers/index.js";
-export { VinextAuth as default } from "./handlers/index.js";
+export { VinextAuth } from './handlers/index.js';
+export { VinextAuth as default } from './handlers/index.js';
 
 export type {
   VinextAuthConfig,
@@ -35,7 +35,7 @@ export type {
   CredentialsConfig,
   RateLimiter,
   VinextAuthErrorCode,
-} from "./types.js";
+} from './types.js';
 
-export { VinextAuthError } from "./types.js";
-export { InMemoryRateLimiter } from "./core/rate-limiter.js";
+export { VinextAuthError } from './types.js';
+export { InMemoryRateLimiter } from './core/rate-limiter.js';

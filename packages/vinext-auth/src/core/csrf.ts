@@ -1,9 +1,9 @@
-import { deriveKey } from "../jwt/keys.js";
+import { deriveKey } from '../jwt/keys.js';
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 function randomHex(bytes: number): string {
@@ -14,7 +14,7 @@ function randomHex(bytes: number): string {
 
 async function hmacHex(secret: string, value: string): Promise<string> {
   const key = await deriveKey(secret);
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
   return bytesToHex(new Uint8Array(sig));
 }
 
@@ -22,7 +22,9 @@ async function hmacHex(secret: string, value: string): Promise<string> {
  * Generates a CSRF token and the cookie value to store.
  * Cookie value format: "{token}|{hmac(token, secret)}"
  */
-export async function generateCsrfToken(secret: string): Promise<{ token: string; cookieValue: string }> {
+export async function generateCsrfToken(
+  secret: string
+): Promise<{ token: string; cookieValue: string }> {
   const token = randomHex(32);
   const hash = await hmacHex(secret, token);
   return { token, cookieValue: `${token}|${hash}` };
@@ -36,7 +38,7 @@ export async function verifyCsrfToken(
   cookieValue: string,
   secret: string
 ): Promise<boolean> {
-  const [storedToken] = cookieValue.split("|");
+  const [storedToken] = cookieValue.split('|');
   if (storedToken !== submittedToken) return false;
 
   const expectedHash = await hmacHex(secret, storedToken);

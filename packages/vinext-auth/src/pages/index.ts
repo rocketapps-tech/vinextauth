@@ -1,4 +1,4 @@
-import type { ThemeConfig } from "../types.js";
+import type { ThemeConfig } from '../types.js';
 
 export interface SignInProvider {
   id: string;
@@ -8,21 +8,21 @@ export interface SignInProvider {
 
 function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function safeCssColor(value: string): string {
   // Allow only hex colors, named colors, and rgb/hsl — block everything else
-  return /^#[0-9a-fA-F]{3,8}$|^[a-zA-Z]+$|^rgb|^hsl/.test(value) ? value : "#3182ce";
+  return /^#[0-9a-fA-F]{3,8}$|^[a-zA-Z]+$|^rgb|^hsl/.test(value) ? value : '#3182ce';
 }
 
 function safeImageUrl(url: string): string {
   // Allow only https:// and data: image URLs
-  return url.startsWith("https://") || url.startsWith("data:image/") ? url : "";
+  return url.startsWith('https://') || url.startsWith('data:image/') ? url : '';
 }
 
 export function renderSignInPage(
@@ -30,12 +30,12 @@ export function renderSignInPage(
   callbackUrl: string,
   theme: Required<ThemeConfig>
 ): string {
-  const brandName = escapeHtml(theme.brandName || "Sign In");
+  const brandName = escapeHtml(theme.brandName || 'Sign In');
 
   const safeLogoUrl = safeImageUrl(theme.logoUrl);
   const logo = safeLogoUrl
     ? `<img src="${safeLogoUrl}" alt="${brandName}" style="height:40px;margin-bottom:8px;">`
-    : "";
+    : '';
 
   const providerLinks = providers
     .map(
@@ -44,14 +44,14 @@ export function renderSignInPage(
       Sign in with ${p.name}
     </a>`
     )
-    .join("");
+    .join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Sign In${brandName !== "Sign In" ? ` — ${brandName}` : ""}</title>
+  <title>Sign In${brandName !== 'Sign In' ? ` — ${brandName}` : ''}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
            background: #f7fafc; display: flex; align-items: center;
@@ -83,19 +83,19 @@ export function renderErrorPage(
   signInUrl: string,
   theme: Required<ThemeConfig>
 ): string {
-  const brandName = theme.brandName !== "Sign In" ? escapeHtml(theme.brandName) : undefined;
+  const brandName = theme.brandName !== 'Sign In' ? escapeHtml(theme.brandName) : undefined;
 
   const messages: Record<string, string> = {
     OAuthAccountNotLinked:
-      "This email is already associated with another account. Enable account linking or sign in with your original provider.",
-    OAuthCallbackError: "Authentication failed. Please try again.",
-    OAuthStateError: "Authentication state mismatch. Please try again.",
-    AccessDenied: "You do not have permission to sign in.",
-    RateLimitExceeded: `Too many sign-in attempts. Please wait${retryAfter ? ` ${retryAfter} seconds` : ""} before trying again.`,
-    InvalidCredentials: "Invalid email or password.",
-    SessionExpired: "Your session has expired. Please sign in again.",
-    Configuration: "Server configuration error.",
-    Unknown: "An unexpected error occurred.",
+      'This email is already associated with another account. Enable account linking or sign in with your original provider.',
+    OAuthCallbackError: 'Authentication failed. Please try again.',
+    OAuthStateError: 'Authentication state mismatch. Please try again.',
+    AccessDenied: 'You do not have permission to sign in.',
+    RateLimitExceeded: `Too many sign-in attempts. Please wait${retryAfter ? ` ${retryAfter} seconds` : ''} before trying again.`,
+    InvalidCredentials: 'Invalid email or password.',
+    SessionExpired: 'Your session has expired. Please sign in again.',
+    Configuration: 'Server configuration error.',
+    Unknown: 'An unexpected error occurred.',
   };
 
   const message = messages[error] ?? messages.Unknown;
@@ -104,7 +104,7 @@ export function renderErrorPage(
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Authentication Error${brandName ? ` — ${brandName}` : ""}</title>
+  <title>Authentication Error${brandName ? ` — ${brandName}` : ''}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
            background: #f7fafc; display: flex; align-items: center;
@@ -114,7 +114,7 @@ export function renderErrorPage(
     h1 { color: #e53e3e; margin-bottom: 12px; }
     p { color: #4a5568; line-height: 1.6; }
     a { display:inline-block; margin-top:20px; padding:10px 24px;
-        background:${safeCssColor(theme.buttonColor || "#3182ce")}; color:white; border-radius:6px; text-decoration:none; }
+        background:${safeCssColor(theme.buttonColor || '#3182ce')}; color:white; border-radius:6px; text-decoration:none; }
   </style>
 </head>
 <body>

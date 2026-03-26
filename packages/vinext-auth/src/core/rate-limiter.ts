@@ -1,4 +1,4 @@
-import type { RateLimiter } from "../types.js";
+import type { RateLimiter } from '../types.js';
 
 interface Attempt {
   count: number;
@@ -21,9 +21,9 @@ export class InMemoryRateLimiter implements RateLimiter {
     this.windowMs = windowMs;
 
     // Auto-cleanup every 5 minutes — unref so it doesn't keep the process alive
-    if (typeof setInterval !== "undefined") {
+    if (typeof setInterval !== 'undefined') {
       const interval = setInterval(() => this.cleanup(), 5 * 60 * 1000);
-      if (interval && typeof interval === "object" && "unref" in interval) {
+      if (interval && typeof interval === 'object' && 'unref' in interval) {
         (interval as { unref(): void }).unref();
       }
     }
@@ -61,9 +61,9 @@ export class InMemoryRateLimiter implements RateLimiter {
 
 export function getClientIp(request: Request): string {
   return (
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-real-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
+    request.headers.get('cf-connecting-ip') ??
+    request.headers.get('x-real-ip') ??
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    'unknown'
   );
 }

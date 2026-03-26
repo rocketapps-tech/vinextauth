@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useSessionContext, fetchCsrfToken } from "./context.js";
-import type { SessionContextValue, SignInOptions, SignOutOptions } from "../types.js";
+import { useSessionContext, fetchCsrfToken } from './context.js';
+import type { SessionContextValue, SignInOptions, SignOutOptions } from '../types.js';
 
 export function useSession(): SessionContextValue {
   return useSessionContext();
@@ -17,11 +17,7 @@ export function useSession(): SessionContextValue {
  * signIn() // goes to /api/auth/signin (provider list)
  * ```
  */
-export function signIn(
-  provider?: string,
-  options?: SignInOptions,
-  basePath = "/api/auth"
-): void {
+export function signIn(provider?: string, options?: SignInOptions, basePath = '/api/auth'): void {
   const callbackUrl = options?.callbackUrl ?? window.location.href;
 
   if (provider) {
@@ -41,18 +37,15 @@ export function signIn(
  * signOut({ callbackUrl: "/login" })
  * ```
  */
-export async function signOut(
-  options?: SignOutOptions,
-  basePath = "/api/auth"
-): Promise<void> {
+export async function signOut(options?: SignOutOptions, basePath = '/api/auth'): Promise<void> {
   const callbackUrl = options?.callbackUrl ?? window.location.origin;
 
   const csrfToken = await fetchCsrfToken(basePath);
 
   await fetch(`${basePath}/signout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
     body: JSON.stringify({ csrfToken, callbackUrl }),
   });
 

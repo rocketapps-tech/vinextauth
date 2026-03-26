@@ -8,10 +8,7 @@
 
 const locks = new Map<string, Promise<void>>();
 
-export async function withRefreshLock<T>(
-  tokenId: string,
-  fn: () => Promise<T>
-): Promise<T> {
+export async function withRefreshLock<T>(tokenId: string, fn: () => Promise<T>): Promise<T> {
   // Wait for any existing refresh to complete
   const existing = locks.get(tokenId);
   if (existing) {
@@ -19,7 +16,9 @@ export async function withRefreshLock<T>(
   }
 
   let resolve!: () => void;
-  const lock = new Promise<void>((r) => { resolve = r; });
+  const lock = new Promise<void>((r) => {
+    resolve = r;
+  });
   locks.set(tokenId, lock);
 
   try {

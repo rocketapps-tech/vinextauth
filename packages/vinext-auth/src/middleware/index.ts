@@ -1,6 +1,6 @@
-import type { WithAuthOptions, JWT } from "../types.js";
-import * as jwtLib from "../jwt/index.js";
-import { SESSION_TOKEN_COOKIE } from "../cookies/strategy.js";
+import type { WithAuthOptions, JWT } from '../types.js';
+import * as jwtLib from '../jwt/index.js';
+import { SESSION_TOKEN_COOKIE } from '../cookies/strategy.js';
 
 type NextRequest = Request & {
   cookies?: { get?: (name: string) => { value: string } | undefined };
@@ -8,7 +8,9 @@ type NextRequest = Request & {
 };
 
 type NextMiddlewareResult = Response | null | undefined;
-type NextMiddleware = (request: NextRequest) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
+type NextMiddleware = (
+  request: NextRequest
+) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
 
 function getNextResponse() {
   // Compatibility: return a simple redirect builder
@@ -35,24 +37,21 @@ export function withAuth(
   let innerMiddleware: NextMiddleware | undefined;
   let opts: WithAuthOptions;
 
-  if (typeof middlewareOrOptions === "function") {
+  if (typeof middlewareOrOptions === 'function') {
     innerMiddleware = middlewareOrOptions;
     opts = options ?? {};
   } else {
     opts = middlewareOrOptions ?? {};
   }
 
-  const signInPage = opts.pages?.signIn ?? "/api/auth/signin";
+  const signInPage = opts.pages?.signIn ?? '/api/auth/signin';
 
   return async (request: NextRequest): Promise<NextMiddlewareResult> => {
     const secret =
-      opts.secret ??
-      (typeof process !== "undefined"
-        ? process.env.VINEXTAUTH_SECRET
-        : undefined);
+      opts.secret ?? (typeof process !== 'undefined' ? process.env.VINEXTAUTH_SECRET : undefined);
 
     if (!secret) {
-      console.error("[VinextAuth] withAuth: No secret configured.");
+      console.error('[VinextAuth] withAuth: No secret configured.');
       return getNextResponse().redirect(signInPage);
     }
 
@@ -95,12 +94,12 @@ function getTokenFromRequest(request: NextRequest): string | null {
   }
 
   // Fallback: parse Cookie header manually
-  const cookieHeader = request.headers.get("cookie") ?? "";
-  for (const part of cookieHeader.split(";")) {
-    const [key, ...val] = part.trim().split("=");
+  const cookieHeader = request.headers.get('cookie') ?? '';
+  for (const part of cookieHeader.split(';')) {
+    const [key, ...val] = part.trim().split('=');
     const name = key.trim();
     if (name === `__Secure-${SESSION_TOKEN_COOKIE}` || name === SESSION_TOKEN_COOKIE) {
-      return decodeURIComponent(val.join("="));
+      return decodeURIComponent(val.join('='));
     }
   }
 

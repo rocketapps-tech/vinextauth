@@ -1,7 +1,7 @@
-import type { CredentialsProvider as CredentialsProviderType, DefaultUser } from "../types.js";
+import type { CredentialsProvider as CredentialsProviderType, DefaultUser } from '../types.js';
 
 export interface CredentialsProviderConfig<
-  TCredentials extends Record<string, string> = Record<string, string>
+  TCredentials extends Record<string, string> = Record<string, string>,
 > {
   id?: string;
   name?: string;
@@ -37,12 +37,12 @@ export interface CredentialsProviderConfig<
  * ```
  */
 export function CredentialsProvider<
-  TCredentials extends Record<string, string> = Record<string, string>
+  TCredentials extends Record<string, string> = Record<string, string>,
 >(config: CredentialsProviderConfig<TCredentials>): CredentialsProviderType<TCredentials> {
   return {
-    id: config.id ?? "credentials",
-    name: config.name ?? "Credentials",
-    type: "credentials",
+    id: config.id ?? 'credentials',
+    name: config.name ?? 'Credentials',
+    type: 'credentials',
     credentials: config.credentials,
     authorize: config.authorize,
   };

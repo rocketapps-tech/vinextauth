@@ -1,7 +1,13 @@
-import type { ResolvedConfig } from "../types.js";
-import { getSessionToken } from "../cookies/index.js";
-import { decodeSession, buildSession, refreshTokenIfNeeded, encodeSession, getSessionFromToken } from "../core/session.js";
-import { applySessionCookie } from "../cookies/index.js";
+import type { ResolvedConfig } from '../types.js';
+import { getSessionToken } from '../cookies/index.js';
+import {
+  decodeSession,
+  buildSession,
+  refreshTokenIfNeeded,
+  encodeSession,
+  getSessionFromToken,
+} from '../core/session.js';
+import { applySessionCookie } from '../cookies/index.js';
 
 export async function handleSessionRoute(
   request: Request,
@@ -14,7 +20,7 @@ export async function handleSessionRoute(
   }
 
   // ── Database strategy ─────────────────────────────────────────────────────
-  if (config.session.strategy === "database" && config.adapter) {
+  if (config.session.strategy === 'database' && config.adapter) {
     const session = await getSessionFromToken(token, config);
     if (!session) return Response.json({}, { headers: noCacheHeaders() });
     return Response.json(session, { headers: noCacheHeaders() });
@@ -43,5 +49,5 @@ export async function handleSessionRoute(
 }
 
 function noCacheHeaders(): HeadersInit {
-  return { "Cache-Control": "no-store, max-age=0" };
+  return { 'Cache-Control': 'no-store, max-age=0' };
 }

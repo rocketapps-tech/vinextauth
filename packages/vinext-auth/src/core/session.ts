@@ -1,12 +1,16 @@
-import type { DefaultJWT, DefaultSession, ResolvedConfig, DefaultUser, AdapterSession, Session } from "../types.js";
-import * as jwtLib from "../jwt/index.js";
-import { buildSessionFromJWT } from "../cookies/index.js";
-import { withRefreshLock } from "./refresh-lock.js";
+import type {
+  DefaultJWT,
+  DefaultSession,
+  ResolvedConfig,
+  DefaultUser,
+  AdapterSession,
+  Session,
+} from '../types.js';
+import * as jwtLib from '../jwt/index.js';
+import { buildSessionFromJWT } from '../cookies/index.js';
+import { withRefreshLock } from './refresh-lock.js';
 
-export async function encodeSession(
-  payload: DefaultJWT,
-  config: ResolvedConfig
-): Promise<string> {
+export async function encodeSession(payload: DefaultJWT, config: ResolvedConfig): Promise<string> {
   if (config.jwt.encode) {
     return config.jwt.encode({
       token: payload,
@@ -34,7 +38,10 @@ export async function buildSession(
   const baseSession = buildSessionFromJWT(jwt, config.session.maxAge);
 
   if (config.callbacks.session) {
-    return config.callbacks.session({ session: baseSession, token: jwt }) as Promise<DefaultSession>;
+    return config.callbacks.session({
+      session: baseSession,
+      token: jwt,
+    }) as Promise<DefaultSession>;
   }
 
   return baseSession;
@@ -42,10 +49,10 @@ export async function buildSession(
 
 export async function buildJWT(
   user: DefaultUser,
-  account: Parameters<NonNullable<ResolvedConfig["callbacks"]["jwt"]>>[0]["account"],
+  account: Parameters<NonNullable<ResolvedConfig['callbacks']['jwt']>>[0]['account'],
   profile: Record<string, unknown> | undefined,
   config: ResolvedConfig,
-  trigger: "signIn" | "signUp" = "signIn"
+  trigger: 'signIn' | 'signUp' = 'signIn'
 ): Promise<DefaultJWT> {
   const now = Math.floor(Date.now() / 1000);
 
@@ -60,13 +67,13 @@ export async function buildJWT(
   };
 
   if (config.callbacks.jwt) {
-    token = await config.callbacks.jwt({
+    token = (await config.callbacks.jwt({
       token,
       user,
       account,
       profile,
       trigger,
-    }) as DefaultJWT;
+    })) as DefaultJWT;
   }
 
   return token;
@@ -90,13 +97,13 @@ export async function refreshTokenIfNeeded(
     return jwt;
   }
 
-  const tokenId = jwt.jti ?? jwt.sub ?? "unknown";
+  const tokenId = jwt.jti ?? jwt.sub ?? 'unknown';
 
   return withRefreshLock(tokenId, async () => {
     const result = await config.callbacks.refreshToken!({ token: jwt });
     if (result.error) {
       if (config.debug) {
-        console.warn("[VinextAuth] Token refresh failed:", result.error);
+        console.warn('[VinextAuth] Token refresh failed:', result.error);
       }
       // Mark token as having a refresh error — client can handle this
       return { ...result.token, refreshError: result.error };
@@ -137,7 +144,7 @@ export async function getSessionFromToken<TSession = {}>(
   token: string,
   config: ResolvedConfig
 ): Promise<Session<TSession> | null> {
-  if (config.session.strategy === "database" && config.adapter) {
+  if (config.session.strategy === 'database' && config.adapter) {
     const adapterSession = await config.adapter.getSession(token);
     if (!adapterSession) return null;
 
@@ -161,6 +168,6 @@ export function generateId(): string {
   const bytes = new Uint8Array(32); // 256 bits of entropy
   crypto.getRandomValues(bytes);
   return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }

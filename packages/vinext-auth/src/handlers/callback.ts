@@ -1,30 +1,30 @@
-import type { ResolvedConfig, SignInCallbackParams, OAuthProvider } from "../types.js";
+import type { ResolvedConfig, SignInCallbackParams, OAuthProvider } from '../types.js';
 import {
   getStateCookie,
   getCallbackUrl,
   applySessionCookie,
   clearStateCookie,
   clearCallbackUrlCookie,
-} from "../cookies/index.js";
-import { buildJWT, encodeSession, generateId } from "../core/session.js";
-import { resolveBaseUrl } from "../core/config.js";
+} from '../cookies/index.js';
+import { buildJWT, encodeSession, generateId } from '../core/session.js';
+import { resolveBaseUrl } from '../core/config.js';
 
 export async function handleCallback(
   request: Request,
   providerId: string,
   config: ResolvedConfig
 ): Promise<Response> {
-  const provider = config.providers.find(
-    (p) => p.id === providerId && p.type === "oauth"
-  ) as OAuthProvider | undefined;
+  const provider = config.providers.find((p) => p.id === providerId && p.type === 'oauth') as
+    | OAuthProvider
+    | undefined;
 
-  if (!provider) return new Response("Unknown provider", { status: 404 });
+  if (!provider) return new Response('Unknown provider', { status: 404 });
 
   const baseUrl = await resolveBaseUrl(config, request);
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  const stateParam = url.searchParams.get("state");
-  const error = url.searchParams.get("error");
+  const code = url.searchParams.get('code');
+  const stateParam = url.searchParams.get('state');
+  const error = url.searchParams.get('error');
 
   const errorBase = `${baseUrl}${config.pages.error}`;
 
@@ -33,13 +33,13 @@ export async function handleCallback(
   }
 
   if (!code) {
-    return new Response("Missing code", { status: 400 });
+    return new Response('Missing code', { status: 400 });
   }
 
   // ── Verify state ─────────────────────────────────────────────────────────
   // State validation is required by default — providers must explicitly set checks: ["none"] to skip
   const storedState = getStateCookie(request, config);
-  const skipStateCheck = provider.checks?.includes("none");
+  const skipStateCheck = provider.checks?.includes('none');
   if (!skipStateCheck) {
     if (!storedState || storedState !== stateParam) {
       return Response.redirect(`${errorBase}?error=OAuthStateError`, 302);
@@ -52,13 +52,13 @@ export async function handleCallback(
 
   try {
     const tokenResponse = await fetch(provider.token.url, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
       },
       body: new URLSearchParams({
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         code,
         redirect_uri: redirectUri,
         client_id: provider.clientId,
@@ -70,9 +70,9 @@ export async function handleCallback(
       throw new Error(`Token exchange failed: ${tokenResponse.status}`);
     }
 
-    tokenData = await tokenResponse.json() as Record<string, unknown>;
+    tokenData = (await tokenResponse.json()) as Record<string, unknown>;
   } catch (err) {
-    if (config.debug) console.error("[VinextAuth] Token exchange error:", err);
+    if (config.debug) console.error('[VinextAuth] Token exchange error:', err);
     return Response.redirect(`${errorBase}?error=OAuthCallbackError`, 302);
   }
 
@@ -82,24 +82,24 @@ export async function handleCallback(
     const userInfoResponse = await fetch(provider.userinfo.url, {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
-        Accept: "application/json",
+        Accept: 'application/json',
         // GitHub needs this header
-        "User-Agent": "VinextAuth/0.2",
+        'User-Agent': 'VinextAuth/0.2',
       },
     });
 
     if (!userInfoResponse.ok) throw new Error(`UserInfo failed: ${userInfoResponse.status}`);
-    rawProfile = await userInfoResponse.json() as Record<string, unknown>;
+    rawProfile = (await userInfoResponse.json()) as Record<string, unknown>;
   } catch (err) {
-    if (config.debug) console.error("[VinextAuth] UserInfo error:", err);
+    if (config.debug) console.error('[VinextAuth] UserInfo error:', err);
     return Response.redirect(`${errorBase}?error=OAuthCallbackError`, 302);
   }
 
   const user = provider.profile(rawProfile);
 
-  const account: SignInCallbackParams["account"] = {
+  const account: SignInCallbackParams['account'] = {
     provider: providerId,
-    type: "oauth",
+    type: 'oauth',
     providerAccountId: user.id,
     access_token: tokenData.access_token as string | undefined,
     refresh_token: tokenData.refresh_token as string | undefined,
@@ -156,26 +156,26 @@ export async function handleCallback(
     if (result === false) {
       return Response.redirect(`${errorBase}?error=AccessDenied`, 302);
     }
-    if (typeof result === "string") {
+    if (typeof result === 'string') {
       return Response.redirect(sanitizeRedirectUrl(result, baseUrl), 302);
     }
   }
 
-  const rawCallbackUrl = getCallbackUrl(request, config) ?? config.pages.newUser ?? "/";
+  const rawCallbackUrl = getCallbackUrl(request, config) ?? config.pages.newUser ?? '/';
   const redirectUrl = sanitizeRedirectUrl(rawCallbackUrl, baseUrl);
 
   const headers = new Headers();
 
   // ── Database strategy ─────────────────────────────────────────────────────
-  if (config.session.strategy === "database" && config.adapter) {
+  if (config.session.strategy === 'database' && config.adapter) {
     const sessionToken = generateId();
     const expires = new Date(Date.now() + config.session.maxAge * 1000);
     await config.adapter.createSession({ sessionToken, userId: user.id, expires });
     applySessionCookie(headers, sessionToken, config);
     clearStateCookie(headers, config);
     clearCallbackUrlCookie(headers, config);
-    headers.set("Location", redirectUrl);
-    if (config.debug) console.log("[VinextAuth] DB session created for:", user.email ?? user.id);
+    headers.set('Location', redirectUrl);
+    if (config.debug) console.log('[VinextAuth] DB session created for:', user.email ?? user.id);
     return new Response(null, { status: 302, headers });
   }
 
@@ -186,10 +186,10 @@ export async function handleCallback(
   applySessionCookie(headers, sessionToken, config);
   clearStateCookie(headers, config);
   clearCallbackUrlCookie(headers, config);
-  headers.set("Location", redirectUrl);
+  headers.set('Location', redirectUrl);
 
   if (config.debug) {
-    console.log("[VinextAuth] Signed in:", jwtPayload.email ?? jwtPayload.sub ?? "unknown");
+    console.log('[VinextAuth] Signed in:', jwtPayload.email ?? jwtPayload.sub ?? 'unknown');
   }
 
   return new Response(null, { status: 302, headers });
@@ -198,7 +198,7 @@ export async function handleCallback(
 /** Returns a safe redirect URL restricted to the app's own origin. */
 function sanitizeRedirectUrl(url: string, baseUrl: string): string {
   // Relative path (not protocol-relative //) → safe
-  if (url.startsWith("/") && !url.startsWith("//")) {
+  if (url.startsWith('/') && !url.startsWith('//')) {
     return `${baseUrl}${url}`;
   }
   // Absolute URL → must match the app's origin

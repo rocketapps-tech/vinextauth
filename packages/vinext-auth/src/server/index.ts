@@ -1,7 +1,13 @@
-import type { DefaultSession, VinextAuthConfig, Session } from "../types.js";
-import { resolveConfig } from "../core/config.js";
-import { decodeSession, buildSession, encodeSession, generateId, getSessionFromToken } from "../core/session.js";
-import { getResolvedConfig } from "../handlers/index.js";
+import type { DefaultSession, VinextAuthConfig, Session } from '../types.js';
+import { resolveConfig } from '../core/config.js';
+import {
+  decodeSession,
+  buildSession,
+  encodeSession,
+  generateId,
+  getSessionFromToken,
+} from '../core/session.js';
+import { getResolvedConfig } from '../handlers/index.js';
 
 /**
  * getServerSession — drop-in for NextAuth v4's getServerSession.
@@ -25,8 +31,8 @@ export async function getServerSession<TSession = {}>(
 
   if (!resolved) {
     console.warn(
-      "[VinextAuth] getServerSession called before VinextAuth() was initialized. " +
-      "Pass authOptions directly: getServerSession(authOptions)"
+      '[VinextAuth] getServerSession called before VinextAuth() was initialized. ' +
+        'Pass authOptions directly: getServerSession(authOptions)'
     );
     return null;
   }
@@ -34,10 +40,10 @@ export async function getServerSession<TSession = {}>(
   let token: string | null = null;
 
   try {
-    const { cookies } = await import("next/headers");
+    const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
 
-    const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace("__Secure-", "")}`;
+    const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace('__Secure-', '')}`;
     token =
       cookieStore.get(secureName)?.value ??
       cookieStore.get(resolved.cookies.sessionToken.name)?.value ??
@@ -70,12 +76,12 @@ export async function updateSession<TSession = {}>(
   const resolved = resolveConfig(config as VinextAuthConfig);
 
   let token: string | null = null;
-  let cookieStore: Awaited<ReturnType<typeof import("next/headers").cookies>>;
+  let cookieStore: Awaited<ReturnType<typeof import('next/headers').cookies>>;
 
   try {
-    const { cookies } = await import("next/headers");
+    const { cookies } = await import('next/headers');
     cookieStore = await cookies();
-    const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace("__Secure-", "")}`;
+    const secureName = `__Secure-${resolved.cookies.sessionToken.name.replace('__Secure-', '')}`;
     token =
       cookieStore.get(secureName)?.value ??
       cookieStore.get(resolved.cookies.sessionToken.name)?.value ??
@@ -95,7 +101,7 @@ export async function updateSession<TSession = {}>(
       ...jwt,
       name: updates.user.name ?? jwt.name,
       email: updates.user.email ?? jwt.email,
-      picture: (updates.user as DefaultSession["user"]).image ?? jwt.picture,
+      picture: (updates.user as DefaultSession['user']).image ?? jwt.picture,
       ...(updates.user as Record<string, unknown>),
     };
   }
@@ -106,7 +112,7 @@ export async function updateSession<TSession = {}>(
 
   // Set the new cookie
   try {
-    const { cookies: setCookies } = await import("next/headers");
+    const { cookies: setCookies } = await import('next/headers');
     const store = await setCookies();
     const { name, options } = resolved.cookies.sessionToken;
     store.set(name, newToken, {
@@ -131,14 +137,14 @@ export async function invalidateSession(config?: VinextAuthConfig): Promise<void
   if (!resolved) return;
 
   try {
-    const { cookies } = await import("next/headers");
+    const { cookies } = await import('next/headers');
     const store = await cookies();
     const { name, options } = resolved.cookies.sessionToken;
 
     // Delete database session if applicable
     const token = store.get(name)?.value;
     if (token && resolved.adapter?.deleteSession) {
-      if (resolved.session.strategy === "database") {
+      if (resolved.session.strategy === 'database') {
         // Cookie IS the session token
         await resolved.adapter.deleteSession(token);
       } else {
@@ -149,7 +155,7 @@ export async function invalidateSession(config?: VinextAuthConfig): Promise<void
     }
 
     // Clear the cookie
-    store.set(name, "", { ...options, maxAge: 0 });
+    store.set(name, '', { ...options, maxAge: 0 });
   } catch {
     // not in Next.js context
   }
