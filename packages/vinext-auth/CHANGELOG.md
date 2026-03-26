@@ -1,10 +1,9 @@
-# [0.6.0-beta.1](https://github.com/rocketapps-tech/vinextauth/compare/v0.5.0...v0.6.0-beta.1) (2026-03-26)
+# [0.6.0](https://github.com/rocketapps-tech/vinextauth/compare/v0.5.0...v0.6.0) (2026-03-26)
 
 
 ### Bug Fixes
 
 * **handlers:** correct toPages Set-Cookie forwarding and body content-type ([e1aa65f](https://github.com/rocketapps-tech/vinextauth/commit/e1aa65f199e4955391ec9a1f33657f5cd5343ba1))
-* package version ([a8b04bf](https://github.com/rocketapps-tech/vinextauth/commit/a8b04bf2dd17ba2945e54094e4df9e5234c99ed3))
 
 
 ### Features
