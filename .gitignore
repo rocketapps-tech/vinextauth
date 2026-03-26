@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.local
 .DS_Store
+
+# Next.js build output (apps/)
+apps/**/.vinext/
+apps/**/out/
