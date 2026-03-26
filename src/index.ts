@@ -4,6 +4,8 @@ export { VinextAuth as default } from "./handlers/index.js";
 export type {
   VinextAuthConfig,
   VinextAuthHandlers,
+  PagesRequest,
+  PagesResponse,
   Session,
   DefaultSession,
   User,
