@@ -1,10 +1,10 @@
 import type { CookiesConfig } from '../types.js';
 
-export const SESSION_TOKEN_COOKIE = 'vinext-auth.session-token';
-export const CALLBACK_URL_COOKIE = 'vinext-auth.callback-url';
-export const CSRF_TOKEN_COOKIE = 'vinext-auth.csrf-token';
-export const STATE_COOKIE = 'vinext-auth.state';
-export const NONCE_COOKIE = 'vinext-auth.nonce';
+export const SESSION_TOKEN_COOKIE = 'vinextauth.session-token';
+export const CALLBACK_URL_COOKIE = 'vinextauth.callback-url';
+export const CSRF_TOKEN_COOKIE = 'vinextauth.csrf-token';
+export const STATE_COOKIE = 'vinextauth.state';
+export const NONCE_COOKIE = 'vinextauth.nonce';
 
 // Secure prefix for HTTPS
 const SECURE_PREFIX = '__Secure-';
