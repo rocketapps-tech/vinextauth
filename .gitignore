@@ -6,3 +6,4 @@ dist/
 # Next.js build output (apps/)
 apps/**/.vinext/
 apps/**/out/
+bugs/*
