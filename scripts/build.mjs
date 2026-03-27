@@ -1,8 +1,11 @@
 /**
  * Custom build script for VinextAuth docs.
  * Combines the vinext Vite plugin with fumadocs-mdx/vite.
+ *
+ * Uses createBuilder (Vite 6+ multi-environment build) so that
+ * @vitejs/plugin-rsc can build rsc → ssr → client in the correct order.
  */
-import { build } from "vite";
+import { createBuilder } from "vite";
 import vinext from "vinext";
 import fumamdx from "fumadocs-mdx/vite";
 import { fileURLToPath } from "url";
@@ -16,7 +19,7 @@ const fumaPlugin = await fumamdx({}, {
   outDir: path.join(appRoot, ".source"),
 });
 
-await build({
+const builder = await createBuilder({
   root: appRoot,
   configFile: false,
   plugins: [
@@ -38,4 +41,9 @@ await build({
       "fumadocs-ui",
     ],
   },
+  ssr: {
+    noExternal: ["fumadocs-mdx", "fumadocs-core", "fumadocs-ui"],
+  },
 });
+
+await builder.buildApp();

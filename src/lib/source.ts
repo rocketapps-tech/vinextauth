@@ -1,8 +1,19 @@
 import { loader } from "fumadocs-core/source";
+import type { PageData, SourceConfig, VirtualFile } from "fumadocs-core/source";
+import type { TOCItemType } from "fumadocs-core/toc";
 import type { ReactNode } from "react";
 
+interface DocPageData extends PageData {
+  body: (props: Record<string, unknown>) => ReactNode;
+  toc: TOCItemType[];
+  structuredData: unknown;
+  full?: boolean;
+}
+
+type DocSourceConfig = SourceConfig & { pageData: DocPageData };
+
 type MdxModule = {
-  default: (props: Record<string, unknown>) => ReactNode;
+  default: DocPageData["body"];
   toc: unknown[];
   structuredData: unknown;
   frontmatter: { title?: string; description?: string; full?: boolean };
@@ -36,8 +47,8 @@ function buildFiles(
   mdxModules: Record<string, MdxModule>,
   metaModules: Record<string, MetaModule>,
   stripPrefix: string
-): Parameters<typeof loader>[0]["source"]["files"] {
-  const files: Parameters<typeof loader>[0]["source"]["files"] = [];
+): VirtualFile<DocSourceConfig>[] {
+  const files: VirtualFile<DocSourceConfig>[] = [];
 
   for (const [filePath, mod] of Object.entries(mdxModules)) {
     const relativePath = filePath.replace(stripPrefix, "");
@@ -48,7 +59,7 @@ function buildFiles(
         title: mod.frontmatter?.title ?? "Untitled",
         description: mod.frontmatter?.description,
         body: mod.default,
-        toc: mod.toc ?? [],
+        toc: (mod.toc ?? []) as TOCItemType[],
         structuredData: mod.structuredData,
         full: mod.frontmatter?.full,
       },
@@ -68,25 +79,17 @@ function buildFiles(
 }
 
 // English docs — served at /docs/...
-export const source = loader({
+export const source = loader<DocSourceConfig>({
   baseUrl: "/docs",
   source: {
-    files: buildFiles(
-      enMdxModules,
-      enMetaModules,
-      "../../content/docs/en/"
-    ),
+    files: buildFiles(enMdxModules, enMetaModules, "../../content/docs/en/"),
   },
 });
 
 // Portuguese docs — served at /pt/docs/...
-export const ptSource = loader({
+export const ptSource = loader<DocSourceConfig>({
   baseUrl: "/pt/docs",
   source: {
-    files: buildFiles(
-      ptMdxModules,
-      ptMetaModules,
-      "../../content/docs/pt/"
-    ),
+    files: buildFiles(ptMdxModules, ptMetaModules, "../../content/docs/pt/"),
   },
 });
