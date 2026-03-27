@@ -90,6 +90,8 @@ export async function handleCredentials(
     providerAccountId: user.id,
   };
 
+  void config.events.signIn?.({ user, account, isNewUser: false });
+
   if (config.callbacks.signIn) {
     const result = await config.callbacks.signIn({ user, account, profile: undefined });
     if (result === false) {

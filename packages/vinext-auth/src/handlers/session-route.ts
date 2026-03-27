@@ -45,6 +45,7 @@ export async function handleSessionRoute(
   const refreshError = jwt.refreshError as string | undefined;
   const responseBody = refreshError ? { ...session, refreshError } : session;
 
+  void config.events.session?.({ session, token: jwt });
   return Response.json(responseBody, { headers });
 }
 

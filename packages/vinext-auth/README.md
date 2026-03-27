@@ -2,6 +2,13 @@
 
 Drop-in NextAuth v4 replacement for **[Vinext](https://vinext.io/) + Cloudflare Workers**. Zero Node.js dependencies — pure Web Crypto API.
 
+[![npm version](https://img.shields.io/npm/v/vinextauth?label=latest%20stable&color=0070f3)](https://www.npmjs.com/package/vinextauth)
+[![npm downloads](https://img.shields.io/npm/dm/vinextauth?label=downloads&color=brightgreen)](https://www.npmjs.com/package/vinextauth)
+[![stars](https://img.shields.io/github/stars/rocketapps/vinextauth?label=stars&color=orange)](https://github.com/rocketapps/vinextauth)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+
+---
+
 ## Features
 
 - **Edge-ready** — runs on Cloudflare Workers, Vinext edge runtime, and any Web Crypto environment
@@ -9,9 +16,13 @@ Drop-in NextAuth v4 replacement for **[Vinext](https://vinext.io/) + Cloudflare 
 - **Pages Router + App Router** — native support for both via `toPages()` and `auth()`
 - **Generic types** — type your session without module augmentation
 - **Multi-tenant** — dynamic `baseUrl` per request
-- **Database sessions** — full adapter lifecycle (create, read, delete)
+- **10 OAuth providers** — Google, GitHub, Discord, Facebook, LinkedIn, Twitch, Spotify, Microsoft/Azure AD, Twitter/X (PKCE), Apple (ES256 JWT secret)
+- **Email / Magic Link** — passwordless auth via `EmailProvider` + `ResendTransport`
+- **Database sessions** — full adapter lifecycle (create, read, delete); KV and D1 adapters included
 - **Credentials** — built-in rate limiting (5 attempts / 15 min, pluggable store)
-- **Account linking** — safe explicit API
+- **Distributed rate limiter** — `CloudflareKVRateLimiter` persists across Worker isolates
+- **Events system** — `signIn`, `signOut`, `createUser`, `updateUser`, `session` lifecycle hooks
+- **Account linking** — safe explicit API; new users auto-created and linked on first OAuth sign-in
 - **Server-side update** — `updateSession()` from Server Actions
 - **Token refresh** — race-condition-safe automatic rotation
 
@@ -149,6 +160,15 @@ VinextAuth({
       return session
     },
   },
+
+  events: {
+    async signIn({ user, isNewUser }) {
+      if (isNewUser) await sendWelcomeEmail(user.email)
+    },
+    async signOut({ token }) {
+      console.log("signed out:", token?.sub)
+    },
+  },
 })
 ```
 
@@ -156,26 +176,68 @@ VinextAuth({
 
 ## Providers
 
-### Google
+### OAuth providers
 
 ```ts
-import Google from "vinextauth/providers/google"
+import Google    from "vinextauth/providers/google"
+import GitHub    from "vinextauth/providers/github"
+import Discord   from "vinextauth/providers/discord"
+import Facebook  from "vinextauth/providers/facebook"
+import LinkedIn  from "vinextauth/providers/linkedin"
+import Twitch    from "vinextauth/providers/twitch"
+import Spotify   from "vinextauth/providers/spotify"
+import Microsoft from "vinextauth/providers/microsoft"
+import Twitter   from "vinextauth/providers/twitter"   // OAuth2 + PKCE
+import Apple     from "vinextauth/providers/apple"     // ES256 JWT client secret
+```
 
-Google({
-  clientId: process.env.GOOGLE_CLIENT_ID!,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+All providers share the same config shape:
+
+```ts
+Google({ clientId: "...", clientSecret: "..." })
+```
+
+Apple requires a JWT secret instead of a static string:
+
+```ts
+Apple({
+  clientId: "com.yourapp.signin",
+  teamId: "TEAM123456",
+  keyId: "KEY123456",
+  privateKey: process.env.APPLE_PRIVATE_KEY!, // PEM content of .p8 file
 })
 ```
 
-### GitHub
+### Email / Magic Link
+
+Passwordless authentication via a one-time link sent by email.
 
 ```ts
-import GitHub from "vinextauth/providers/github"
+import { EmailProvider, ResendTransport } from "vinextauth/providers/email"
+import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv"
 
-GitHub({
-  clientId: process.env.GITHUB_CLIENT_ID!,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+VinextAuth({
+  providers: [
+    EmailProvider({
+      from: "no-reply@yourapp.com",
+      transport: ResendTransport({ apiKey: env.RESEND_API_KEY }),
+    }),
+  ],
+  // Adapter required for verification token storage
+  adapter: CloudflareKVAdapter(env.SESSION_KV),
 })
+```
+
+Bring your own transport by implementing `EmailTransport`:
+
+```ts
+import type { EmailTransport } from "vinextauth"
+
+const myTransport: EmailTransport = {
+  async sendVerificationRequest({ identifier, url }) {
+    await myEmailAPI.send({ to: identifier, magicLink: url })
+  },
+}
 ```
 
 ### Credentials
@@ -200,7 +262,102 @@ VinextAuth({
     rateLimit: {
       maxAttempts: 10,
       windowMs: 10 * 60 * 1000,
-      // store: myRedisRateLimiter,
+      store: myRateLimiter, // optional — see CloudflareKVRateLimiter below
+    },
+  },
+})
+```
+
+---
+
+## Events
+
+Fire-and-forget lifecycle hooks. Never block the response.
+
+```ts
+VinextAuth({
+  events: {
+    async signIn({ user, account, isNewUser }) {
+      if (isNewUser) await sendWelcomeEmail(user.email)
+    },
+    async signOut({ token }) { /* audit log */ },
+    async createUser({ user }) { /* provision resources */ },
+    async updateUser({ user }) { /* sync profile */ },
+    async session({ session, token }) { /* track active sessions */ },
+  },
+})
+```
+
+---
+
+## Database sessions
+
+### Cloudflare KV adapter
+
+```ts
+import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv"
+
+VinextAuth({
+  providers: [...],
+  adapter: CloudflareKVAdapter(env.SESSION_KV),
+  session: { strategy: "database" },
+})
+```
+
+### Cloudflare D1 adapter
+
+Full SQLite-backed sessions — supports the `database` strategy and email magic links.
+
+```ts
+import { CloudflareD1Adapter } from "vinextauth/adapters/cloudflare-d1"
+
+VinextAuth({
+  providers: [...],
+  adapter: CloudflareD1Adapter(env.DB),
+  session: { strategy: "database" },
+})
+```
+
+Run the bundled migration before first use:
+
+```bash
+wrangler d1 execute <DB_NAME> --file=node_modules/vinextauth/migrations/0001_vinextauth.sql
+```
+
+### Custom adapter
+
+```ts
+import type { AdapterInterface } from "vinextauth"
+
+const myAdapter: AdapterInterface = {
+  async getSession(sessionToken) { ... },
+  async createSession(session) { ... },
+  async updateSession(session) { ... },
+  async deleteSession(sessionToken) { ... },
+}
+```
+
+When `strategy: "database"`:
+- Sign-in stores an opaque session token in the cookie (not a JWT)
+- Each request looks up the session in the adapter
+- Sign-out deletes the session, enabling true server-side revocation
+
+---
+
+## Distributed rate limiter (Cloudflare KV)
+
+The default `InMemoryRateLimiter` resets on each Worker isolate restart. Use `CloudflareKVRateLimiter` to share state across all instances:
+
+```ts
+import { CloudflareKVRateLimiter } from "vinextauth/adapters/cloudflare-kv-rate-limiter"
+
+VinextAuth({
+  credentials: {
+    rateLimit: {
+      store: CloudflareKVRateLimiter(env.RATE_LIMIT_KV, {
+        maxAttempts: 5,
+        windowMs: 15 * 60 * 1000,
+      }),
     },
   },
 })
@@ -341,38 +498,6 @@ export const config = {
 
 ---
 
-## Database sessions (Cloudflare KV)
-
-```ts
-import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv"
-
-export const { GET, POST, auth } = VinextAuth({
-  providers: [...],
-  adapter: CloudflareKVAdapter(env.SESSION_KV),
-  session: { strategy: "database" },
-})
-```
-
-When `strategy: "database"`:
-- Sign-in stores an opaque session token in the cookie (not a JWT)
-- Each request looks up the session in the adapter
-- Sign-out deletes the session, enabling true server-side revocation
-
-### Custom adapter
-
-```ts
-import type { AdapterInterface } from "vinextauth"
-
-const myAdapter: AdapterInterface = {
-  async getSession(sessionToken) { ... },
-  async createSession(session) { ... },
-  async updateSession(session) { ... },
-  async deleteSession(sessionToken) { ... },
-}
-```
-
----
-
 ## Account linking
 
 ```ts
@@ -384,24 +509,7 @@ VinextAuth({
 })
 ```
 
----
-
-## Custom rate limiter (Redis, KV, etc.)
-
-```ts
-import type { RateLimiter } from "vinextauth"
-
-const myLimiter: RateLimiter = {
-  async check(key) {
-    // return { allowed: true } or { allowed: false, retryAfter: 60 }
-  },
-  async reset(key) { ... },
-}
-
-VinextAuth({
-  credentials: { rateLimit: { store: myLimiter } },
-})
-```
+On first OAuth sign-in the user record and account link are created automatically. On subsequent sign-ins the existing record is resolved via the account link, so `session.user.id` is always the adapter's stable UUID.
 
 ---
 
@@ -427,8 +535,10 @@ VinextAuth({
 | Pages Router session | `getServerSideProps` + `getSession` | `pagesAuth(req)` — reads cookies directly |
 | Server-side session update | No | `updateSession()` |
 | Dynamic base URL | No | `baseUrl: (req) => string` |
-| Account linking | `allowDangerousEmailAccountLinking` | Safe explicit API |
-| Credentials rate limiting | Manual | Built-in |
+| Account linking | `allowDangerousEmailAccountLinking` | Safe explicit API + auto user creation |
+| Credentials rate limiting | Manual | Built-in + distributed KV store |
+| Events | Yes | Yes |
+| Email / Magic Link | Yes | Yes |
 | Node.js dependencies | Yes | None |
 
 ---
@@ -442,11 +552,15 @@ vinextauth/                     ← monorepo root (private)
 │       ├── src/
 │       │   ├── handlers/       ← HTTP request handlers + Pages Router adapter
 │       │   ├── core/           ← session, JWT, CSRF, rate limiting
-│       │   ├── providers/      ← Google, GitHub, Credentials
+│       │   ├── providers/      ← Google, GitHub, Discord, Facebook, LinkedIn,
+│       │   │                      Twitch, Spotify, Microsoft, Twitter/X, Apple,
+│       │   │                      Email (magic link), Credentials
 │       │   ├── react/          ← SessionProvider, useSession, signIn, signOut
 │       │   ├── server/         ← getServerSession, updateSession
 │       │   ├── middleware/     ← withAuth edge middleware
-│       │   └── adapters/       ← Cloudflare KV adapter
+│       │   └── adapters/       ← CloudflareKVAdapter, CloudflareD1Adapter,
+│       │                          CloudflareKVRateLimiter
+│       ├── migrations/         ← SQL schema for CloudflareD1Adapter
 │       └── package.json
 ├── apps/
 │   ├── dev/vinext/             ← dev sandbox (port 3001, all providers)

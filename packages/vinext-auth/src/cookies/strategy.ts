@@ -5,6 +5,7 @@ export const CALLBACK_URL_COOKIE = 'vinextauth.callback-url';
 export const CSRF_TOKEN_COOKIE = 'vinextauth.csrf-token';
 export const STATE_COOKIE = 'vinextauth.state';
 export const NONCE_COOKIE = 'vinextauth.nonce';
+export const PKCE_COOKIE = 'vinextauth.pkce';
 
 // Secure prefix for HTTPS
 const SECURE_PREFIX = '__Secure-';
@@ -52,6 +53,16 @@ export function buildCookieNames(useSecure: boolean): CookiesConfig {
     },
     nonce: {
       name: `${prefix}${NONCE_COOKIE}`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecure,
+        maxAge: 60 * 15,
+      },
+    },
+    pkce: {
+      name: `${prefix}${PKCE_COOKIE}`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
