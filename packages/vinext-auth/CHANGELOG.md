@@ -1,3 +1,18 @@
+# [0.7.0](https://github.com/rocketapps-tech/vinextauth/compare/v0.6.0...v0.7.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* package version ([a8b04bf](https://github.com/rocketapps-tech/vinextauth/commit/a8b04bf2dd17ba2945e54094e4df9e5234c99ed3))
+* remove roadmap ([b7567e2](https://github.com/rocketapps-tech/vinextauth/commit/b7567e2d38391a3257d1e963b523f1d88cc876dd))
+* **tests:** resolve TypeScript strict-mode errors in test files ([b4706ff](https://github.com/rocketapps-tech/vinextauth/commit/b4706ffb41c29fe09b39b165104ab1b7a842779f))
+
+
+### Features
+
+* implement high-priority roadmap items (OAuth providers + Email magic link) ([88c420b](https://github.com/rocketapps-tech/vinextauth/commit/88c420b8a421563431fb844bd5ba0178657c352e)), closes [hi#priority](https://github.com/hi/issues/priority) [#1](https://github.com/rocketapps-tech/vinextauth/issues/1) [#2](https://github.com/rocketapps-tech/vinextauth/issues/2)
+* implement medium-priority roadmap items + fix adapter/account-linking bugs ([e465848](https://github.com/rocketapps-tech/vinextauth/commit/e4658487c9e01592183b9a883fd8c4b504514312)), closes [#3](https://github.com/rocketapps-tech/vinextauth/issues/3) [#4](https://github.com/rocketapps-tech/vinextauth/issues/4) [#5](https://github.com/rocketapps-tech/vinextauth/issues/5)
+
 # [0.7.0-beta.1](https://github.com/rocketapps-tech/vinextauth/compare/v0.6.1-beta.1...v0.7.0-beta.1) (2026-03-27)
 
 
