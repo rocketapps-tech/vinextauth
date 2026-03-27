@@ -1,10 +1,12 @@
 import type { ResolvedConfig, SignInCallbackParams, OAuthProvider } from '../types.js';
 import {
   getStateCookie,
+  getPkceCookie,
   getCallbackUrl,
   applySessionCookie,
   clearStateCookie,
   clearCallbackUrlCookie,
+  clearPkceCookie,
 } from '../cookies/index.js';
 import { buildJWT, encodeSession, generateId } from '../core/session.js';
 import { resolveBaseUrl } from '../core/config.js';
@@ -51,19 +53,36 @@ export async function handleCallback(
   let tokenData: Record<string, unknown>;
 
   try {
+    // Resolve client_secret — providers with clientSecretFactory (e.g. Apple)
+    // generate a short-lived JWT instead of using a static string.
+    const clientSecret = provider.clientSecretFactory
+      ? await provider.clientSecretFactory()
+      : provider.clientSecret;
+
+    const tokenParams: Record<string, string> = {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: provider.clientId,
+      client_secret: clientSecret,
+    };
+
+    // PKCE — include code_verifier when the provider uses the pkce check
+    if (provider.checks?.includes('pkce')) {
+      const codeVerifier = getPkceCookie(request, config);
+      if (!codeVerifier) {
+        return Response.redirect(`${errorBase}?error=OAuthCallbackError`, 302);
+      }
+      tokenParams.code_verifier = codeVerifier;
+    }
+
     const tokenResponse = await fetch(provider.token.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: redirectUri,
-        client_id: provider.clientId,
-        client_secret: provider.clientSecret,
-      }).toString(),
+      body: new URLSearchParams(tokenParams).toString(),
     });
 
     if (!tokenResponse.ok) {
@@ -174,6 +193,7 @@ export async function handleCallback(
     applySessionCookie(headers, sessionToken, config);
     clearStateCookie(headers, config);
     clearCallbackUrlCookie(headers, config);
+    clearPkceCookie(headers, config);
     headers.set('Location', redirectUrl);
     if (config.debug) console.log('[VinextAuth] DB session created for:', user.email ?? user.id);
     return new Response(null, { status: 302, headers });
@@ -186,6 +206,7 @@ export async function handleCallback(
   applySessionCookie(headers, sessionToken, config);
   clearStateCookie(headers, config);
   clearCallbackUrlCookie(headers, config);
+  clearPkceCookie(headers, config);
   headers.set('Location', redirectUrl);
 
   if (config.debug) {

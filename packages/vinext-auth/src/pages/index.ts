@@ -3,7 +3,7 @@ import type { ThemeConfig } from '../types.js';
 export interface SignInProvider {
   id: string;
   name: string;
-  type: 'oauth' | 'credentials';
+  type: 'oauth' | 'credentials' | 'email';
   signinUrl: string;
   csrfToken?: string;
 }
@@ -90,6 +90,40 @@ export function renderSignInPage(
     ${logo}
     <h1>${brandName}</h1>
     <div class="providers">${providerLinks}</div>
+  </div>
+</body>
+</html>`;
+}
+
+export function renderVerifyRequestPage(
+  providerName: string,
+  theme: Required<ThemeConfig>
+): string {
+  const brandName = escapeHtml(theme.brandName);
+  const safeName = escapeHtml(providerName);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Check your email${brandName ? ` — ${brandName}` : ''}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+           background: #f7fafc; display: flex; align-items: center;
+           justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: white; border-radius: 12px; padding: 32px 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1); width: 100%; max-width: 420px; text-align: center; }
+    h1 { color: #2d3748; font-size: 1.5rem; margin-bottom: 8px; }
+    p { color: #4a5568; line-height: 1.6; }
+    .icon { font-size: 3rem; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📧</div>
+    <h1>Check your email</h1>
+    <p>A sign-in link has been sent to your email address via <strong>${safeName}</strong>.</p>
+    <p>The link expires in 24 hours. You may close this tab.</p>
   </div>
 </body>
 </html>`;

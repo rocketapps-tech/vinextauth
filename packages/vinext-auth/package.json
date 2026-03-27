@@ -35,6 +35,42 @@
       "types": "./dist/providers/credentials.d.ts",
       "import": "./dist/providers/credentials.js"
     },
+    "./providers/discord": {
+      "types": "./dist/providers/discord.d.ts",
+      "import": "./dist/providers/discord.js"
+    },
+    "./providers/facebook": {
+      "types": "./dist/providers/facebook.d.ts",
+      "import": "./dist/providers/facebook.js"
+    },
+    "./providers/linkedin": {
+      "types": "./dist/providers/linkedin.d.ts",
+      "import": "./dist/providers/linkedin.js"
+    },
+    "./providers/twitch": {
+      "types": "./dist/providers/twitch.d.ts",
+      "import": "./dist/providers/twitch.js"
+    },
+    "./providers/spotify": {
+      "types": "./dist/providers/spotify.d.ts",
+      "import": "./dist/providers/spotify.js"
+    },
+    "./providers/microsoft": {
+      "types": "./dist/providers/microsoft.d.ts",
+      "import": "./dist/providers/microsoft.js"
+    },
+    "./providers/twitter": {
+      "types": "./dist/providers/twitter.d.ts",
+      "import": "./dist/providers/twitter.js"
+    },
+    "./providers/apple": {
+      "types": "./dist/providers/apple.d.ts",
+      "import": "./dist/providers/apple.js"
+    },
+    "./providers/email": {
+      "types": "./dist/providers/email.d.ts",
+      "import": "./dist/providers/email.js"
+    },
     "./adapters/cloudflare-kv": {
       "types": "./dist/adapters/cloudflare-kv.d.ts",
       "import": "./dist/adapters/cloudflare-kv.js"

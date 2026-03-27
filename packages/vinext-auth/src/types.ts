@@ -41,6 +41,12 @@ export interface OAuthProvider {
   type: 'oauth';
   clientId: string;
   clientSecret: string;
+  /**
+   * Optional: generate client_secret dynamically per request.
+   * Required for Apple Sign In (JWT client secret signed with ES256 each time).
+   * When present, takes precedence over `clientSecret` during token exchange.
+   */
+  clientSecretFactory?: () => Promise<string>;
   authorization: {
     url: string;
     params?: Record<string, string>;
@@ -68,7 +74,43 @@ export interface CredentialsProvider<
   authorize(credentials: TCredentials, request: Request): Promise<DefaultUser | null>;
 }
 
-export type Provider = OAuthProvider | CredentialsProvider;
+// ─── Email Provider ───────────────────────────────────────────────────────────
+
+export interface EmailTransport {
+  /**
+   * Send a sign-in email with a magic link.
+   * Compatible with any edge HTTP email API (Resend, SendGrid, Mailgun, etc.)
+   */
+  sendVerificationRequest(params: {
+    identifier: string;
+    url: string;
+    expires: Date;
+    provider: EmailProvider;
+    request: Request;
+  }): Promise<void>;
+}
+
+export interface EmailProvider {
+  id: string;
+  name: string;
+  type: 'email';
+  from?: string;
+  /** Token TTL in seconds. Default: 24h */
+  maxAge?: number;
+  transport: EmailTransport;
+  generateVerificationToken?: () => Promise<string>;
+}
+
+// ─── Verification token (email magic links) ───────────────────────────────────
+
+export interface VerificationToken {
+  /** The email address the token was issued for */
+  identifier: string;
+  token: string;
+  expires: Date;
+}
+
+export type Provider = OAuthProvider | CredentialsProvider | EmailProvider;
 
 // ─── Adapter ─────────────────────────────────────────────────────────────────
 
@@ -86,11 +128,22 @@ export interface AdapterInterface {
   ): Promise<AdapterSession | null>;
   deleteSession(sessionToken: string): Promise<void>;
   getUserByEmail?(email: string): Promise<DefaultUser | null>;
+  createUser?(user: Omit<DefaultUser, 'id'>): Promise<DefaultUser>;
   linkAccount?(userId: string, provider: string, providerAccountId: string): Promise<void>;
   getAccountByProvider?(
     provider: string,
     providerAccountId: string
   ): Promise<{ userId: string } | null>;
+  /** Store a new verification token for email magic links. */
+  createVerificationToken?(token: VerificationToken): Promise<VerificationToken>;
+  /**
+   * Consume a verification token — returns the token if valid, null if expired or not found.
+   * Must delete the token after retrieval (one-time use).
+   */
+  useVerificationToken?(params: {
+    identifier: string;
+    token: string;
+  }): Promise<VerificationToken | null>;
 }
 
 // ─── Rate limiter interface ───────────────────────────────────────────────────
@@ -278,6 +331,8 @@ export interface CookiesConfig {
   csrfToken: CookieOption;
   state: CookieOption;
   nonce: CookieOption;
+  /** PKCE code verifier cookie — used by providers with checks: ['pkce'] */
+  pkce: CookieOption;
 }
 
 // ─── Resolved config (internal) ───────────────────────────────────────────────

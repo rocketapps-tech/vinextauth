@@ -19,6 +19,10 @@ export function getStateCookie(request: Request, config: ResolvedConfig): string
   return getCookieValue(request, config.cookies.state.name);
 }
 
+export function getPkceCookie(request: Request, config: ResolvedConfig): string | null {
+  return getCookieValue(request, config.cookies.pkce.name);
+}
+
 function getCookieValue(request: Request, name: string): string | null {
   const cookieHeader = request.headers.get('cookie') ?? '';
   for (const part of cookieHeader.split(';')) {
@@ -59,6 +63,15 @@ export function applyStateCookie(headers: Headers, state: string, config: Resolv
   headers.append('Set-Cookie', serializeCookie(name, state, options));
 }
 
+export function applyPkceCookie(
+  headers: Headers,
+  codeVerifier: string,
+  config: ResolvedConfig
+): void {
+  const { name, options } = config.cookies.pkce;
+  headers.append('Set-Cookie', serializeCookie(name, codeVerifier, options));
+}
+
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
 export function clearSessionCookie(headers: Headers, config: ResolvedConfig): void {
@@ -73,6 +86,11 @@ export function clearStateCookie(headers: Headers, config: ResolvedConfig): void
 
 export function clearCallbackUrlCookie(headers: Headers, config: ResolvedConfig): void {
   const { name, options } = config.cookies.callbackUrl;
+  headers.append('Set-Cookie', deleteCookieString(name, options));
+}
+
+export function clearPkceCookie(headers: Headers, config: ResolvedConfig): void {
+  const { name, options } = config.cookies.pkce;
   headers.append('Set-Cookie', deleteCookieString(name, options));
 }
 
