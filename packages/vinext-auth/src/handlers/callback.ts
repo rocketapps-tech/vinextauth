@@ -1,10 +1,12 @@
 import type { ResolvedConfig, SignInCallbackParams, OAuthProvider } from '../types.js';
 import {
   getStateCookie,
+  getPkceCookie,
   getCallbackUrl,
   applySessionCookie,
   clearStateCookie,
   clearCallbackUrlCookie,
+  clearPkceCookie,
 } from '../cookies/index.js';
 import { buildJWT, encodeSession, generateId } from '../core/session.js';
 import { resolveBaseUrl } from '../core/config.js';
@@ -51,19 +53,36 @@ export async function handleCallback(
   let tokenData: Record<string, unknown>;
 
   try {
+    // Resolve client_secret — providers with clientSecretFactory (e.g. Apple)
+    // generate a short-lived JWT instead of using a static string.
+    const clientSecret = provider.clientSecretFactory
+      ? await provider.clientSecretFactory()
+      : provider.clientSecret;
+
+    const tokenParams: Record<string, string> = {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: provider.clientId,
+      client_secret: clientSecret,
+    };
+
+    // PKCE — include code_verifier when the provider uses the pkce check
+    if (provider.checks?.includes('pkce')) {
+      const codeVerifier = getPkceCookie(request, config);
+      if (!codeVerifier) {
+        return Response.redirect(`${errorBase}?error=OAuthCallbackError`, 302);
+      }
+      tokenParams.code_verifier = codeVerifier;
+    }
+
     const tokenResponse = await fetch(provider.token.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: redirectUri,
-        client_id: provider.clientId,
-        client_secret: provider.clientSecret,
-      }).toString(),
+      body: new URLSearchParams(tokenParams).toString(),
     });
 
     if (!tokenResponse.ok) {
@@ -111,11 +130,19 @@ export async function handleCallback(
     id_token: tokenData.id_token as string | undefined,
   };
 
-  // ── Account linking ───────────────────────────────────────────────────────
+  // ── Account linking / new-user detection ─────────────────────────────────
+  // isNewUser: true on the very first sign-in — no account link exists yet.
+  // Used to fire createUser event and to persist the user record in DB-strategy adapters.
+  let isNewUser = false;
+
   if (config.adapter?.getAccountByProvider) {
     const existingAccount = await config.adapter.getAccountByProvider(providerId, user.id);
 
-    if (!existingAccount && user.email && config.adapter.getUserByEmail) {
+    if (existingAccount) {
+      // Returning user — normalise to the adapter's canonical userId so the session FK
+      // and JWT sub both reference the same stable ID (not the raw OAuth profile id).
+      user.id = existingAccount.userId;
+    } else if (user.email && config.adapter.getUserByEmail) {
       const existingUser = await config.adapter.getUserByEmail(user.email);
 
       if (existingUser) {
@@ -135,18 +162,23 @@ export async function handleCallback(
           );
         }
 
-        // Account linking — link to existing user
+        // Link this provider to the existing user account
         if (config.adapter.linkAccount) {
           await config.adapter.linkAccount(existingUser.id, providerId, user.id);
         }
         if (config.debug) {
           console.log(`[VinextAuth] Account linked: ${user.email} via ${providerId}`);
         }
-        // Use existing user data
         user.id = existingUser.id;
         user.name = user.name ?? existingUser.name;
         user.image = user.image ?? existingUser.image;
+      } else {
+        // No account link and no user with this email — brand-new user
+        isNewUser = true;
       }
+    } else {
+      // No account link and no email to check — treat as new user
+      isNewUser = true;
     }
   }
 
@@ -168,14 +200,33 @@ export async function handleCallback(
 
   // ── Database strategy ─────────────────────────────────────────────────────
   if (config.session.strategy === 'database' && config.adapter) {
+    // First-time sign-in: create user record + link account so subsequent logins
+    // find the existing account and the session can return full user data.
+    if (isNewUser && config.adapter.createUser) {
+      const oauthProfileId = user.id; // raw provider id, used for linkAccount
+      const created = await config.adapter.createUser({
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      });
+      if (config.adapter.linkAccount) {
+        await config.adapter.linkAccount(created.id, providerId, oauthProfileId);
+      }
+      user.id = created.id;
+      if (config.debug) console.log('[VinextAuth] New user created:', created.email ?? created.id);
+      void config.events.createUser?.({ user: created });
+    }
+
     const sessionToken = generateId();
     const expires = new Date(Date.now() + config.session.maxAge * 1000);
     await config.adapter.createSession({ sessionToken, userId: user.id, expires });
     applySessionCookie(headers, sessionToken, config);
     clearStateCookie(headers, config);
     clearCallbackUrlCookie(headers, config);
+    clearPkceCookie(headers, config);
     headers.set('Location', redirectUrl);
     if (config.debug) console.log('[VinextAuth] DB session created for:', user.email ?? user.id);
+    void config.events.signIn?.({ user, account, isNewUser });
     return new Response(null, { status: 302, headers });
   }
 
@@ -186,12 +237,14 @@ export async function handleCallback(
   applySessionCookie(headers, sessionToken, config);
   clearStateCookie(headers, config);
   clearCallbackUrlCookie(headers, config);
+  clearPkceCookie(headers, config);
   headers.set('Location', redirectUrl);
 
   if (config.debug) {
     console.log('[VinextAuth] Signed in:', jwtPayload.email ?? jwtPayload.sub ?? 'unknown');
   }
 
+  void config.events.signIn?.({ user, account, isNewUser });
   return new Response(null, { status: 302, headers });
 }
 

@@ -35,9 +35,53 @@
       "types": "./dist/providers/credentials.d.ts",
       "import": "./dist/providers/credentials.js"
     },
+    "./providers/discord": {
+      "types": "./dist/providers/discord.d.ts",
+      "import": "./dist/providers/discord.js"
+    },
+    "./providers/facebook": {
+      "types": "./dist/providers/facebook.d.ts",
+      "import": "./dist/providers/facebook.js"
+    },
+    "./providers/linkedin": {
+      "types": "./dist/providers/linkedin.d.ts",
+      "import": "./dist/providers/linkedin.js"
+    },
+    "./providers/twitch": {
+      "types": "./dist/providers/twitch.d.ts",
+      "import": "./dist/providers/twitch.js"
+    },
+    "./providers/spotify": {
+      "types": "./dist/providers/spotify.d.ts",
+      "import": "./dist/providers/spotify.js"
+    },
+    "./providers/microsoft": {
+      "types": "./dist/providers/microsoft.d.ts",
+      "import": "./dist/providers/microsoft.js"
+    },
+    "./providers/twitter": {
+      "types": "./dist/providers/twitter.d.ts",
+      "import": "./dist/providers/twitter.js"
+    },
+    "./providers/apple": {
+      "types": "./dist/providers/apple.d.ts",
+      "import": "./dist/providers/apple.js"
+    },
+    "./providers/email": {
+      "types": "./dist/providers/email.d.ts",
+      "import": "./dist/providers/email.js"
+    },
     "./adapters/cloudflare-kv": {
       "types": "./dist/adapters/cloudflare-kv.d.ts",
       "import": "./dist/adapters/cloudflare-kv.js"
+    },
+    "./adapters/cloudflare-kv-rate-limiter": {
+      "types": "./dist/adapters/cloudflare-kv-rate-limiter.d.ts",
+      "import": "./dist/adapters/cloudflare-kv-rate-limiter.js"
+    },
+    "./adapters/cloudflare-d1": {
+      "types": "./dist/adapters/cloudflare-d1.d.ts",
+      "import": "./dist/adapters/cloudflare-d1.js"
     }
   },
   "main": "./dist/index.js",
@@ -57,6 +101,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "tsup": "^8.0.0",
     "typescript": "^5.7.0",
     "vitest": "^2.0.0"

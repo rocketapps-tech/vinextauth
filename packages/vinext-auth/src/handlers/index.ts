@@ -4,11 +4,12 @@ import type {
   PagesRequest,
   PagesResponse,
   CredentialsProvider,
+  EmailProvider,
   Session,
 } from '../types.js';
 import { resolveConfig, resolveBaseUrl } from '../core/config.js';
 import { getSessionFromToken } from '../core/session.js';
-import { renderSignInPage, renderErrorPage } from '../pages/index.js';
+import { renderSignInPage, renderErrorPage, renderVerifyRequestPage } from '../pages/index.js';
 import { generateCsrfToken } from '../core/csrf.js';
 import { getCsrfCookie, applyCsrfCookie } from '../cookies/index.js';
 import { serializeCookie } from '../cookies/strategy.js';
@@ -18,6 +19,8 @@ import { handleSignOut } from './signout.js';
 import { handleSessionRoute } from './session-route.js';
 import { handleCsrfRoute } from './csrf-route.js';
 import { handleCredentials } from './credentials.js';
+import { handleEmailSignin } from './email-signin.js';
+import { handleEmailVerify } from './email-verify.js';
 
 // Module-level config for server-side helpers (getServerSession)
 let _resolvedConfig: ReturnType<typeof resolveConfig> | null = null;
@@ -75,11 +78,14 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
       console.log(`[VinextAuth] ${request.method} ${pathname} → ${verb}/${param ?? ''}`);
     }
 
-    // OAuth signin redirect
+    // OAuth / credentials signin redirect, email magic link POST
     if (verb === 'signin' && param) {
       const provider = resolved.providers.find((p) => p.id === param);
       if (provider?.type === 'credentials') {
         return handleCredentials(request, provider as CredentialsProvider, resolved);
+      }
+      if (provider?.type === 'email' && request.method === 'POST') {
+        return handleEmailSignin(request, provider as EmailProvider, resolved);
       }
       return handleSignIn(request, param, resolved);
     }
@@ -89,13 +95,21 @@ export function VinextAuth<TSession = {}, TToken = {}, TUser = {}>(
       return handleSignInPage(resolved, request);
     }
 
-    // OAuth callback — or credentials (NextAuth v4 compat: POST /api/auth/callback/credentials)
+    // OAuth callback — credentials (NextAuth v4 compat) — email magic link verify
     if (verb === 'callback' && param) {
       const provider = resolved.providers.find((p) => p.id === param);
       if (provider?.type === 'credentials') {
         return handleCredentials(request, provider as CredentialsProvider, resolved);
       }
+      if (param === 'email') {
+        return handleEmailVerify(request, resolved);
+      }
       return handleCallback(request, param, resolved);
+    }
+
+    // Verify-request page — shown after magic link email is sent
+    if (verb === 'verify-request') {
+      return handleVerifyRequestPage(url, resolved);
     }
 
     // Sign out
@@ -290,9 +304,9 @@ async function handleSignInPage(
   const rawCallbackUrl = new URL(request.url).searchParams.get('callbackUrl') ?? '/';
   const callbackUrl = sanitizeRedirectUrl(rawCallbackUrl, baseUrl);
 
-  const hasCredentials = config.providers.some((p) => p.type === 'credentials');
+  const needsCsrf = config.providers.some((p) => p.type === 'credentials' || p.type === 'email');
 
-  // Get or generate CSRF token for credentials forms
+  // Get or generate CSRF token for credentials and email forms
   let csrfToken: string | undefined;
   const responseHeaders = new Headers({
     'Content-Type': 'text/html; charset=utf-8',
@@ -302,7 +316,7 @@ async function handleSignInPage(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  if (hasCredentials) {
+  if (needsCsrf) {
     const existing = getCsrfCookie(request, config);
     if (existing) {
       csrfToken = existing.split('|')[0];
@@ -316,13 +330,26 @@ async function handleSignInPage(
   const providers = config.providers.map((p) => ({
     id: p.id,
     name: p.name,
-    type: p.type as 'oauth' | 'credentials',
+    type: p.type as 'oauth' | 'credentials' | 'email',
     signinUrl: `${baseUrl}${config.basePath}/signin/${p.id}`,
-    csrfToken: p.type === 'credentials' ? csrfToken : undefined,
+    csrfToken: p.type === 'credentials' || p.type === 'email' ? csrfToken : undefined,
   }));
 
   return new Response(renderSignInPage(providers, callbackUrl, config.theme), {
     headers: responseHeaders,
+  });
+}
+
+function handleVerifyRequestPage(url: URL, config: ReturnType<typeof resolveConfig>): Response {
+  const providerName = url.searchParams.get('provider') ?? 'Email';
+  return new Response(renderVerifyRequestPage(providerName, config.theme), {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Security-Policy':
+        "default-src 'self'; style-src 'unsafe-inline'; img-src 'none'; script-src 'none'; frame-ancestors 'none'",
+      'X-Frame-Options': 'DENY',
+      'X-Content-Type-Options': 'nosniff',
+    },
   });
 }
 

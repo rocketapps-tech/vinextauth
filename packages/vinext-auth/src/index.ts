@@ -14,6 +14,9 @@ export type {
   DefaultJWT,
   OAuthProvider,
   CredentialsProvider,
+  EmailProvider,
+  EmailTransport,
+  VerificationToken,
   Provider,
   CallbacksConfig,
   JWTCallbackParams,
@@ -34,6 +37,7 @@ export type {
   AccountLinkingConfig,
   CredentialsConfig,
   RateLimiter,
+  EventsConfig,
   VinextAuthErrorCode,
 } from './types.js';
 

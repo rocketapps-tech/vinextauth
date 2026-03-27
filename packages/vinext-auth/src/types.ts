@@ -41,6 +41,12 @@ export interface OAuthProvider {
   type: 'oauth';
   clientId: string;
   clientSecret: string;
+  /**
+   * Optional: generate client_secret dynamically per request.
+   * Required for Apple Sign In (JWT client secret signed with ES256 each time).
+   * When present, takes precedence over `clientSecret` during token exchange.
+   */
+  clientSecretFactory?: () => Promise<string>;
   authorization: {
     url: string;
     params?: Record<string, string>;
@@ -68,7 +74,43 @@ export interface CredentialsProvider<
   authorize(credentials: TCredentials, request: Request): Promise<DefaultUser | null>;
 }
 
-export type Provider = OAuthProvider | CredentialsProvider;
+// ─── Email Provider ───────────────────────────────────────────────────────────
+
+export interface EmailTransport {
+  /**
+   * Send a sign-in email with a magic link.
+   * Compatible with any edge HTTP email API (Resend, SendGrid, Mailgun, etc.)
+   */
+  sendVerificationRequest(params: {
+    identifier: string;
+    url: string;
+    expires: Date;
+    provider: EmailProvider;
+    request: Request;
+  }): Promise<void>;
+}
+
+export interface EmailProvider {
+  id: string;
+  name: string;
+  type: 'email';
+  from?: string;
+  /** Token TTL in seconds. Default: 24h */
+  maxAge?: number;
+  transport: EmailTransport;
+  generateVerificationToken?: () => Promise<string>;
+}
+
+// ─── Verification token (email magic links) ───────────────────────────────────
+
+export interface VerificationToken {
+  /** The email address the token was issued for */
+  identifier: string;
+  token: string;
+  expires: Date;
+}
+
+export type Provider = OAuthProvider | CredentialsProvider | EmailProvider;
 
 // ─── Adapter ─────────────────────────────────────────────────────────────────
 
@@ -86,11 +128,22 @@ export interface AdapterInterface {
   ): Promise<AdapterSession | null>;
   deleteSession(sessionToken: string): Promise<void>;
   getUserByEmail?(email: string): Promise<DefaultUser | null>;
+  createUser?(user: Omit<DefaultUser, 'id'>): Promise<DefaultUser>;
   linkAccount?(userId: string, provider: string, providerAccountId: string): Promise<void>;
   getAccountByProvider?(
     provider: string,
     providerAccountId: string
   ): Promise<{ userId: string } | null>;
+  /** Store a new verification token for email magic links. */
+  createVerificationToken?(token: VerificationToken): Promise<VerificationToken>;
+  /**
+   * Consume a verification token — returns the token if valid, null if expired or not found.
+   * Must delete the token after retrieval (one-time use).
+   */
+  useVerificationToken?(params: {
+    identifier: string;
+    token: string;
+  }): Promise<VerificationToken | null>;
 }
 
 // ─── Rate limiter interface ───────────────────────────────────────────────────
@@ -154,6 +207,38 @@ export interface CallbacksConfig<TSession = {}, TToken = {}, TUser = {}> {
   refreshToken?: (
     params: RefreshTokenCallbackParams<TToken>
   ) => Promise<RefreshTokenCallbackResult<TToken>>;
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+export interface EventsConfig<TUser = {}> {
+  /**
+   * Fires when a user signs in.
+   * `isNewUser` is true on first sign-in (OAuth only, requires adapter).
+   */
+  signIn?: (params: {
+    user: User<TUser>;
+    account: SignInCallbackParams['account'];
+    isNewUser?: boolean;
+  }) => void | Promise<void>;
+
+  /** Fires when a user signs out. */
+  signOut?: (params: { token: DefaultJWT | null }) => void | Promise<void>;
+
+  /**
+   * Fires when a new user record is created.
+   * Only called when an adapter is present and the user is created for the first time.
+   */
+  createUser?: (params: { user: User<TUser> }) => void | Promise<void>;
+
+  /** Fires when a user record is updated (e.g., profile refresh from OAuth). */
+  updateUser?: (params: { user: User<TUser> }) => void | Promise<void>;
+
+  /**
+   * Fires on every session check (GET /api/auth/session).
+   * Do not perform heavy work here.
+   */
+  session?: (params: { session: DefaultSession; token: DefaultJWT }) => void | Promise<void>;
 }
 
 // ─── Pages ───────────────────────────────────────────────────────────────────
@@ -256,6 +341,11 @@ export interface VinextAuthConfig<TSession = {}, TToken = {}, TUser = {}> {
    * Credentials provider configuration (rate limiting, etc.)
    */
   credentials?: CredentialsConfig;
+
+  /**
+   * Lifecycle event hooks — fire-and-forget, never block the response.
+   */
+  events?: EventsConfig<TUser>;
 }
 
 // ─── Cookie config ───────────────────────────────────────────────────────────
@@ -278,6 +368,8 @@ export interface CookiesConfig {
   csrfToken: CookieOption;
   state: CookieOption;
   nonce: CookieOption;
+  /** PKCE code verifier cookie — used by providers with checks: ['pkce'] */
+  pkce: CookieOption;
 }
 
 // ─── Resolved config (internal) ───────────────────────────────────────────────
@@ -300,6 +392,7 @@ export interface ResolvedConfig {
   theme: Required<ThemeConfig>;
   /** @internal Rate limiter instance — one per VinextAuth() call, not global */
   _rateLimiter: RateLimiter;
+  events: EventsConfig;
 }
 
 // ─── Theme config ─────────────────────────────────────────────────────────────
