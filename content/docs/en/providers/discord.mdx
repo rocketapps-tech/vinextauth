@@ -1,0 +1,39 @@
+---
+title: Discord
+description: Sign in with Discord using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import Discord from "vinextauth/providers/discord";
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Discord({
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+DISCORD_CLIENT_ID=...
+DISCORD_CLIENT_SECRET=...
+```
+
+## Discord Developer Portal setup
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications) → New Application
+2. Under **OAuth2**, add your redirect URL:
+   ```
+   https://yourdomain.com/api/auth/callback/discord
+   ```
+
+## Default scopes
+
+`identify email` — includes username, discriminator, avatar, and email.

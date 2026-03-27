@@ -1,0 +1,40 @@
+---
+title: Facebook
+description: Sign in with Facebook using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import Facebook from "vinextauth/providers/facebook";
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Facebook({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+FACEBOOK_CLIENT_ID=...
+FACEBOOK_CLIENT_SECRET=...
+```
+
+## Facebook App setup
+
+1. Go to [Meta for Developers](https://developers.facebook.com/) → Create App
+2. Add the **Facebook Login** product
+3. Under **Valid OAuth Redirect URIs**, add:
+   ```
+   https://yourdomain.com/api/auth/callback/facebook
+   ```
+
+## Default scopes
+
+`email,public_profile` — includes name, email, and profile picture.

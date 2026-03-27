@@ -1,0 +1,18 @@
+{
+  "title": "Providers",
+  "pages": [
+    "index",
+    "credentials",
+    "email",
+    "google",
+    "github",
+    "discord",
+    "facebook",
+    "linkedin",
+    "twitch",
+    "spotify",
+    "microsoft",
+    "twitter",
+    "apple"
+  ]
+}

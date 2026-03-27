@@ -1,0 +1,4 @@
+{
+  "title": "Adapters",
+  "pages": ["index", "cloudflare-kv", "cloudflare-d1", "cloudflare-kv-rate-limiter"]
+}

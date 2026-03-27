@@ -1,0 +1,51 @@
+---
+title: Cloudflare D1
+description: Persistência completa de sessão e usuário no Cloudflare D1 (SQLite).
+---
+
+O adaptador D1 armazena usuários, sessões, contas e tokens de verificação em um banco D1. Suporta todos os métodos da interface de adaptador, incluindo magic links de e-mail.
+
+## Configuração
+
+### 1. Crie um banco D1
+
+```bash
+wrangler d1 create vinextauth
+```
+
+Adicione ao `wrangler.toml`:
+
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "vinextauth"
+database_id = "seu-database-id"
+```
+
+### 2. Execute a migration
+
+```bash
+wrangler d1 execute vinextauth --file=node_modules/vinextauth/migrations/0001_vinextauth.sql
+```
+
+### 3. Configure o adaptador
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { CloudflareD1Adapter } from "vinextauth/adapters/cloudflare-d1";
+
+export const { GET, POST, auth } = VinextAuth({
+  adapter: CloudflareD1Adapter(env.DB),
+  session: { strategy: "database" },
+  providers: [...],
+});
+```
+
+## Tabelas criadas
+
+| Tabela | Descrição |
+|---|---|
+| `users` | Registros de usuários |
+| `sessions` | Sessões ativas |
+| `accounts` | Contas OAuth vinculadas |
+| `verification_tokens` | Tokens de magic link (uso único) |
