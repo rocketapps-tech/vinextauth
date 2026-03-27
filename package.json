@@ -20,7 +20,8 @@
     "release": "semantic-release",
     "prepare": "husky",
     "dev:vinext": "npm run dev --workspace=apps/dev/vinext",
-    "dev:example-vinext": "npm run dev --workspace=apps/examples/vinext-basic"
+    "dev:example-vinext": "npm run dev --workspace=apps/examples/vinext-basic",
+    "dev:docs": "npm run dev --workspace=apps/docs"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

@@ -1,0 +1,76 @@
+---
+title: Email (Magic Link)
+description: Login sem senha via magic links por e-mail.
+---
+
+O provider Email envia um link de login único para o e-mail do usuário. Sem senha.
+
+## Requisitos
+
+O provider Email requer um adaptador que armazene tokens de verificação. Use [Cloudflare KV](/pt/docs/adapters/cloudflare-kv) ou [Cloudflare D1](/pt/docs/adapters/cloudflare-d1).
+
+## Configuração com Resend
+
+O VinextAuth inclui um `ResendTransport` embutido para envio de e-mails no edge:
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { EmailProvider, ResendTransport } from "vinextauth/providers/email";
+import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv";
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    EmailProvider({
+      from: "no-reply@seuapp.com.br",
+      transport: ResendTransport({
+        apiKey: process.env.RESEND_API_KEY!,
+      }),
+    }),
+  ],
+  adapter: CloudflareKVAdapter(env.SESSION_KV),
+});
+```
+
+## Transporte customizado
+
+Implemente qualquer serviço de e-mail compatível com edge:
+
+```ts
+EmailProvider({
+  from: "no-reply@seuapp.com.br",
+  transport: {
+    async sendVerificationRequest({ identifier, url, provider }) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: provider.from,
+          to: identifier,
+          subject: "Seu link de acesso",
+          html: `<a href="${url}">Clique aqui para entrar</a>`,
+        }),
+      });
+    },
+  },
+})
+```
+
+## Opções
+
+| Opção | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `from` | `string` | `"noreply@example.com"` | E-mail do remetente. |
+| `maxAge` | `number` | `86400` | TTL do token em segundos (24 horas). |
+| `transport` | `EmailTransport` | Obrigatório | Implementação do transporte de e-mail. |
+| `generateVerificationToken` | `() => Promise<string>` | Hex aleatório | Gerador de token customizado. |
+
+## Fluxo
+
+1. Usuário envia o e-mail na página de login
+2. VinextAuth gera um token e chama `adapter.createVerificationToken()`
+3. O transporte envia o e-mail com link para `/api/auth/callback/email?token=...&email=...`
+4. Usuário clica no link — VinextAuth chama `adapter.useVerificationToken()` (uso único)
+5. Em caso de sucesso, o usuário é logado e redirecionado

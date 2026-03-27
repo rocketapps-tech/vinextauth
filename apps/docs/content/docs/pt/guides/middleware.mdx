@@ -1,0 +1,54 @@
+---
+title: Middleware
+description: Proteja rotas com o middleware edge do VinextAuth.
+---
+
+O VinextAuth fornece um middleware `withAuth` que roda no edge para proteger rotas antes da renderização.
+
+## Configuração
+
+```ts title="src/middleware.ts"
+import { withAuth } from "vinextauth/middleware";
+
+export default withAuth({
+  pages: {
+    signIn: "/api/auth/signin",
+  },
+});
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/perfil/:path*"],
+};
+```
+
+## Lógica customizada
+
+```ts title="src/middleware.ts"
+import { withAuth } from "vinextauth/middleware";
+import { NextResponse } from "vinext/server";
+
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+
+    if (token?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  }
+);
+
+export const config = {
+  matcher: ["/admin/:path*"],
+};
+```
+
+## Acessando o token
+
+O JWT decodificado está disponível em `req.nextauth.token` dentro da função de middleware. Contém tudo que você colocou no callback `jwt`.

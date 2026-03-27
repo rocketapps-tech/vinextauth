@@ -1,0 +1,150 @@
+---
+title: Configuration
+description: All VinextAuth configuration options.
+---
+
+`VinextAuth(config)` accepts the following options:
+
+## Required
+
+### `providers`
+
+Array of authentication providers.
+
+```ts
+import Google from "vinextauth/providers/google";
+import Credentials from "vinextauth/providers/credentials";
+
+VinextAuth({
+  providers: [
+    Google({ clientId: "...", clientSecret: "..." }),
+    Credentials({ ... }),
+  ],
+});
+```
+
+## Session
+
+### `session.strategy`
+
+- `"jwt"` (default) — sessions stored as signed JWTs in cookies
+- `"database"` — sessions stored in a database adapter
+
+### `session.maxAge`
+
+Session expiry in seconds. Default: `2592000` (30 days).
+
+### `session.updateAge`
+
+How often the session JWT is refreshed in seconds. Default: `86400` (24 hours).
+
+## JWT
+
+### `jwt.secret`
+
+Override the default secret. Falls back to `VINEXTAUTH_SECRET` env var.
+
+### `jwt.maxAge`
+
+JWT expiry in seconds. Default: matches `session.maxAge`.
+
+## Callbacks
+
+### `callbacks.signIn`
+
+Called before a user is signed in. Return `true` to allow, `false` to deny.
+
+```ts
+callbacks: {
+  async signIn({ user, account }) {
+    return user.email?.endsWith("@yourcompany.com") ?? false;
+  },
+}
+```
+
+### `callbacks.session`
+
+Customize the session object returned to the client.
+
+```ts
+callbacks: {
+  async session({ session, token }) {
+    session.user.role = token.role;
+    return session;
+  },
+}
+```
+
+### `callbacks.jwt`
+
+Customize the JWT payload.
+
+```ts
+callbacks: {
+  async jwt({ token, user }) {
+    if (user) token.role = user.role;
+    return token;
+  },
+}
+```
+
+### `callbacks.redirect`
+
+Control where the user is redirected after sign-in/out.
+
+```ts
+callbacks: {
+  async redirect({ url, baseUrl }) {
+    if (url.startsWith(baseUrl)) return url;
+    return baseUrl;
+  },
+}
+```
+
+## Events
+
+Side-effect hooks that fire after auth events (no return value needed).
+
+```ts
+events: {
+  async signIn({ user }) {
+    console.log("signed in:", user.email);
+  },
+  async signOut({ session }) {
+    console.log("signed out");
+  },
+  async createUser({ user }) {
+    await sendWelcomeEmail(user.email);
+  },
+}
+```
+
+Available events: `signIn`, `signOut`, `createUser`, `updateUser`, `session`.
+
+## Pages
+
+Override the default built-in pages:
+
+```ts
+pages: {
+  signIn: "/login",
+  error: "/auth/error",
+}
+```
+
+## Rate Limiting (Credentials)
+
+Configure via the `credentials.rateLimit` option:
+
+```ts
+VinextAuth({
+  credentials: {
+    rateLimit: {
+      maxAttempts: 5,
+      windowMs: 15 * 60 * 1000, // 15 minutes
+    },
+  },
+});
+```
+
+For distributed environments (multiple Worker instances), plug in the [KV Rate Limiter adapter](/docs/adapters/cloudflare-kv-rate-limiter) as `credentials.rateLimit.store`.

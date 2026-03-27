@@ -1,0 +1,80 @@
+---
+title: Sessão no Servidor
+description: Acesse a sessão no servidor com auth() e pagesAuth().
+---
+
+## App Router (Server Components / Route Handlers / Server Actions)
+
+Use `auth()` da sua instância de auth — lê cookies via `next/headers` automaticamente:
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+
+export const { GET, POST, auth } = VinextAuth({ ... });
+```
+
+```ts title="src/app/dashboard/page.tsx"
+import { auth } from "@/auth";
+import { redirect } from "vinext/navigation";
+
+export default async function DashboardPage() {
+  const session = await auth();
+
+  if (!session) redirect("/api/auth/signin");
+
+  return <div>Olá, {session.user.name}</div>;
+}
+```
+
+## Pages Router
+
+Use `pagesAuth` da sua instância de auth:
+
+```ts title="src/pages/api/me.ts"
+import type { NextApiRequest, NextApiResponse } from "vinext";
+import { pagesAuth } from "@/auth";
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await pagesAuth(req);
+
+  if (!session) {
+    return res.status(401).json({ error: "Não autorizado" });
+  }
+
+  return res.json({ user: session.user });
+}
+```
+
+### Em `getServerSideProps`
+
+```ts
+import { pagesAuth } from "@/auth";
+
+export const getServerSideProps = async (ctx) => {
+  const session = await pagesAuth(ctx.req);
+
+  if (!session) {
+    return { redirect: { destination: "/api/auth/signin", permanent: false } };
+  }
+
+  return { props: { session } };
+};
+```
+
+## Atualizando a sessão
+
+```ts
+import { updateSession } from "vinextauth/server";
+import { authOptions } from "@/auth";
+
+await updateSession(authOptions, { user: { role: "admin" } });
+```
+
+## Invalidando a sessão
+
+```ts
+import { invalidateSession } from "vinextauth/server";
+import { authOptions } from "@/auth";
+
+await invalidateSession(authOptions);
+```

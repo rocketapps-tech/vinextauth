@@ -1,0 +1,97 @@
+---
+title: React Session
+description: Access and manage the session client-side with useSession, signIn, and signOut.
+---
+
+## SessionProvider
+
+Wrap your app with `SessionProvider` to make the session available to all client components.
+
+```tsx title="src/pages/_app.tsx"
+import type { AppProps } from "vinext/app";
+import { SessionProvider } from "vinextauth/react";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <SessionProvider session={pageProps.session}>
+      <Component {...pageProps} />
+    </SessionProvider>
+  );
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `session` | `Session \| null` | `undefined` | Pass a server-side session to skip the initial client fetch. |
+| `basePath` | `string` | `"/api/auth"` | Override the auth base path. |
+| `refetchInterval` | `number` | — | Re-fetch the session every N seconds. |
+| `refetchOnWindowFocus` | `boolean` | `true` | Re-fetch when the tab regains focus. |
+
+## useSession
+
+```tsx
+"use client";
+import { useSession } from "vinextauth/react";
+
+export function UserMenu() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") return <span>Loading...</span>;
+  if (status === "unauthenticated") return <a href="/api/auth/signin">Sign in</a>;
+
+  return <span>Hello, {session.user.name}</span>;
+}
+```
+
+### Return value
+
+| Field | Type | Description |
+|---|---|---|
+| `data` | `Session \| null` | The current session, or `null` when unauthenticated. |
+| `status` | `"loading" \| "authenticated" \| "unauthenticated"` | Session loading state. |
+| `update` | `(data?) => Promise<Session \| null>` | Refresh or partially update the session. |
+
+### Updating the session client-side
+
+```ts
+const { update } = useSession();
+
+// Refresh from server
+await update();
+
+// Optimistic partial update (local only, does not persist to server)
+await update({ user: { name: "New Name" } });
+```
+
+## signIn
+
+Redirects the user to the sign-in page or directly to an OAuth provider:
+
+```ts
+import { signIn } from "vinextauth/react";
+
+// Redirect to the built-in sign-in page
+signIn();
+
+// Redirect directly to a provider
+signIn("google");
+
+// With a custom callback URL
+signIn("github", { callbackUrl: "/dashboard" });
+```
+
+## signOut
+
+Posts to the sign-out endpoint and redirects:
+
+```ts
+import { signOut } from "vinextauth/react";
+
+// Sign out and redirect to origin
+await signOut();
+
+// Sign out and redirect to a specific page
+await signOut({ callbackUrl: "/login" });
+```

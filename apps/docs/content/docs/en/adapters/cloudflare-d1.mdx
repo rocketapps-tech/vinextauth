@@ -1,0 +1,92 @@
+---
+title: Cloudflare D1
+description: Full session and user persistence in Cloudflare D1 (SQLite).
+---
+
+The D1 adapter stores users, sessions, accounts, and verification tokens in a Cloudflare D1 database. It supports all adapter methods including email magic links and account linking.
+
+## Setup
+
+### 1. Create a D1 database
+
+```bash
+wrangler d1 create vinextauth
+```
+
+Add the binding to your `wrangler.toml`:
+
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "vinextauth"
+database_id = "your-database-id"
+```
+
+### 2. Run the migration
+
+```bash
+wrangler d1 execute vinextauth --file=node_modules/vinextauth/migrations/0001_vinextauth.sql
+```
+
+Or apply the SQL manually:
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  email TEXT UNIQUE,
+  email_verified INTEGER,
+  image TEXT
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  session_token TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT NOT NULL,
+  expires INTEGER NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL,
+  provider_account_id TEXT NOT NULL,
+  UNIQUE(provider, provider_account_id)
+);
+```
+
+### 3. Configure the adapter
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { CloudflareD1Adapter } from "vinextauth/adapters/cloudflare-d1";
+
+export const { GET, POST, auth } = VinextAuth({
+  adapter: CloudflareD1Adapter(env.DB),
+  session: { strategy: "database" },
+  providers: [...],
+});
+```
+
+## Supported methods
+
+The D1 adapter implements all `AdapterInterface` methods:
+
+| Method | Description |
+|---|---|
+| `getSession` | Look up session + user by session token |
+| `createSession` | Create a new session record |
+| `updateSession` | Extend session expiry |
+| `deleteSession` | Delete a session by token |
+| `getUserByEmail` | Find a user by email |
+| `createUser` | Create a new user record |
+| `linkAccount` | Link an OAuth account to a user |
+| `getAccountByProvider` | Look up a user by provider + account ID |
+| `createVerificationToken` | Store an email magic link token |
+| `useVerificationToken` | Consume a token (one-time use) |

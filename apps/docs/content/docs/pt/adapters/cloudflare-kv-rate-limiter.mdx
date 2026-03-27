@@ -1,0 +1,52 @@
+---
+title: KV Rate Limiter
+description: Rate limiting distribuído para login com credentials, baseado em Cloudflare KV.
+---
+
+O rate limiter embutido usa memória local, que é reiniciada entre isolates e deploys. Para deploys com múltiplas instâncias, use o KV Rate Limiter para persistir contagens de tentativas no Cloudflare KV.
+
+## Configuração
+
+### 1. Crie um namespace KV
+
+```bash
+wrangler kv namespace create RATE_LIMIT_KV
+```
+
+Adicione ao `wrangler.toml`:
+
+```toml
+[[kv_namespaces]]
+name = "RATE_LIMIT_KV"
+id = "seu-namespace-id"
+```
+
+### 2. Configure o adaptador
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { CloudflareKVRateLimiter } from "vinextauth/adapters/cloudflare-kv-rate-limiter";
+
+export const { GET, POST, auth } = VinextAuth({
+  credentials: {
+    rateLimit: {
+      store: CloudflareKVRateLimiter(env.RATE_LIMIT_KV),
+    },
+  },
+  providers: [...],
+});
+```
+
+## Limites customizados
+
+```ts
+CloudflareKVRateLimiter(env.RATE_LIMIT_KV, {
+  maxAttempts: 10,
+  windowMs: 60 * 60 * 1000, // 1 hora
+})
+```
+
+| Opção | Padrão | Descrição |
+|---|---|---|
+| `maxAttempts` | `5` | Máximo de tentativas antes de bloquear. |
+| `windowMs` | `900000` (15 min) | Janela de tempo em milissegundos. |

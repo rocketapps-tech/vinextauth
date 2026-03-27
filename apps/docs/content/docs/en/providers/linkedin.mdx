@@ -1,0 +1,40 @@
+---
+title: LinkedIn
+description: Sign in with LinkedIn using OAuth 2.0 (OpenID Connect).
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import LinkedIn from "vinextauth/providers/linkedin";
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    LinkedIn({
+      clientId: process.env.LINKEDIN_CLIENT_ID!,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+LINKEDIN_CLIENT_ID=...
+LINKEDIN_CLIENT_SECRET=...
+```
+
+## LinkedIn App setup
+
+1. Go to [LinkedIn Developers](https://developer.linkedin.com/) → Create App
+2. Under **Auth**, add your redirect URL:
+   ```
+   https://yourdomain.com/api/auth/callback/linkedin
+   ```
+3. Request the **Sign In with LinkedIn using OpenID Connect** product
+
+## Default scopes
+
+`openid profile email` — uses the LinkedIn OIDC userinfo endpoint.

@@ -1,0 +1,99 @@
+---
+title: Server Session
+description: Access the session server-side in App Router, Pages Router, and Server Actions.
+---
+
+## App Router (Server Components / Route Handlers / Server Actions)
+
+Use `auth()` from your auth instance — it reads cookies via `next/headers` automatically:
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+
+export const { GET, POST, auth } = VinextAuth({ ... });
+```
+
+```ts title="src/app/dashboard/page.tsx"
+import { auth } from "@/auth";
+import { redirect } from "vinext/navigation";
+
+export default async function DashboardPage() {
+  const session = await auth();
+
+  if (!session) redirect("/api/auth/signin");
+
+  return <div>Hello, {session.user.name}</div>;
+}
+```
+
+Alternatively, use `getServerSession` from `vinextauth/server`:
+
+```ts
+import { getServerSession } from "vinextauth/server";
+import { authOptions } from "@/auth";
+
+const session = await getServerSession(authOptions);
+// or without args if VinextAuth() is already initialized in the module graph:
+const session = await getServerSession();
+```
+
+## Pages Router
+
+Use `pagesAuth` from your auth instance — reads cookies from the Pages Router request directly:
+
+```ts title="src/auth.ts"
+export const { GET, POST, toPages, pagesAuth, pagesCsrf } = VinextAuth({ ... });
+```
+
+```ts title="src/pages/api/me.ts"
+import type { NextApiRequest, NextApiResponse } from "vinext";
+import { pagesAuth } from "@/auth";
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await pagesAuth(req);
+
+  if (!session) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  return res.json({ user: session.user });
+}
+```
+
+### In `getServerSideProps`
+
+```ts
+import { pagesAuth } from "@/auth";
+
+export const getServerSideProps = async (ctx) => {
+  const session = await pagesAuth(ctx.req);
+
+  if (!session) {
+    return { redirect: { destination: "/api/auth/signin", permanent: false } };
+  }
+
+  return { props: { session } };
+};
+```
+
+## Updating the session
+
+Use `updateSession` from `vinextauth/server` in Server Actions or Route Handlers:
+
+```ts
+import { updateSession } from "vinextauth/server";
+import { authOptions } from "@/auth";
+
+// Merge partial updates into the current session
+await updateSession(authOptions, { user: { role: "admin" } });
+```
+
+## Invalidating the session
+
+```ts
+import { invalidateSession } from "vinextauth/server";
+import { authOptions } from "@/auth";
+
+// Clear the session cookie (and DB record when using database strategy)
+await invalidateSession(authOptions);
+```

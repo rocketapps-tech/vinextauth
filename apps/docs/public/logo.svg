@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 32" fill="none">
+  <!-- Shield icon -->
+  <path d="M14 1 L3 5.5 V14 C3 20 7.5 25 14 27 C20.5 25 25 20 25 14 V5.5 Z" fill="url(#g)"/>
+  <polyline points="9.5,13 14,19.5 18.5,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- "VinextAuth" as one text node — bold "Vinext", regular "Auth" -->
+  <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" y="21">
+    <tspan x="33" font-weight="700" fill="currentColor">Vinext</tspan><tspan font-weight="400" fill="currentColor" opacity="0.65">Auth</tspan>
+  </text>
+  <defs>
+    <linearGradient id="g" x1="3" y1="1" x2="25" y2="27" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+</svg>
