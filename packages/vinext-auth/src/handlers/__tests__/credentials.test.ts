@@ -21,7 +21,7 @@ function makeProvider(
     id: 'credentials',
     name: 'Credentials',
     type: 'credentials',
-    credentials: { username: {}, password: {} },
+    credentials: { username: { label: 'Username' }, password: { label: 'Password' } },
     authorize,
   };
 }

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { handleSessionRoute } from '../session-route.js';
 import { resolveConfig } from '../../core/config.js';
 import { sign } from '../../jwt/index.js';
+import type { DefaultSession } from '../../types.js';
 
 const TEST_SECRET = 'test-secret-32-chars-long-enough!!';
 const BASE_URL = 'http://localhost:3001';
@@ -94,7 +95,7 @@ describe('handleSessionRoute', () => {
   it('applies session callback to the response', async () => {
     const config = makeConfig({
       callbacks: {
-        session({ session }) {
+        session({ session }: { session: DefaultSession }) {
           return { ...session, user: { ...session.user, role: 'admin' } };
         },
       },

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { encodeSession, decodeSession, buildSession, buildJWT, generateId } from '../session.js';
 import { resolveConfig } from '../config.js';
-import type { DefaultUser } from '../../types.js';
+import type { DefaultUser, JWT, DefaultSession } from '../../types.js';
 
 const TEST_SECRET = 'test-secret-32-chars-long-enough!!';
 const BASE_URL = 'http://localhost:3001';
@@ -66,8 +66,8 @@ describe('encodeSession / decodeSession', () => {
   it('uses custom encode/decode when provided in jwt config', async () => {
     const config = makeConfig({
       jwt: {
-        encode: async ({ token }) => `custom.${JSON.stringify(token)}`,
-        decode: async ({ token }) => JSON.parse(token.replace('custom.', '')),
+        encode: async ({ token }: { token: JWT }) => `custom.${JSON.stringify(token)}`,
+        decode: async ({ token }: { token: string }) => JSON.parse(token.replace('custom.', '')),
       },
     });
     const now = Math.floor(Date.now() / 1000);
@@ -104,7 +104,7 @@ describe('buildJWT', () => {
   it('calls the jwt callback when configured', async () => {
     const config = makeConfig({
       callbacks: {
-        jwt({ token }) {
+        jwt({ token }: { token: JWT }) {
           return { ...token, role: 'admin' };
         },
       },
@@ -145,7 +145,7 @@ describe('buildSession', () => {
   it('runs session callback and merges custom fields', async () => {
     const config = makeConfig({
       callbacks: {
-        session({ session }) {
+        session({ session }: { session: DefaultSession }) {
           return { ...session, user: { ...session.user, role: 'admin' } };
         },
       },
@@ -153,9 +153,9 @@ describe('buildSession', () => {
     const now = Math.floor(Date.now() / 1000);
     const jwt = { sub: 'user-1', email: 'a@b.com', iat: now, exp: now + 3600, jti: 'j' };
     const session = await buildSession(jwt, config);
-    expect((session as Record<string, unknown> & { user: Record<string, unknown> }).user.role).toBe(
-      'admin'
-    );
+    expect(
+      (session as unknown as Record<string, unknown> & { user: Record<string, unknown> }).user.role
+    ).toBe('admin');
   });
 });
 

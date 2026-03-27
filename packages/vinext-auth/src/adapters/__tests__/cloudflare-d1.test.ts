@@ -251,20 +251,20 @@ describe('CloudflareD1Adapter — account linking', () => {
   });
 
   it('linkAccount stores account link', async () => {
-    await adapter.linkAccount('usr-1', 'google', 'goog-123');
-    const result = await adapter.getAccountByProvider('google', 'goog-123');
+    await adapter.linkAccount!('usr-1', 'google', 'goog-123');
+    const result = await adapter.getAccountByProvider!('google', 'goog-123');
     expect(result?.userId).toBe('usr-1');
   });
 
   it('getAccountByProvider returns null when not found', async () => {
-    const result = await adapter.getAccountByProvider('github', 'gh-999');
+    const result = await adapter.getAccountByProvider!('github', 'gh-999');
     expect(result).toBeNull();
   });
 
   it('INSERT OR IGNORE does not overwrite existing accounts', async () => {
-    await adapter.linkAccount('usr-1', 'google', 'goog-abc');
-    await adapter.linkAccount('usr-2', 'google', 'goog-abc'); // same provider+providerAccountId
-    const result = await adapter.getAccountByProvider('google', 'goog-abc');
+    await adapter.linkAccount!('usr-1', 'google', 'goog-abc');
+    await adapter.linkAccount!('usr-2', 'google', 'goog-abc'); // same provider+providerAccountId
+    const result = await adapter.getAccountByProvider!('google', 'goog-abc');
     expect(result?.userId).toBe('usr-1'); // first one wins
   });
 });
@@ -281,26 +281,26 @@ describe('CloudflareD1Adapter — verification tokens', () => {
   it('createVerificationToken stores the token', async () => {
     const expires = new Date(Date.now() + 3600 * 1000);
     const vt = { identifier: 'user@example.com', token: 'magic-abc', expires };
-    const result = await adapter.createVerificationToken(vt);
+    const result = await adapter.createVerificationToken!(vt);
     expect(result.token).toBe('magic-abc');
   });
 
   it('useVerificationToken returns and deletes the token (one-time use)', async () => {
     const expires = new Date(Date.now() + 3600 * 1000);
-    await adapter.createVerificationToken({ identifier: 'a@b.com', token: 'otp-xyz', expires });
+    await adapter.createVerificationToken!({ identifier: 'a@b.com', token: 'otp-xyz', expires });
 
-    const result = await adapter.useVerificationToken({ identifier: 'a@b.com', token: 'otp-xyz' });
+    const result = await adapter.useVerificationToken!({ identifier: 'a@b.com', token: 'otp-xyz' });
     expect(result).not.toBeNull();
     expect(result?.token).toBe('otp-xyz');
     expect(result?.expires).toBeInstanceOf(Date);
 
     // Second use should return null
-    const second = await adapter.useVerificationToken({ identifier: 'a@b.com', token: 'otp-xyz' });
+    const second = await adapter.useVerificationToken!({ identifier: 'a@b.com', token: 'otp-xyz' });
     expect(second).toBeNull();
   });
 
   it('useVerificationToken returns null for nonexistent token', async () => {
-    const result = await adapter.useVerificationToken({
+    const result = await adapter.useVerificationToken!({
       identifier: 'nobody@example.com',
       token: 'ghost',
     });

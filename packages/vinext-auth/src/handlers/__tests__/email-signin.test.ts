@@ -160,7 +160,7 @@ describe('handleEmailSignin', () => {
     expect(res.headers.get('location')).toContain('verify-request');
     expect(sendMock).toHaveBeenCalledOnce();
 
-    const call = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    const call = (sendMock.mock.calls as unknown[][])[0][0] as Record<string, unknown>;
     expect(call.identifier).toBe('alice@example.com');
     expect(String(call.url)).toContain('/callback/email');
     expect(String(call.url)).toContain('token=');
@@ -185,7 +185,7 @@ describe('handleEmailSignin', () => {
     const config = makeConfig();
     const req = await makeRequest({ email: 'Alice@Example.COM' });
     await handleEmailSignin(req, provider, config);
-    const call = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    const call = (sendMock.mock.calls as unknown[][])[0][0] as Record<string, unknown>;
     expect(call.identifier).toBe('alice@example.com');
   });
 
@@ -223,7 +223,7 @@ describe('handleEmailSignin', () => {
     const req = await makeRequest({ email: 'carol@example.com' });
     await handleEmailSignin(req, provider, config);
 
-    const call = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    const call = (sendMock.mock.calls as unknown[][])[0][0] as Record<string, unknown>;
     expect(String(call.url)).toContain(`token=${customToken}`);
   });
 
