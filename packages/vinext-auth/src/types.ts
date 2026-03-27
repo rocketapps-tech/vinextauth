@@ -209,6 +209,38 @@ export interface CallbacksConfig<TSession = {}, TToken = {}, TUser = {}> {
   ) => Promise<RefreshTokenCallbackResult<TToken>>;
 }
 
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+export interface EventsConfig<TUser = {}> {
+  /**
+   * Fires when a user signs in.
+   * `isNewUser` is true on first sign-in (OAuth only, requires adapter).
+   */
+  signIn?: (params: {
+    user: User<TUser>;
+    account: SignInCallbackParams['account'];
+    isNewUser?: boolean;
+  }) => void | Promise<void>;
+
+  /** Fires when a user signs out. */
+  signOut?: (params: { token: DefaultJWT | null }) => void | Promise<void>;
+
+  /**
+   * Fires when a new user record is created.
+   * Only called when an adapter is present and the user is created for the first time.
+   */
+  createUser?: (params: { user: User<TUser> }) => void | Promise<void>;
+
+  /** Fires when a user record is updated (e.g., profile refresh from OAuth). */
+  updateUser?: (params: { user: User<TUser> }) => void | Promise<void>;
+
+  /**
+   * Fires on every session check (GET /api/auth/session).
+   * Do not perform heavy work here.
+   */
+  session?: (params: { session: DefaultSession; token: DefaultJWT }) => void | Promise<void>;
+}
+
 // ─── Pages ───────────────────────────────────────────────────────────────────
 
 export interface PagesConfig {
@@ -309,6 +341,11 @@ export interface VinextAuthConfig<TSession = {}, TToken = {}, TUser = {}> {
    * Credentials provider configuration (rate limiting, etc.)
    */
   credentials?: CredentialsConfig;
+
+  /**
+   * Lifecycle event hooks — fire-and-forget, never block the response.
+   */
+  events?: EventsConfig<TUser>;
 }
 
 // ─── Cookie config ───────────────────────────────────────────────────────────
@@ -355,6 +392,7 @@ export interface ResolvedConfig {
   theme: Required<ThemeConfig>;
   /** @internal Rate limiter instance — one per VinextAuth() call, not global */
   _rateLimiter: RateLimiter;
+  events: EventsConfig;
 }
 
 // ─── Theme config ─────────────────────────────────────────────────────────────

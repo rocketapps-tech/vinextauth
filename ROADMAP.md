@@ -10,9 +10,9 @@ This document tracks the planned work to bring VinextAuth to full NextAuth v4 fe
 |---|---------|----------|------------|--------|
 | 1 | [OAuth Providers](#1-oauth-providers) | High | Low | ✅ Done |
 | 2 | [Email / Magic Link Provider](#2-email--magic-link-provider) | High | High | ✅ Done |
-| 3 | [Events System](#3-events-system) | Medium | Low | ⬜ Pending |
-| 4 | [Distributed Rate Limiter — Cloudflare KV](#4-distributed-rate-limiter--cloudflare-kv) | Medium | Low | ⬜ Pending |
-| 5 | [Cloudflare D1 Adapter](#5-cloudflare-d1-adapter) | Medium | Medium | ⬜ Pending |
+| 3 | [Events System](#3-events-system) | Medium | Low | ✅ Done |
+| 4 | [Distributed Rate Limiter — Cloudflare KV](#4-distributed-rate-limiter--cloudflare-kv) | Medium | Low | ✅ Done |
+| 5 | [Cloudflare D1 Adapter](#5-cloudflare-d1-adapter) | Medium | Medium | ✅ Done |
 | 6 | [Test Coverage Expansion](#6-test-coverage-expansion) | Medium | Medium | ⬜ Pending |
 
 ---
@@ -812,3 +812,6 @@ _(Items move here once merged)_
 - ✅ Generic types without module augmentation
 - ✅ **OAuth Providers** — Discord, Facebook, LinkedIn, Twitch, Spotify, Microsoft/Azure AD, Twitter/X (OAuth2 + PKCE), Apple (ES256 JWT client secret via Web Crypto)
 - ✅ **Email / Magic Link Provider** — `EmailProvider` + `ResendTransport`, `handleEmailSignin`, `handleEmailVerify`, verify-request page, `CloudflareKVAdapter` extended with user + verification token methods
+- ✅ **Events System** — `EventsConfig` with `signIn`, `signOut`, `createUser`, `updateUser`, `session` hooks; fire-and-forget wired into all handlers
+- ✅ **Distributed Rate Limiter — Cloudflare KV** — `CloudflareKVRateLimiter` adapter; persists across Worker isolates
+- ✅ **Cloudflare D1 Adapter** — `CloudflareD1Adapter`; full `AdapterInterface` + SQL migration at `migrations/0001_vinextauth.sql`

@@ -84,6 +84,7 @@ export function resolveConfig(config: VinextAuthConfig): ResolvedConfig {
         config.credentials?.rateLimit?.maxAttempts ?? 5,
         config.credentials?.rateLimit?.windowMs ?? 15 * 60 * 1000
       ),
+    events: config.events ?? {},
   };
 }
 

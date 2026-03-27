@@ -88,11 +88,22 @@ export function CloudflareKVAdapter(namespace: KVNamespace): AdapterInterface {
     },
 
     async createSession(session) {
+      // Look up the full user record so getSession() returns complete data
+      const storedUser = (await namespace.get(userKey(session.userId), {
+        type: 'json',
+      })) as StoredUser | null;
       const stored: StoredSession = {
         sessionToken: session.sessionToken,
         userId: session.userId,
         expires: session.expires.toISOString(),
-        user: { id: session.userId },
+        user: storedUser
+          ? {
+              id: storedUser.id,
+              name: storedUser.name ?? null,
+              email: storedUser.email ?? null,
+              image: storedUser.image ?? null,
+            }
+          : { id: session.userId },
       };
       const ttl = Math.floor((session.expires.getTime() - Date.now()) / 1000);
       await namespace.put(sessionKey(session.sessionToken), JSON.stringify(stored), {

@@ -19,6 +19,8 @@ export default defineConfig({
     'providers/apple': 'src/providers/apple.ts',
     'providers/email': 'src/providers/email.ts',
     'adapters/cloudflare-kv': 'src/adapters/cloudflare-kv.ts',
+    'adapters/cloudflare-kv-rate-limiter': 'src/adapters/cloudflare-kv-rate-limiter.ts',
+    'adapters/cloudflare-d1': 'src/adapters/cloudflare-d1.ts',
   },
   format: ['esm'],
   dts: true,

@@ -1,4 +1,4 @@
-import type { EmailProvider, EmailTransport } from '../types.js';
+import type { EmailProvider as EmailProviderType, EmailTransport } from '../types.js';
 
 export interface ResendTransportConfig {
   apiKey: string;
@@ -37,18 +37,7 @@ export function ResendTransport(options: ResendTransportConfig): EmailTransport 
           from,
           to: identifier,
           subject: 'Sign in to your account',
-          html: `
-<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-  <p>Click the button below to sign in. This link expires in 24 hours.</p>
-  <a href="${url}"
-     style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;
-            text-decoration:none;border-radius:6px;font-weight:600">
-    Sign in
-  </a>
-  <p style="margin-top:16px;font-size:12px;color:#718096">
-    If you did not request this email, you can safely ignore it.
-  </p>
-</div>`,
+          html: buildSignInEmailHtml(url),
         }),
       });
 
@@ -89,7 +78,7 @@ export interface EmailProviderConfig {
  * })
  * ```
  */
-export function EmailProvider(config: EmailProviderConfig): EmailProvider {
+export function EmailProvider(config: EmailProviderConfig): EmailProviderType {
   return {
     id: 'email',
     name: 'Email',
@@ -102,3 +91,21 @@ export function EmailProvider(config: EmailProviderConfig): EmailProvider {
 }
 
 export default EmailProvider;
+
+function buildSignInEmailHtml(url: string): string {
+  return (
+    '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">' +
+    '<p>Click the button below to sign in. This link expires in 24 hours.</p>' +
+    '<a href="' +
+    url +
+    '"' +
+    ' style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;' +
+    'text-decoration:none;border-radius:6px;font-weight:600">' +
+    'Sign in' +
+    '</a>' +
+    '<p style="margin-top:16px;font-size:12px;color:#718096">' +
+    'If you did not request this email, you can safely ignore it.' +
+    '</p>' +
+    '</div>'
+  );
+}

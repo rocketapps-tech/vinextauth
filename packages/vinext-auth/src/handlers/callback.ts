@@ -130,11 +130,19 @@ export async function handleCallback(
     id_token: tokenData.id_token as string | undefined,
   };
 
-  // ── Account linking ───────────────────────────────────────────────────────
+  // ── Account linking / new-user detection ─────────────────────────────────
+  // isNewUser: true on the very first sign-in — no account link exists yet.
+  // Used to fire createUser event and to persist the user record in DB-strategy adapters.
+  let isNewUser = false;
+
   if (config.adapter?.getAccountByProvider) {
     const existingAccount = await config.adapter.getAccountByProvider(providerId, user.id);
 
-    if (!existingAccount && user.email && config.adapter.getUserByEmail) {
+    if (existingAccount) {
+      // Returning user — normalise to the adapter's canonical userId so the session FK
+      // and JWT sub both reference the same stable ID (not the raw OAuth profile id).
+      user.id = existingAccount.userId;
+    } else if (user.email && config.adapter.getUserByEmail) {
       const existingUser = await config.adapter.getUserByEmail(user.email);
 
       if (existingUser) {
@@ -154,18 +162,23 @@ export async function handleCallback(
           );
         }
 
-        // Account linking — link to existing user
+        // Link this provider to the existing user account
         if (config.adapter.linkAccount) {
           await config.adapter.linkAccount(existingUser.id, providerId, user.id);
         }
         if (config.debug) {
           console.log(`[VinextAuth] Account linked: ${user.email} via ${providerId}`);
         }
-        // Use existing user data
         user.id = existingUser.id;
         user.name = user.name ?? existingUser.name;
         user.image = user.image ?? existingUser.image;
+      } else {
+        // No account link and no user with this email — brand-new user
+        isNewUser = true;
       }
+    } else {
+      // No account link and no email to check — treat as new user
+      isNewUser = true;
     }
   }
 
@@ -187,6 +200,23 @@ export async function handleCallback(
 
   // ── Database strategy ─────────────────────────────────────────────────────
   if (config.session.strategy === 'database' && config.adapter) {
+    // First-time sign-in: create user record + link account so subsequent logins
+    // find the existing account and the session can return full user data.
+    if (isNewUser && config.adapter.createUser) {
+      const oauthProfileId = user.id; // raw provider id, used for linkAccount
+      const created = await config.adapter.createUser({
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      });
+      if (config.adapter.linkAccount) {
+        await config.adapter.linkAccount(created.id, providerId, oauthProfileId);
+      }
+      user.id = created.id;
+      if (config.debug) console.log('[VinextAuth] New user created:', created.email ?? created.id);
+      void config.events.createUser?.({ user: created });
+    }
+
     const sessionToken = generateId();
     const expires = new Date(Date.now() + config.session.maxAge * 1000);
     await config.adapter.createSession({ sessionToken, userId: user.id, expires });
@@ -196,6 +226,7 @@ export async function handleCallback(
     clearPkceCookie(headers, config);
     headers.set('Location', redirectUrl);
     if (config.debug) console.log('[VinextAuth] DB session created for:', user.email ?? user.id);
+    void config.events.signIn?.({ user, account, isNewUser });
     return new Response(null, { status: 302, headers });
   }
 
@@ -213,6 +244,7 @@ export async function handleCallback(
     console.log('[VinextAuth] Signed in:', jwtPayload.email ?? jwtPayload.sub ?? 'unknown');
   }
 
+  void config.events.signIn?.({ user, account, isNewUser });
   return new Response(null, { status: 302, headers });
 }
 

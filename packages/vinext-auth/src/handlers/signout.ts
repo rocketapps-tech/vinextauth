@@ -73,6 +73,7 @@ export async function handleSignOut(request: Request, config: ResolvedConfig): P
 
   headers.set('Location', redirectUrl);
 
+  void config.events.signOut?.({ token: null });
   return new Response(null, { status: 302, headers });
 }
 

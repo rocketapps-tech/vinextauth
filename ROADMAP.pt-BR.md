@@ -10,9 +10,9 @@ Este documento registra o trabalho planejado para trazer o VinextAuth à paridad
 |---|---------|------------|--------------|--------|
 | 1 | [Providers OAuth](#1-providers-oauth) | Alta | Baixa | ✅ Concluído |
 | 2 | [Provider Email / Magic Link](#2-provider-email--magic-link) | Alta | Alta | ✅ Concluído |
-| 3 | [Sistema de Eventos](#3-sistema-de-eventos) | Média | Baixa | ⬜ Pendente |
-| 4 | [Rate Limiter Distribuído — Cloudflare KV](#4-rate-limiter-distribuído--cloudflare-kv) | Média | Baixa | ⬜ Pendente |
-| 5 | [Adapter Cloudflare D1](#5-adapter-cloudflare-d1) | Média | Média | ⬜ Pendente |
+| 3 | [Sistema de Eventos](#3-sistema-de-eventos) | Média | Baixa | ✅ Concluído |
+| 4 | [Rate Limiter Distribuído — Cloudflare KV](#4-rate-limiter-distribuído--cloudflare-kv) | Média | Baixa | ✅ Concluído |
+| 5 | [Adapter Cloudflare D1](#5-adapter-cloudflare-d1) | Média | Média | ✅ Concluído |
 | 6 | [Expansão de Cobertura de Testes](#6-expansão-de-cobertura-de-testes) | Média | Média | ⬜ Pendente |
 
 ---
@@ -812,3 +812,6 @@ _(Os itens são movidos aqui após o merge)_
 - ✅ Tipos genéricos sem module augmentation
 - ✅ **Providers OAuth** — Discord, Facebook, LinkedIn, Twitch, Spotify, Microsoft/Azure AD, Twitter/X (OAuth2 + PKCE), Apple (JWT client_secret ES256 via Web Crypto)
 - ✅ **Provider Email / Magic Link** — `EmailProvider` + `ResendTransport`, `handleEmailSignin`, `handleEmailVerify`, página verify-request, `CloudflareKVAdapter` estendido com métodos de usuário e token de verificação
+- ✅ **Sistema de Eventos** — `EventsConfig` com hooks `signIn`, `signOut`, `createUser`, `updateUser`, `session`; fire-and-forget conectado em todos os handlers
+- ✅ **Rate Limiter Distribuído — Cloudflare KV** — adapter `CloudflareKVRateLimiter`; persiste entre isolates de Worker
+- ✅ **Adapter Cloudflare D1** — `CloudflareD1Adapter`; `AdapterInterface` completo + migration SQL em `migrations/0001_vinextauth.sql`

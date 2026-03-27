@@ -74,6 +74,14 @@
     "./adapters/cloudflare-kv": {
       "types": "./dist/adapters/cloudflare-kv.d.ts",
       "import": "./dist/adapters/cloudflare-kv.js"
+    },
+    "./adapters/cloudflare-kv-rate-limiter": {
+      "types": "./dist/adapters/cloudflare-kv-rate-limiter.d.ts",
+      "import": "./dist/adapters/cloudflare-kv-rate-limiter.js"
+    },
+    "./adapters/cloudflare-d1": {
+      "types": "./dist/adapters/cloudflare-d1.d.ts",
+      "import": "./dist/adapters/cloudflare-d1.js"
     }
   },
   "main": "./dist/index.js",

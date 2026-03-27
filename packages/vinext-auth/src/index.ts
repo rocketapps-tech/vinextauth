@@ -37,6 +37,7 @@ export type {
   AccountLinkingConfig,
   CredentialsConfig,
   RateLimiter,
+  EventsConfig,
   VinextAuthErrorCode,
 } from './types.js';
 
