@@ -8,32 +8,32 @@ VinextAuth provides a `withAuth` middleware that runs at the edge to protect rou
 ## Setup
 
 ```ts title="src/middleware.ts"
-import { withAuth } from "vinextauth/middleware";
+import { withAuth } from 'vinextauth/middleware';
 
 export default withAuth({
   // Redirect unauthenticated users to this page
   pages: {
-    signIn: "/api/auth/signin",
+    signIn: '/api/auth/signin',
   },
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"],
+  matcher: ['/dashboard/:path*', '/profile/:path*'],
 };
 ```
 
 ## Custom logic
 
 ```ts title="src/middleware.ts"
-import { withAuth } from "vinextauth/middleware";
-import { NextResponse } from "vinext/server";
+import { withAuth } from 'vinextauth/middleware';
+import { NextResponse } from 'vinext/server';
 
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
 
-    if (token?.role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+    if (token?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/', req.url));
     }
 
     return NextResponse.next();
@@ -46,7 +46,7 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ['/admin/:path*'],
 };
 ```
 

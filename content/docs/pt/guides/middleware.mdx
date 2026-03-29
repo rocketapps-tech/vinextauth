@@ -8,31 +8,31 @@ O VinextAuth fornece um middleware `withAuth` que roda no edge para proteger rot
 ## Configuração
 
 ```ts title="src/middleware.ts"
-import { withAuth } from "vinextauth/middleware";
+import { withAuth } from 'vinextauth/middleware';
 
 export default withAuth({
   pages: {
-    signIn: "/api/auth/signin",
+    signIn: '/api/auth/signin',
   },
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/perfil/:path*"],
+  matcher: ['/dashboard/:path*', '/perfil/:path*'],
 };
 ```
 
 ## Lógica customizada
 
 ```ts title="src/middleware.ts"
-import { withAuth } from "vinextauth/middleware";
-import { NextResponse } from "vinext/server";
+import { withAuth } from 'vinextauth/middleware';
+import { NextResponse } from 'vinext/server';
 
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
 
-    if (token?.role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+    if (token?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/', req.url));
     }
 
     return NextResponse.next();
@@ -45,7 +45,7 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ['/admin/:path*'],
 };
 ```
 

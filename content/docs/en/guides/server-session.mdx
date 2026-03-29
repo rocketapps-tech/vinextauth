@@ -29,8 +29,8 @@ export default async function DashboardPage() {
 Alternatively, use `getServerSession` from `vinextauth/server`:
 
 ```ts
-import { getServerSession } from "vinextauth/server";
-import { authOptions } from "@/auth";
+import { getServerSession } from 'vinextauth/server';
+import { authOptions } from '@/auth';
 
 const session = await getServerSession(authOptions);
 // or without args if VinextAuth() is already initialized in the module graph:
@@ -46,14 +46,14 @@ export const { GET, POST, toPages, pagesAuth, pagesCsrf } = VinextAuth({ ... });
 ```
 
 ```ts title="src/pages/api/me.ts"
-import type { NextApiRequest, NextApiResponse } from "vinext";
-import { pagesAuth } from "@/auth";
+import type { NextApiRequest, NextApiResponse } from 'vinext';
+import { pagesAuth } from '@/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await pagesAuth(req);
 
   if (!session) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   return res.json({ user: session.user });
@@ -63,13 +63,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 ### In `getServerSideProps`
 
 ```ts
-import { pagesAuth } from "@/auth";
+import { pagesAuth } from '@/auth';
 
 export const getServerSideProps = async (ctx) => {
   const session = await pagesAuth(ctx.req);
 
   if (!session) {
-    return { redirect: { destination: "/api/auth/signin", permanent: false } };
+    return { redirect: { destination: '/api/auth/signin', permanent: false } };
   }
 
   return { props: { session } };
@@ -81,18 +81,18 @@ export const getServerSideProps = async (ctx) => {
 Use `updateSession` from `vinextauth/server` in Server Actions or Route Handlers:
 
 ```ts
-import { updateSession } from "vinextauth/server";
-import { authOptions } from "@/auth";
+import { updateSession } from 'vinextauth/server';
+import { authOptions } from '@/auth';
 
 // Merge partial updates into the current session
-await updateSession(authOptions, { user: { role: "admin" } });
+await updateSession(authOptions, { user: { role: 'admin' } });
 ```
 
 ## Invalidating the session
 
 ```ts
-import { invalidateSession } from "vinextauth/server";
-import { authOptions } from "@/auth";
+import { invalidateSession } from 'vinextauth/server';
+import { authOptions } from '@/auth';
 
 // Clear the session cookie (and DB record when using database strategy)
 await invalidateSession(authOptions);

@@ -37,8 +37,8 @@ export const { GET, POST, auth } = VinextAuth({
 ## Invalidando sessões
 
 ```ts
-import { invalidateSession } from "vinextauth/server";
-import { authOptions } from "@/auth";
+import { invalidateSession } from 'vinextauth/server';
+import { authOptions } from '@/auth';
 
 // Força o logout do usuário atual
 await invalidateSession(authOptions);

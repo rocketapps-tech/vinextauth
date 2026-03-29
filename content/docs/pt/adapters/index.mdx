@@ -9,15 +9,16 @@ Para sessões em banco de dados — útil quando você precisa invalidar sessõe
 
 ## Adaptadores disponíveis
 
-| Adaptador | Import | Caso de uso |
-|---|---|---|
-| Cloudflare KV | `vinextauth/adapters/cloudflare-kv` | Armazenamento geral de sessões |
-| KV Rate Limiter | `vinextauth/adapters/cloudflare-kv-rate-limiter` | Rate limiting distribuído para credentials |
-| Cloudflare D1 | `vinextauth/adapters/cloudflare-d1` | Persistência completa de sessão + usuário em SQL |
+| Adaptador       | Import                                           | Caso de uso                                      |
+| --------------- | ------------------------------------------------ | ------------------------------------------------ |
+| Cloudflare KV   | `vinextauth/adapters/cloudflare-kv`              | Armazenamento geral de sessões                   |
+| KV Rate Limiter | `vinextauth/adapters/cloudflare-kv-rate-limiter` | Rate limiting distribuído para credentials       |
+| Cloudflare D1   | `vinextauth/adapters/cloudflare-d1`              | Persistência completa de sessão + usuário em SQL |
 
 ## Quando usar um adaptador
 
 Use um adaptador quando precisar:
+
 - Invalidar uma sessão específica no servidor (ex.: forçar logout)
 - Armazenar dados adicionais do usuário junto à sessão
 - Rastrear sessões ativas por usuário

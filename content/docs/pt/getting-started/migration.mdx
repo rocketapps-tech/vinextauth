@@ -14,27 +14,27 @@ npm install vinextauth
 
 ## 2. Atualize os imports
 
-| NextAuth v4 | VinextAuth |
-|---|---|
-| `import NextAuth from "next-auth"` | `import VinextAuth from "vinextauth"` |
-| `import { getServerSession } from "next-auth"` | `import { getServerSession } from "vinextauth/server"` |
-| `import { useSession } from "next-auth/react"` | `import { useSession } from "vinextauth/react"` |
-| `import { SessionProvider } from "next-auth/react"` | `import { SessionProvider } from "vinextauth/react"` |
-| `import GoogleProvider from "next-auth/providers/google"` | `import Google from "vinextauth/providers/google"` |
+| NextAuth v4                                               | VinextAuth                                             |
+| --------------------------------------------------------- | ------------------------------------------------------ |
+| `import NextAuth from "next-auth"`                        | `import VinextAuth from "vinextauth"`                  |
+| `import { getServerSession } from "next-auth"`            | `import { getServerSession } from "vinextauth/server"` |
+| `import { useSession } from "next-auth/react"`            | `import { useSession } from "vinextauth/react"`        |
+| `import { SessionProvider } from "next-auth/react"`       | `import { SessionProvider } from "vinextauth/react"`   |
+| `import GoogleProvider from "next-auth/providers/google"` | `import Google from "vinextauth/providers/google"`     |
 
 ## 3. Atualize a rota da API
 
 ```ts title="Antes (NextAuth v4)"
 // src/pages/api/auth/[...nextauth].ts
-import NextAuth from "next-auth";
-import { authOptions } from "@/auth";
+import NextAuth from 'next-auth';
+import { authOptions } from '@/auth';
 
 export default NextAuth(authOptions);
 ```
 
 ```ts title="Depois (VinextAuth)"
 // src/pages/api/auth/[...vinextauth].ts
-import { GET, POST } from "@/auth";
+import { GET, POST } from '@/auth';
 
 export { GET, POST };
 ```
@@ -50,10 +50,10 @@ export { GET, POST };
 
 O VinextAuth usa nomes de variáveis próprios — **não** usa `NEXTAUTH_*`:
 
-| NextAuth v4 | VinextAuth |
-|---|---|
+| NextAuth v4       | VinextAuth          |
+| ----------------- | ------------------- |
 | `NEXTAUTH_SECRET` | `VINEXTAUTH_SECRET` |
-| `NEXTAUTH_URL` | `VINEXTAUTH_URL` |
+| `NEXTAUTH_URL`    | `VINEXTAUTH_URL`    |
 
 ## O que é diferente
 

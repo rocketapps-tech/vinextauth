@@ -6,8 +6,8 @@ description: Sign in with Microsoft / Azure AD using OAuth 2.0.
 ## Setup
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import Microsoft from "vinextauth/providers/microsoft";
+import VinextAuth from 'vinextauth';
+import Microsoft from 'vinextauth/providers/microsoft';
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [
@@ -43,10 +43,10 @@ By default the provider uses `common` (personal + work/school accounts). Use `te
 Microsoft({
   clientId: process.env.MICROSOFT_CLIENT_ID!,
   clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
-  tenantId: "organizations", // work/school accounts only
+  tenantId: 'organizations', // work/school accounts only
   // tenantId: "consumers"  // personal accounts only
   // tenantId: "<tenant-guid>" // single tenant
-})
+});
 ```
 
 ## Default scopes

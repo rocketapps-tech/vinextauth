@@ -69,7 +69,9 @@
   text-decoration: none;
   transition: opacity 0.15s;
 }
-.lp-btn-primary:hover { opacity: 0.88; }
+.lp-btn-primary:hover {
+  opacity: 0.88;
+}
 
 .lp-btn-secondary {
   display: inline-flex;
@@ -85,7 +87,9 @@
   text-decoration: none;
   transition: background 0.15s;
 }
-.lp-btn-secondary:hover { background: var(--color-fd-accent); }
+.lp-btn-secondary:hover {
+  background: var(--color-fd-accent);
+}
 
 .lp-install {
   display: inline-flex;
@@ -119,11 +123,15 @@
 }
 
 @media (min-width: 640px) {
-  .lp-grid { grid-template-columns: repeat(2, 1fr); }
+  .lp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 1024px) {
-  .lp-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .lp-card {
@@ -203,7 +211,9 @@
   text-align: center;
   margin-top: 1.5rem;
 }
-.lp-link:hover { text-decoration: underline; }
+.lp-link:hover {
+  text-decoration: underline;
+}
 
 /* Footer */
 .lp-footer {
@@ -218,4 +228,6 @@
   text-decoration: underline;
   color: inherit;
 }
-.lp-footer a:hover { color: var(--color-fd-foreground); }
+.lp-footer a:hover {
+  color: var(--color-fd-foreground);
+}

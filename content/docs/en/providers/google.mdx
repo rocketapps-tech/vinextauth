@@ -6,8 +6,8 @@ description: Sign in with Google using OAuth 2.0.
 ## Setup
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import Google from "vinextauth/providers/google";
+import VinextAuth from 'vinextauth';
+import Google from 'vinextauth/providers/google';
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [
@@ -37,10 +37,10 @@ GOOGLE_CLIENT_SECRET=...
 
 ## Options
 
-| Option | Type | Description |
-|---|---|---|
-| `clientId` | `string` | Required. OAuth client ID. |
-| `clientSecret` | `string` | Required. OAuth client secret. |
+| Option                 | Type                     | Description                            |
+| ---------------------- | ------------------------ | -------------------------------------- |
+| `clientId`             | `string`                 | Required. OAuth client ID.             |
+| `clientSecret`         | `string`                 | Required. OAuth client secret.         |
 | `authorization.params` | `Record<string, string>` | Override default authorization params. |
 
 ## Default scopes
@@ -55,8 +55,8 @@ Google({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
   authorization: {
     params: {
-      scope: "openid email profile https://www.googleapis.com/auth/calendar.readonly",
+      scope: 'openid email profile https://www.googleapis.com/auth/calendar.readonly',
     },
   },
-})
+});
 ```

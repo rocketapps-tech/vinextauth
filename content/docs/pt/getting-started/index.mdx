@@ -26,9 +26,9 @@ Você também pode passar `secret` diretamente no objeto de configuração (úti
 ### 1. Crie o arquivo de auth
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import GitHub from "vinextauth/providers/github";
-import Google from "vinextauth/providers/google";
+import VinextAuth from 'vinextauth';
+import GitHub from 'vinextauth/providers/github';
+import Google from 'vinextauth/providers/google';
 
 export const { GET, POST, auth, toPages } = VinextAuth({
   secret: process.env.VINEXTAUTH_SECRET!,
@@ -50,7 +50,7 @@ export const { GET, POST, auth, toPages } = VinextAuth({
 `toPages()` cria um handler compatível com o Pages Router do Vinext:
 
 ```ts title="src/pages/api/auth/[...vinextauth].ts"
-import { toPages } from "@/auth";
+import { toPages } from '@/auth';
 
 export default toPages();
 ```
@@ -58,8 +58,8 @@ export default toPages();
 ### 3. Envolva o seu app
 
 ```tsx title="src/pages/_app.tsx"
-import type { AppProps } from "vinext/app";
-import { SessionProvider } from "vinextauth/react";
+import type { AppProps } from 'vinext/app';
+import { SessionProvider } from 'vinextauth/react';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

@@ -26,9 +26,9 @@ You can also pass `secret` directly in the config object (useful for Cloudflare 
 ### 1. Create the auth config
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import GitHub from "vinextauth/providers/github";
-import Google from "vinextauth/providers/google";
+import VinextAuth from 'vinextauth';
+import GitHub from 'vinextauth/providers/github';
+import Google from 'vinextauth/providers/google';
 
 export const { GET, POST, auth, toPages } = VinextAuth({
   secret: process.env.VINEXTAUTH_SECRET!,
@@ -50,7 +50,7 @@ export const { GET, POST, auth, toPages } = VinextAuth({
 `toPages()` creates a Pages Router handler compatible with Vinext:
 
 ```ts title="src/pages/api/auth/[...vinextauth].ts"
-import { toPages } from "@/auth";
+import { toPages } from '@/auth';
 
 export default toPages();
 ```
@@ -58,8 +58,8 @@ export default toPages();
 ### 3. Wrap your app
 
 ```tsx title="src/pages/_app.tsx"
-import type { AppProps } from "vinext/app";
-import { SessionProvider } from "vinextauth/react";
+import type { AppProps } from 'vinext/app';
+import { SessionProvider } from 'vinextauth/react';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

@@ -14,14 +14,14 @@ O provider Email requer um adaptador que armazene tokens de verificação. Use [
 O VinextAuth inclui um `ResendTransport` embutido para envio de e-mails no edge:
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import { EmailProvider, ResendTransport } from "vinextauth/providers/email";
-import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv";
+import VinextAuth from 'vinextauth';
+import { EmailProvider, ResendTransport } from 'vinextauth/providers/email';
+import { CloudflareKVAdapter } from 'vinextauth/adapters/cloudflare-kv';
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [
     EmailProvider({
-      from: "no-reply@seuapp.com.br",
+      from: 'no-reply@seuapp.com.br',
       transport: ResendTransport({
         apiKey: process.env.RESEND_API_KEY!,
       }),
@@ -37,35 +37,35 @@ Implemente qualquer serviço de e-mail compatível com edge:
 
 ```ts
 EmailProvider({
-  from: "no-reply@seuapp.com.br",
+  from: 'no-reply@seuapp.com.br',
   transport: {
     async sendVerificationRequest({ identifier, url, provider }) {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: provider.from,
           to: identifier,
-          subject: "Seu link de acesso",
+          subject: 'Seu link de acesso',
           html: `<a href="${url}">Clique aqui para entrar</a>`,
         }),
       });
     },
   },
-})
+});
 ```
 
 ## Opções
 
-| Opção | Tipo | Padrão | Descrição |
-|---|---|---|---|
-| `from` | `string` | `"noreply@example.com"` | E-mail do remetente. |
-| `maxAge` | `number` | `86400` | TTL do token em segundos (24 horas). |
-| `transport` | `EmailTransport` | Obrigatório | Implementação do transporte de e-mail. |
-| `generateVerificationToken` | `() => Promise<string>` | Hex aleatório | Gerador de token customizado. |
+| Opção                       | Tipo                    | Padrão                  | Descrição                              |
+| --------------------------- | ----------------------- | ----------------------- | -------------------------------------- |
+| `from`                      | `string`                | `"noreply@example.com"` | E-mail do remetente.                   |
+| `maxAge`                    | `number`                | `86400`                 | TTL do token em segundos (24 horas).   |
+| `transport`                 | `EmailTransport`        | Obrigatório             | Implementação do transporte de e-mail. |
+| `generateVerificationToken` | `() => Promise<string>` | Hex aleatório           | Gerador de token customizado.          |
 
 ## Fluxo
 

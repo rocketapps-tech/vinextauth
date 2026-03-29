@@ -1,14 +1,19 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 const features = [
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" width={20} height={20}>
-        <path fillRule="evenodd" d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
-    title: "Feito para o edge",
-    description: "Roda nativamente no Cloudflare Workers. Sem APIs Node.js — Web Crypto API em todo lugar.",
+    title: 'Feito para o edge',
+    description:
+      'Roda nativamente no Cloudflare Workers. Sem APIs Node.js — Web Crypto API em todo lugar.',
   },
   {
     icon: (
@@ -16,26 +21,35 @@ const features = [
         <path d="M10.362 1.093a.75.75 0 0 0-.724 0L2.523 5.018 10 9.143l7.477-4.125-7.115-3.925ZM18 6.443l-7.25 4v8.25l6.862-3.786A.75.75 0 0 0 18 14.25V6.443ZM9.25 18.693v-8.25l-7.25-4v7.807a.75.75 0 0 0 .388.657l6.862 3.786Z" />
       </svg>
     ),
-    title: "Zero dependências",
-    description: "Sem dependências em runtime. JWT, CSRF, cookies e crypto são todos hand-rolled.",
+    title: 'Zero dependências',
+    description: 'Sem dependências em runtime. JWT, CSRF, cookies e crypto são todos hand-rolled.',
   },
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" width={20} height={20}>
-        <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
-    title: "Compatível com NextAuth v4",
-    description: "Mesmos callbacks, mesma sessão, mesmo formato de cookies. Substituto direto.",
+    title: 'Compatível com NextAuth v4',
+    description: 'Mesmos callbacks, mesma sessão, mesmo formato de cookies. Substituto direto.',
   },
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" width={20} height={20}>
-        <path fillRule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
-    title: "12 providers",
-    description: "Google, GitHub, Discord, Apple, Microsoft e mais. Credentials e magic link por e-mail.",
+    title: '12 providers',
+    description:
+      'Google, GitHub, Discord, Apple, Microsoft e mais. Credentials e magic link por e-mail.',
   },
   {
     icon: (
@@ -45,17 +59,21 @@ const features = [
         <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3Z" />
       </svg>
     ),
-    title: "Adaptadores Cloudflare",
-    description: "KV e D1 para sessões em banco de dados e invalidação no servidor.",
+    title: 'Adaptadores Cloudflare',
+    description: 'KV e D1 para sessões em banco de dados e invalidação no servidor.',
   },
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" width={20} height={20}>
-        <path fillRule="evenodd" d="M9.661 2.237a.531.531 0 0 1 .678 0 11.947 11.947 0 0 0 7.078 2.749.5.5 0 0 1 .479.425c.069.52.104 1.05.104 1.59 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 0 1-.332 0C5.26 16.564 2 12.163 2 7c0-.538.035-1.069.104-1.589a.5.5 0 0 1 .48-.425 11.947 11.947 0 0 0 7.077-2.75Zm4.196 5.954a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M9.661 2.237a.531.531 0 0 1 .678 0 11.947 11.947 0 0 0 7.078 2.749.5.5 0 0 1 .479.425c.069.52.104 1.05.104 1.59 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 0 1-.332 0C5.26 16.564 2 12.163 2 7c0-.538.035-1.069.104-1.589a.5.5 0 0 1 .48-.425 11.947 11.947 0 0 0 7.077-2.75Zm4.196 5.954a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
-    title: "CSRF + rate limiting",
-    description: "Proteção CSRF double-submit e rate limiting configurável para credentials.",
+    title: 'CSRF + rate limiting',
+    description: 'Proteção CSRF double-submit e rate limiting configurável para credentials.',
   },
 ];
 
@@ -70,16 +88,15 @@ export default function HomePage() {
         </div>
 
         <h1 className="lp-title">
-          {"Auth para "}
+          {'Auth para '}
           <span className="lp-title-accent">Vinext</span>
-          {" & "}
+          {' & '}
           <span className="lp-title-accent">Cloudflare Workers</span>
         </h1>
 
         <p className="lp-description">
-          VinextAuth é uma biblioteca de autenticação sem dependências, construída
-          sobre a Web Crypto API. Mesma API do NextAuth v4, mas roda em qualquer
-          lugar no edge.
+          VinextAuth é uma biblioteca de autenticação sem dependências, construída sobre a Web
+          Crypto API. Mesma API do NextAuth v4, mas roda em qualquer lugar no edge.
         </p>
 
         <div className="lp-actions">
@@ -155,11 +172,11 @@ export const { GET, POST, auth, toPages } = VinextAuth({
 
       {/* Footer */}
       <footer className="lp-footer">
-        {"Licença MIT · "}
+        {'Licença MIT · '}
         <a href="https://github.com/rocketapps-tech/vinextauth">GitHub</a>
-        {" · Feito para "}
+        {' · Feito para '}
         <a href="https://vinext.io">Vinext</a>
-        {" & Cloudflare Workers"}
+        {' & Cloudflare Workers'}
       </footer>
     </>
   );

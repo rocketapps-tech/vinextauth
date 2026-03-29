@@ -8,8 +8,8 @@ description: Sign in with Apple using OAuth 2.0 (ES256 client secret).
 Apple Sign In requires a dynamically generated client secret (a short-lived ES256 JWT). VinextAuth handles this automatically via `clientSecretFactory`.
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import Apple from "vinextauth/providers/apple";
+import VinextAuth from 'vinextauth';
+import Apple from 'vinextauth/providers/apple';
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [

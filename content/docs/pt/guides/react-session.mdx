@@ -8,8 +8,8 @@ description: Acesse e gerencie a sessão no cliente com useSession, signIn e sig
 Envolva seu app com `SessionProvider` para disponibilizar a sessão em todos os componentes cliente.
 
 ```tsx title="src/pages/_app.tsx"
-import type { AppProps } from "vinext/app";
-import { SessionProvider } from "vinextauth/react";
+import type { AppProps } from 'vinext/app';
+import { SessionProvider } from 'vinextauth/react';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -22,24 +22,24 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ### Props
 
-| Prop | Tipo | Padrão | Descrição |
-|---|---|---|---|
-| `session` | `Session \| null` | `undefined` | Sessão do servidor para evitar fetch inicial no cliente. |
-| `basePath` | `string` | `"/api/auth"` | Sobrescreve o caminho base do auth. |
-| `refetchInterval` | `number` | — | Re-busca a sessão a cada N segundos. |
-| `refetchOnWindowFocus` | `boolean` | `true` | Re-busca quando a aba volta ao foco. |
+| Prop                   | Tipo              | Padrão        | Descrição                                                |
+| ---------------------- | ----------------- | ------------- | -------------------------------------------------------- |
+| `session`              | `Session \| null` | `undefined`   | Sessão do servidor para evitar fetch inicial no cliente. |
+| `basePath`             | `string`          | `"/api/auth"` | Sobrescreve o caminho base do auth.                      |
+| `refetchInterval`      | `number`          | —             | Re-busca a sessão a cada N segundos.                     |
+| `refetchOnWindowFocus` | `boolean`         | `true`        | Re-busca quando a aba volta ao foco.                     |
 
 ## useSession
 
 ```tsx
-"use client";
-import { useSession } from "vinextauth/react";
+'use client';
+import { useSession } from 'vinextauth/react';
 
 export function MenuUsuario() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") return <span>Carregando...</span>;
-  if (status === "unauthenticated") return <a href="/api/auth/signin">Entrar</a>;
+  if (status === 'loading') return <span>Carregando...</span>;
+  if (status === 'unauthenticated') return <a href="/api/auth/signin">Entrar</a>;
 
   return <span>Olá, {session.user.name}</span>;
 }
@@ -47,22 +47,22 @@ export function MenuUsuario() {
 
 ### Valor retornado
 
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `data` | `Session \| null` | Sessão atual ou `null` quando não autenticado. |
-| `status` | `"loading" \| "authenticated" \| "unauthenticated"` | Estado de carregamento da sessão. |
-| `update` | `(data?) => Promise<Session \| null>` | Atualiza ou recarrega a sessão. |
+| Campo    | Tipo                                                | Descrição                                      |
+| -------- | --------------------------------------------------- | ---------------------------------------------- |
+| `data`   | `Session \| null`                                   | Sessão atual ou `null` quando não autenticado. |
+| `status` | `"loading" \| "authenticated" \| "unauthenticated"` | Estado de carregamento da sessão.              |
+| `update` | `(data?) => Promise<Session \| null>`               | Atualiza ou recarrega a sessão.                |
 
 ## signIn
 
 Redireciona para a página de login ou diretamente para um provider OAuth:
 
 ```ts
-import { signIn } from "vinextauth/react";
+import { signIn } from 'vinextauth/react';
 
-signIn();                                          // Página de login
-signIn("google");                                  // Direto para o Google
-signIn("github", { callbackUrl: "/dashboard" });   // Com redirect customizado
+signIn(); // Página de login
+signIn('google'); // Direto para o Google
+signIn('github', { callbackUrl: '/dashboard' }); // Com redirect customizado
 ```
 
 ## signOut
@@ -70,8 +70,8 @@ signIn("github", { callbackUrl: "/dashboard" });   // Com redirect customizado
 Faz POST no endpoint de logout e redireciona:
 
 ```ts
-import { signOut } from "vinextauth/react";
+import { signOut } from 'vinextauth/react';
 
-await signOut();                              // Logout e redirect para a origem
-await signOut({ callbackUrl: "/login" });     // Redirect customizado
+await signOut(); // Logout e redirect para a origem
+await signOut({ callbackUrl: '/login' }); // Redirect customizado
 ```

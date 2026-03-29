@@ -6,8 +6,8 @@ description: Sign in with GitHub using OAuth 2.0.
 ## Setup
 
 ```ts title="src/auth.ts"
-import VinextAuth from "vinextauth";
-import GitHub from "vinextauth/providers/github";
+import VinextAuth from 'vinextauth';
+import GitHub from 'vinextauth/providers/github';
 
 export const { GET, POST, auth } = VinextAuth({
   providers: [
@@ -36,10 +36,10 @@ GITHUB_CLIENT_SECRET=...
 
 ## Options
 
-| Option | Type | Description |
-|---|---|---|
-| `clientId` | `string` | Required. OAuth client ID. |
-| `clientSecret` | `string` | Required. OAuth client secret. |
+| Option                 | Type                     | Description                            |
+| ---------------------- | ------------------------ | -------------------------------------- |
+| `clientId`             | `string`                 | Required. OAuth client ID.             |
+| `clientSecret`         | `string`                 | Required. OAuth client secret.         |
 | `authorization.params` | `Record<string, string>` | Override default authorization params. |
 
 ## Default scopes

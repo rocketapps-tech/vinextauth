@@ -43,13 +43,13 @@ export const { GET, POST, auth } = VinextAuth({
 CloudflareKVRateLimiter(env.RATE_LIMIT_KV, {
   maxAttempts: 10,
   windowMs: 60 * 60 * 1000, // 1 hour
-})
+});
 ```
 
-| Option | Default | Description |
-|---|---|---|
-| `maxAttempts` | `5` | Max failed attempts before blocking. |
-| `windowMs` | `900000` (15 min) | Time window in milliseconds. |
+| Option        | Default           | Description                          |
+| ------------- | ----------------- | ------------------------------------ |
+| `maxAttempts` | `5`               | Max failed attempts before blocking. |
+| `windowMs`    | `900000` (15 min) | Time window in milliseconds.         |
 
 ## How it works
 

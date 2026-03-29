@@ -7,33 +7,33 @@ VinextAuth includes 12 built-in providers. Each is a separate entry point to kee
 
 ## OAuth Providers
 
-| Provider | Import |
-|---|---|
-| Google | `vinextauth/providers/google` |
-| GitHub | `vinextauth/providers/github` |
-| Discord | `vinextauth/providers/discord` |
-| Facebook | `vinextauth/providers/facebook` |
-| LinkedIn | `vinextauth/providers/linkedin` |
-| Twitch | `vinextauth/providers/twitch` |
-| Spotify | `vinextauth/providers/spotify` |
-| Microsoft | `vinextauth/providers/microsoft` |
-| Twitter / X | `vinextauth/providers/twitter` |
-| Apple | `vinextauth/providers/apple` |
+| Provider    | Import                           |
+| ----------- | -------------------------------- |
+| Google      | `vinextauth/providers/google`    |
+| GitHub      | `vinextauth/providers/github`    |
+| Discord     | `vinextauth/providers/discord`   |
+| Facebook    | `vinextauth/providers/facebook`  |
+| LinkedIn    | `vinextauth/providers/linkedin`  |
+| Twitch      | `vinextauth/providers/twitch`    |
+| Spotify     | `vinextauth/providers/spotify`   |
+| Microsoft   | `vinextauth/providers/microsoft` |
+| Twitter / X | `vinextauth/providers/twitter`   |
+| Apple       | `vinextauth/providers/apple`     |
 
 ## Other Providers
 
-| Provider | Import |
-|---|---|
-| Credentials | `vinextauth/providers/credentials` |
-| Email (magic link) | `vinextauth/providers/email` |
+| Provider           | Import                             |
+| ------------------ | ---------------------------------- |
+| Credentials        | `vinextauth/providers/credentials` |
+| Email (magic link) | `vinextauth/providers/email`       |
 
 ## Usage
 
 All OAuth providers accept `clientId` and `clientSecret`:
 
 ```ts
-import Google from "vinextauth/providers/google";
-import GitHub from "vinextauth/providers/github";
+import Google from 'vinextauth/providers/google';
+import GitHub from 'vinextauth/providers/github';
 
 VinextAuth({
   providers: [

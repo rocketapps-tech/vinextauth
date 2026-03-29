@@ -78,15 +78,15 @@ export const { GET, POST, auth } = VinextAuth({
 
 The D1 adapter implements all `AdapterInterface` methods:
 
-| Method | Description |
-|---|---|
-| `getSession` | Look up session + user by session token |
-| `createSession` | Create a new session record |
-| `updateSession` | Extend session expiry |
-| `deleteSession` | Delete a session by token |
-| `getUserByEmail` | Find a user by email |
-| `createUser` | Create a new user record |
-| `linkAccount` | Link an OAuth account to a user |
-| `getAccountByProvider` | Look up a user by provider + account ID |
-| `createVerificationToken` | Store an email magic link token |
-| `useVerificationToken` | Consume a token (one-time use) |
+| Method                    | Description                             |
+| ------------------------- | --------------------------------------- |
+| `getSession`              | Look up session + user by session token |
+| `createSession`           | Create a new session record             |
+| `updateSession`           | Extend session expiry                   |
+| `deleteSession`           | Delete a session by token               |
+| `getUserByEmail`          | Find a user by email                    |
+| `createUser`              | Create a new user record                |
+| `linkAccount`             | Link an OAuth account to a user         |
+| `getAccountByProvider`    | Look up a user by provider + account ID |
+| `createVerificationToken` | Store an email magic link token         |
+| `useVerificationToken`    | Consume a token (one-time use)          |
