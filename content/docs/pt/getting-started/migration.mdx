@@ -1,0 +1,69 @@
+---
+title: Migração do NextAuth v4
+description: Como migrar do NextAuth v4 para o VinextAuth.
+---
+
+O VinextAuth foi projetado como substituto drop-in do NextAuth v4. A maioria dos apps requer apenas duas alterações:
+
+## 1. Substitua o pacote
+
+```bash
+npm uninstall next-auth
+npm install vinextauth
+```
+
+## 2. Atualize os imports
+
+| NextAuth v4                                               | VinextAuth                                             |
+| --------------------------------------------------------- | ------------------------------------------------------ |
+| `import NextAuth from "next-auth"`                        | `import VinextAuth from "vinextauth"`                  |
+| `import { getServerSession } from "next-auth"`            | `import { getServerSession } from "vinextauth/server"` |
+| `import { useSession } from "next-auth/react"`            | `import { useSession } from "vinextauth/react"`        |
+| `import { SessionProvider } from "next-auth/react"`       | `import { SessionProvider } from "vinextauth/react"`   |
+| `import GoogleProvider from "next-auth/providers/google"` | `import Google from "vinextauth/providers/google"`     |
+
+## 3. Atualize a rota da API
+
+```ts title="Antes (NextAuth v4)"
+// src/pages/api/auth/[...nextauth].ts
+import NextAuth from 'next-auth';
+import { authOptions } from '@/auth';
+
+export default NextAuth(authOptions);
+```
+
+```ts title="Depois (VinextAuth)"
+// src/pages/api/auth/[...vinextauth].ts
+import { GET, POST } from '@/auth';
+
+export { GET, POST };
+```
+
+## O que permanece igual
+
+- Todos os nomes e assinaturas de callbacks (`signIn`, `session`, `jwt`, `redirect`)
+- Formato da sessão (`session.user.name`, `session.user.email`, `session.user.image`)
+- Formato dos cookies — sessões existentes permanecem válidas
+- Configuração dos providers
+
+## Variáveis de ambiente
+
+O VinextAuth usa nomes de variáveis próprios — **não** usa `NEXTAUTH_*`:
+
+| NextAuth v4       | VinextAuth          |
+| ----------------- | ------------------- |
+| `NEXTAUTH_SECRET` | `VINEXTAUTH_SECRET` |
+| `NEXTAUTH_URL`    | `VINEXTAUTH_URL`    |
+
+## O que é diferente
+
+- Sem `crypto` do Node.js — usa a Web Crypto API
+- Sem `pages/api/auth/[...nextauth]` — use `[...vinextauth]` para o roteamento Vinext
+- O provider credentials requer token CSRF por padrão (equivalente ao NextAuth)
+- `getServerSession` aceita a config direto, não `authOptions` separado
+
+## Limitações conhecidas
+
+- Sem adaptador de banco de dados para Prisma/Drizzle (apenas Cloudflare KV e D1)
+- Sem provider de e-mail via Nodemailer (usa transporte baseado em fetch, compatível com edge)
+- Sem `unstable_getServerSession` — use `getServerSession` diretamente

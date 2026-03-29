@@ -1,0 +1,19 @@
+---
+title: GitHub
+description: Login com GitHub via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/github](/docs/providers/github).
+
+## Configuração rápida
+
+```ts
+import GitHub from 'vinextauth/providers/github';
+
+GitHub({
+  clientId: process.env.GITHUB_CLIENT_ID!,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/github`

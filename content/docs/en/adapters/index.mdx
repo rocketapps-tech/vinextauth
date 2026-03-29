@@ -1,0 +1,27 @@
+---
+title: Adapters
+description: Session persistence adapters for Cloudflare Workers.
+---
+
+By default VinextAuth stores sessions as signed JWTs in cookies (no database required).
+
+For database-backed sessions — useful when you need to invalidate sessions server-side — VinextAuth provides three Cloudflare-native adapters.
+
+## Available Adapters
+
+| Adapter                    | Import                                           | Use case                                  |
+| -------------------------- | ------------------------------------------------ | ----------------------------------------- |
+| Cloudflare KV              | `vinextauth/adapters/cloudflare-kv`              | General-purpose session storage           |
+| Cloudflare KV Rate Limiter | `vinextauth/adapters/cloudflare-kv-rate-limiter` | Distributed rate limiting for credentials |
+| Cloudflare D1              | `vinextauth/adapters/cloudflare-d1`              | Full session + user persistence in SQL    |
+
+## When to use an adapter
+
+Use an adapter when you need to:
+
+- Invalidate a specific session server-side (e.g. force logout)
+- Store additional user data alongside the session
+- Track active sessions per user
+- Use distributed rate limiting across multiple Workers instances
+
+Without an adapter, sessions can only be invalidated by clearing the cookie client-side.

@@ -1,0 +1,47 @@
+---
+title: Cloudflare KV
+description: Store sessions in Cloudflare KV for server-side invalidation.
+---
+
+The Cloudflare KV adapter stores sessions in a KV namespace, enabling server-side session invalidation.
+
+## Setup
+
+### 1. Create a KV namespace
+
+```bash
+wrangler kv namespace create SESSION_STORE
+```
+
+Add the binding to your `wrangler.toml`:
+
+```toml
+[[kv_namespaces]]
+name = "SESSION_STORE"
+id = "your-namespace-id"
+```
+
+### 2. Configure the adapter
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { CloudflareKVAdapter } from "vinextauth/adapters/cloudflare-kv";
+
+export const { GET, POST, auth } = VinextAuth({
+  adapter: CloudflareKVAdapter(env.SESSION_STORE),
+  session: { strategy: "database" },
+  providers: [...],
+});
+```
+
+## Invalidating sessions
+
+```ts
+import { invalidateSession } from 'vinextauth/server';
+import { authOptions } from '@/auth';
+
+// Force the current user out (App Router / Server Action)
+await invalidateSession(authOptions);
+```
+
+`invalidateSession` clears the session cookie and, when using `strategy: "database"`, also deletes the session record from KV.

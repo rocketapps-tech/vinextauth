@@ -1,0 +1,47 @@
+---
+title: GitHub
+description: Sign in with GitHub using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import GitHub from 'vinextauth/providers/github';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+```
+
+## GitHub OAuth App setup
+
+1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
+2. Set the **Authorization callback URL**:
+   ```
+   https://yourdomain.com/api/auth/callback/github
+   ```
+
+## Options
+
+| Option                 | Type                     | Description                            |
+| ---------------------- | ------------------------ | -------------------------------------- |
+| `clientId`             | `string`                 | Required. OAuth client ID.             |
+| `clientSecret`         | `string`                 | Required. OAuth client secret.         |
+| `authorization.params` | `Record<string, string>` | Override default authorization params. |
+
+## Default scopes
+
+`read:user user:email` — includes username, name, and primary email.

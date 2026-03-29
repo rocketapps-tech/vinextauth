@@ -1,0 +1,46 @@
+---
+title: Twitter / X
+description: Sign in with Twitter (X) using OAuth 2.0 with PKCE.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import Twitter from 'vinextauth/providers/twitter';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Twitter({
+      clientId: process.env.TWITTER_CLIENT_ID!,
+      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+TWITTER_CLIENT_ID=...
+TWITTER_CLIENT_SECRET=...
+```
+
+## Twitter Developer Portal setup
+
+1. Go to [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard) → Create App
+2. Under **App settings**, enable **OAuth 2.0**
+3. Set **Type of App** to **Web App, Automated App or Bot**
+4. Add your **Callback URI**:
+   ```
+   https://yourdomain.com/api/auth/callback/twitter
+   ```
+
+## PKCE
+
+The Twitter provider uses `checks: ['pkce', 'state']`. PKCE is mandatory for OAuth 2.0 on Twitter — this is handled automatically.
+
+## Notes
+
+- Twitter OAuth 2.0 does **not** expose the user's email address
+- Default scopes: `tweet.read users.read offline.access`

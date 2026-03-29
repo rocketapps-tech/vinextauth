@@ -1,0 +1,76 @@
+---
+title: Email (Magic Link)
+description: Passwordless sign-in via email magic links.
+---
+
+The Email provider sends a one-time sign-in link to the user's email. No password required.
+
+## Requirements
+
+The Email provider requires an adapter that stores verification tokens. Use [Cloudflare KV](/docs/adapters/cloudflare-kv) or [Cloudflare D1](/docs/adapters/cloudflare-d1).
+
+## Setup with Resend
+
+VinextAuth includes a built-in `ResendTransport` for edge-compatible email delivery:
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import { EmailProvider, ResendTransport } from 'vinextauth/providers/email';
+import { CloudflareKVAdapter } from 'vinextauth/adapters/cloudflare-kv';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    EmailProvider({
+      from: 'no-reply@yourapp.com',
+      transport: ResendTransport({
+        apiKey: process.env.RESEND_API_KEY!,
+      }),
+    }),
+  ],
+  adapter: CloudflareKVAdapter(env.SESSION_KV),
+});
+```
+
+## Custom transport
+
+Implement any edge-compatible email service:
+
+```ts
+EmailProvider({
+  from: 'no-reply@yourapp.com',
+  transport: {
+    async sendVerificationRequest({ identifier, url, provider }) {
+      await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: [{ email: identifier }],
+          from: { email: provider.from ?? 'no-reply@yourapp.com' },
+          subject: 'Sign in to your account',
+          html: `<a href="${url}">Click here to sign in</a>`,
+        }),
+      });
+    },
+  },
+});
+```
+
+## Options
+
+| Option                      | Type                    | Default                 | Description                      |
+| --------------------------- | ----------------------- | ----------------------- | -------------------------------- |
+| `from`                      | `string`                | `"noreply@example.com"` | Sender email address.            |
+| `maxAge`                    | `number`                | `86400`                 | Token TTL in seconds (24 hours). |
+| `transport`                 | `EmailTransport`        | Required                | Email transport implementation.  |
+| `generateVerificationToken` | `() => Promise<string>` | Random hex              | Custom token generator.          |
+
+## Flow
+
+1. User submits their email on the sign-in page
+2. VinextAuth generates a token and calls `adapter.createVerificationToken()`
+3. The transport sends an email with a link to `/api/auth/callback/email?token=...&email=...`
+4. User clicks the link — VinextAuth calls `adapter.useVerificationToken()` (one-time use)
+5. On success, the user is signed in and redirected

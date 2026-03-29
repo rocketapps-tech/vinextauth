@@ -1,0 +1,39 @@
+---
+title: Twitch
+description: Sign in with Twitch using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import Twitch from 'vinextauth/providers/twitch';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Twitch({
+      clientId: process.env.TWITCH_CLIENT_ID!,
+      clientSecret: process.env.TWITCH_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+TWITCH_CLIENT_ID=...
+TWITCH_CLIENT_SECRET=...
+```
+
+## Twitch Developer Console setup
+
+1. Go to [Twitch Developer Console](https://dev.twitch.tv/console) → Register Your Application
+2. Add your **OAuth Redirect URL**:
+   ```
+   https://yourdomain.com/api/auth/callback/twitch
+   ```
+
+## Default scopes
+
+`user:read:email` — includes display name, login, and email.
