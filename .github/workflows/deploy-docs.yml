@@ -8,8 +8,11 @@ on:
       - 'content/**'
       - 'public/**'
       - 'scripts/**'
+      - 'worker/**'
       - 'source.config.ts'
       - 'next.config.ts'
+      - 'vite.config.ts'
+      - 'wrangler.jsonc'
       - 'package.json'
       - 'package-lock.json'
   pull_request:
@@ -19,8 +22,11 @@ on:
       - 'content/**'
       - 'public/**'
       - 'scripts/**'
+      - 'worker/**'
       - 'source.config.ts'
       - 'next.config.ts'
+      - 'vite.config.ts'
+      - 'wrangler.jsonc'
       - 'package.json'
       - 'package-lock.json'
 
@@ -48,13 +54,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
       - name: Deploy to production
         if: github.event_name == 'push'
         id: deploy-prod
-        run: npx vinext deploy --skip-build
+        run: npx vinext deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -62,7 +65,7 @@ jobs:
       - name: Deploy preview
         if: github.event_name == 'pull_request'
         id: deploy-preview
-        run: npx vinext deploy --preview --skip-build
+        run: npx vinext deploy --preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -73,11 +76,11 @@ jobs:
         with:
           script: |
             const output = `${{ steps.deploy-preview.outputs.command-output || '' }}`;
-            const urlMatch = output.match(/https:\/\/[^\s]+/);
-            const url = urlMatch ? urlMatch[0] : '(deploy succeeded — check Cloudflare dashboard for URL)';
+            const urlMatch = output.match(/https:\/\/[^\s]+\.workers\.dev[^\s]*/);
+            const url = urlMatch ? urlMatch[0] : '(deploy concluído — veja a URL no Cloudflare dashboard)';
 
             const marker = '<!-- deploy-docs-preview -->';
-            const body = `${marker}\n### Docs preview\n\n${url}\n\n_Updated on ${new Date().toUTCString()}_`;
+            const body = `${marker}\n### Docs preview\n\n${url}\n\n_Atualizado em ${new Date().toUTCString()}_`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
