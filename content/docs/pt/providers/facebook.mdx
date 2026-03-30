@@ -1,0 +1,19 @@
+---
+title: Facebook
+description: Login com Facebook via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/facebook](/docs/providers/facebook).
+
+## Configuração rápida
+
+```ts
+import Facebook from 'vinextauth/providers/facebook';
+
+Facebook({
+  clientId: process.env.FACEBOOK_CLIENT_ID!,
+  clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/facebook`

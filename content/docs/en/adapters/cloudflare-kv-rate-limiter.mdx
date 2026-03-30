@@ -1,0 +1,56 @@
+---
+title: KV Rate Limiter
+description: Distributed rate limiting for credentials sign-in backed by Cloudflare KV.
+---
+
+The built-in rate limiter uses in-memory state, which resets between Worker isolates and deployments. For multi-instance deployments, use the KV Rate Limiter to persist attempt counts in Cloudflare KV.
+
+## Setup
+
+### 1. Create a KV namespace
+
+```bash
+wrangler kv namespace create RATE_LIMIT_KV
+```
+
+Add the binding to your `wrangler.toml`:
+
+```toml
+[[kv_namespaces]]
+name = "RATE_LIMIT_KV"
+id = "your-namespace-id"
+```
+
+### 2. Configure the adapter
+
+```ts title="src/auth.ts"
+import VinextAuth from "vinextauth";
+import { CloudflareKVRateLimiter } from "vinextauth/adapters/cloudflare-kv-rate-limiter";
+
+export const { GET, POST, auth } = VinextAuth({
+  credentials: {
+    rateLimit: {
+      store: CloudflareKVRateLimiter(env.RATE_LIMIT_KV),
+    },
+  },
+  providers: [...],
+});
+```
+
+## Custom limits
+
+```ts
+CloudflareKVRateLimiter(env.RATE_LIMIT_KV, {
+  maxAttempts: 10,
+  windowMs: 60 * 60 * 1000, // 1 hour
+});
+```
+
+| Option        | Default           | Description                          |
+| ------------- | ----------------- | ------------------------------------ |
+| `maxAttempts` | `5`               | Max failed attempts before blocking. |
+| `windowMs`    | `900000` (15 min) | Time window in milliseconds.         |
+
+## How it works
+
+Attempt counts are stored in KV under the key `ratelimit:<ip>`. Each entry has a TTL matching the window duration so records expire automatically. The `check` method increments the counter and returns `{ allowed: false, retryAfter }` once the limit is reached.

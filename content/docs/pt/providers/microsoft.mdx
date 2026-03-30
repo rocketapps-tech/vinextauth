@@ -1,0 +1,19 @@
+---
+title: Microsoft
+description: Login com Microsoft via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/microsoft](/docs/providers/microsoft).
+
+## Configuração rápida
+
+```ts
+import Microsoft from 'vinextauth/providers/microsoft';
+
+Microsoft({
+  clientId: process.env.MICROSOFT_CLIENT_ID!,
+  clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/microsoft`

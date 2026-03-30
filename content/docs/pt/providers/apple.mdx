@@ -1,0 +1,19 @@
+---
+title: Apple
+description: Login com Apple via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/apple](/docs/providers/apple).
+
+## Configuração rápida
+
+```ts
+import Apple from 'vinextauth/providers/apple';
+
+Apple({
+  clientId: process.env.APPLE_CLIENT_ID!,
+  clientSecret: process.env.APPLE_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/apple`

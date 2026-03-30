@@ -41,8 +41,8 @@ jobs:
       - name: Test
         run: npm run test
 
-      - name: Build
-        run: npm run build
+      - name: Build package
+        run: npm run build:pkg
 
       - name: Sync README to package
         run: cp README.md packages/vinext-auth/README.md

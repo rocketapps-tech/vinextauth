@@ -1,0 +1,52 @@
+---
+title: Providers
+description: Providers OAuth e credentials disponíveis no VinextAuth.
+---
+
+O VinextAuth inclui 12 providers embutidos. Cada um é um entry point separado para manter seu bundle enxuto.
+
+## Providers OAuth
+
+| Provider    | Import                           |
+| ----------- | -------------------------------- |
+| Google      | `vinextauth/providers/google`    |
+| GitHub      | `vinextauth/providers/github`    |
+| Discord     | `vinextauth/providers/discord`   |
+| Facebook    | `vinextauth/providers/facebook`  |
+| LinkedIn    | `vinextauth/providers/linkedin`  |
+| Twitch      | `vinextauth/providers/twitch`    |
+| Spotify     | `vinextauth/providers/spotify`   |
+| Microsoft   | `vinextauth/providers/microsoft` |
+| Twitter / X | `vinextauth/providers/twitter`   |
+| Apple       | `vinextauth/providers/apple`     |
+
+## Outros providers
+
+| Provider           | Import                             |
+| ------------------ | ---------------------------------- |
+| Credentials        | `vinextauth/providers/credentials` |
+| Email (magic link) | `vinextauth/providers/email`       |
+
+## Uso
+
+Todos os providers OAuth aceitam `clientId` e `clientSecret`:
+
+```ts
+import Google from 'vinextauth/providers/google';
+import GitHub from 'vinextauth/providers/github';
+
+VinextAuth({
+  providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+Veja as páginas individuais de cada provider para opções extras (escopos, Apple client secret, etc.).

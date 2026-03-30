@@ -1,0 +1,19 @@
+---
+title: Twitter
+description: Login com Twitter via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/twitter](/docs/providers/twitter).
+
+## Configuração rápida
+
+```ts
+import Twitter from 'vinextauth/providers/twitter';
+
+Twitter({
+  clientId: process.env.TWITTER_CLIENT_ID!,
+  clientSecret: process.env.TWITTER_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/twitter`

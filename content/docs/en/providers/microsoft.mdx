@@ -1,0 +1,54 @@
+---
+title: Microsoft
+description: Sign in with Microsoft / Azure AD using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import Microsoft from 'vinextauth/providers/microsoft';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Microsoft({
+      clientId: process.env.MICROSOFT_CLIENT_ID!,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+MICROSOFT_CLIENT_ID=...
+MICROSOFT_CLIENT_SECRET=...
+```
+
+## Azure App Registration setup
+
+1. Go to [Azure Portal](https://portal.azure.com/) → Azure Active Directory → App registrations → New registration
+2. Under **Redirect URIs**, add:
+   ```
+   https://yourdomain.com/api/auth/callback/microsoft
+   ```
+3. Create a client secret under **Certificates & secrets**
+
+## Tenant options
+
+By default the provider uses `common` (personal + work/school accounts). Use `tenantId` to restrict:
+
+```ts
+Microsoft({
+  clientId: process.env.MICROSOFT_CLIENT_ID!,
+  clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+  tenantId: 'organizations', // work/school accounts only
+  // tenantId: "consumers"  // personal accounts only
+  // tenantId: "<tenant-guid>" // single tenant
+});
+```
+
+## Default scopes
+
+`openid email profile` — uses the Microsoft Graph OIDC userinfo endpoint.

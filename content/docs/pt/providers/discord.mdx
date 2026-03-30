@@ -1,0 +1,19 @@
+---
+title: Discord
+description: Login com Discord via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/discord](/docs/providers/discord).
+
+## Configuração rápida
+
+```ts
+import Discord from 'vinextauth/providers/discord';
+
+Discord({
+  clientId: process.env.DISCORD_CLIENT_ID!,
+  clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/discord`

@@ -1,0 +1,39 @@
+---
+title: Spotify
+description: Sign in with Spotify using OAuth 2.0.
+---
+
+## Setup
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import Spotify from 'vinextauth/providers/spotify';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Spotify({
+      clientId: process.env.SPOTIFY_CLIENT_ID!,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+```
+
+## Spotify Developer Dashboard setup
+
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) → Create App
+2. Add your **Redirect URI**:
+   ```
+   https://yourdomain.com/api/auth/callback/spotify
+   ```
+
+## Default scopes
+
+`user-read-email user-read-private` — includes display name, email, and profile image.

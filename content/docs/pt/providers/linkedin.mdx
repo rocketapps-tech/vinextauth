@@ -1,0 +1,19 @@
+---
+title: Linkedin
+description: Login com Linkedin via OAuth 2.0.
+---
+
+Documentação completa em inglês: [/docs/providers/linkedin](/docs/providers/linkedin).
+
+## Configuração rápida
+
+```ts
+import Linkedin from 'vinextauth/providers/linkedin';
+
+Linkedin({
+  clientId: process.env.LINKEDIN_CLIENT_ID!,
+  clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+});
+```
+
+URL de callback: `https://seudominio.com/api/auth/callback/linkedin`

@@ -1,0 +1,52 @@
+---
+title: Apple
+description: Sign in with Apple using OAuth 2.0 (ES256 client secret).
+---
+
+## Setup
+
+Apple Sign In requires a dynamically generated client secret (a short-lived ES256 JWT). VinextAuth handles this automatically via `clientSecretFactory`.
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import Apple from 'vinextauth/providers/apple';
+
+export const { GET, POST, auth } = VinextAuth({
+  providers: [
+    Apple({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      teamId: process.env.APPLE_TEAM_ID!,
+      keyId: process.env.APPLE_KEY_ID!,
+      privateKey: process.env.APPLE_PRIVATE_KEY!,
+    }),
+  ],
+});
+```
+
+## Environment variables
+
+```bash
+APPLE_CLIENT_ID=com.yourapp.signin   # Services ID
+APPLE_TEAM_ID=XXXXXXXXXX             # 10-character Team ID
+APPLE_KEY_ID=XXXXXXXXXX              # Key ID from Developer Portal
+APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+```
+
+## Apple Developer Portal setup
+
+1. Go to [Apple Developer](https://developer.apple.com/) → Certificates, Identifiers & Profiles
+2. Create a **Services ID** (this is your `clientId`)
+   - Enable **Sign In with Apple**
+   - Add your domain and callback URL:
+     ```
+     https://yourdomain.com/api/auth/callback/apple
+     ```
+3. Create a **Key** with **Sign In with Apple** enabled
+   - Download the `.p8` file — this is your `privateKey`
+   - Note the **Key ID**
+
+## Important notes
+
+- Apple uses `response_mode=form_post` — the callback is a POST request, not a GET
+- Apple returns user data (name, email) **only on the first sign-in**. Subsequent logins omit the user object. Store the user on first sign-in
+- The client secret JWT is regenerated per request (5-minute TTL) — all handled internally

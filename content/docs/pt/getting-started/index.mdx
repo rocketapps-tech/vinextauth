@@ -1,0 +1,78 @@
+---
+title: Primeiros passos
+description: Instale e configure o VinextAuth no seu app Vinext.
+---
+
+## Instalação
+
+```bash
+npm install vinextauth
+```
+
+## Variáveis de ambiente
+
+Adicione ao seu `.env.local`:
+
+```bash
+VINEXTAUTH_SECRET=seu-secret-aqui   # openssl rand -base64 32
+VINEXTAUTH_URL=http://localhost:3000
+```
+
+`VINEXTAUTH_SECRET` é obrigatório — o VinextAuth lança um erro na inicialização se estiver ausente.
+Você também pode passar `secret` diretamente no objeto de configuração (útil para bindings do Cloudflare Workers).
+
+## Configuração
+
+### 1. Crie o arquivo de auth
+
+```ts title="src/auth.ts"
+import VinextAuth from 'vinextauth';
+import GitHub from 'vinextauth/providers/github';
+import Google from 'vinextauth/providers/google';
+
+export const { GET, POST, auth, toPages } = VinextAuth({
+  secret: process.env.VINEXTAUTH_SECRET!,
+  providers: [
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+### 2. Crie a rota da API
+
+`toPages()` cria um handler compatível com o Pages Router do Vinext:
+
+```ts title="src/pages/api/auth/[...vinextauth].ts"
+import { toPages } from '@/auth';
+
+export default toPages();
+```
+
+### 3. Envolva o seu app
+
+```tsx title="src/pages/_app.tsx"
+import type { AppProps } from 'vinext/app';
+import { SessionProvider } from 'vinextauth/react';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <SessionProvider session={pageProps.session}>
+      <Component {...pageProps} />
+    </SessionProvider>
+  );
+}
+```
+
+## Próximos passos
+
+- [Referência de configuração](/pt/docs/getting-started/configuration)
+- [Providers](/pt/docs/providers)
+- [Adaptadores de sessão](/pt/docs/adapters)
+- [Middleware](/pt/docs/guides/middleware)
