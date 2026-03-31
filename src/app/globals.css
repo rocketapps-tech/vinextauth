@@ -69,7 +69,9 @@ html.dark {
 }
 
 /* Override fumadocs main background on LP */
-.lp-root ~ * { background: var(--lp-bg); }
+.lp-root ~ * {
+  background: var(--lp-bg);
+}
 
 /* When lp-root is present, force dark bg on the entire page */
 body:has(.lp-root) {
@@ -153,7 +155,9 @@ html.dark .lp-nav {
   background: transparent;
   color: var(--lp-text-secondary);
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .lp-nav-icon-btn:hover {
@@ -172,7 +176,9 @@ html.dark .lp-nav {
   font-size: 0.8125rem;
   font-weight: 600;
   text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
   margin-left: 0.25rem;
 }
 
@@ -210,8 +216,12 @@ html.dark .lp-nav {
 }
 
 @media (max-width: 480px) {
-  .lp-nav-github-label { display: none; }
-  .lp-nav-github { padding: 0.375rem 0.5rem; }
+  .lp-nav-github-label {
+    display: none;
+  }
+  .lp-nav-github {
+    padding: 0.375rem 0.5rem;
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -286,8 +296,15 @@ html.dark .lp-nav {
 }
 
 @keyframes lp-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--lp-purple-glow); }
-  50%       { opacity: 0.6; box-shadow: 0 0 2px transparent; }
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 6px var(--lp-purple-glow);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 2px transparent;
+  }
 }
 
 /* headline */
@@ -335,7 +352,9 @@ html.dark .lp-nav {
   font-weight: 700;
   text-decoration: none;
   letter-spacing: 0.01em;
-  transition: filter 0.15s, transform 0.1s;
+  transition:
+    filter 0.15s,
+    transform 0.1s;
   box-shadow: 0 0 0 0 transparent;
 }
 
@@ -358,7 +377,10 @@ html.dark .lp-nav {
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    transform 0.1s;
 }
 
 .lp-btn-secondary:hover {
@@ -445,7 +467,10 @@ html.dark .lp-nav {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--lp-text-secondary);
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
   white-space: nowrap;
 }
 
@@ -517,11 +542,15 @@ html.dark .lp-nav {
 }
 
 @media (min-width: 640px) {
-  .lp-grid { grid-template-columns: repeat(2, 1fr); }
+  .lp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 1024px) {
-  .lp-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .lp-card {
@@ -542,8 +571,12 @@ html.dark .lp-nav {
   pointer-events: none;
 }
 
-.lp-card:hover::before { opacity: 1; }
-.lp-card:hover { background: var(--lp-card-hover); }
+.lp-card:hover::before {
+  opacity: 1;
+}
+.lp-card:hover {
+  background: var(--lp-card-hover);
+}
 
 .lp-card-icon {
   width: 2.25rem;
@@ -680,9 +713,18 @@ html.dark .lp-nav {
   border-radius: 0;
 }
 
-.lp-code-dot-red   { background: #ef4444; opacity: 0.7; }
-.lp-code-dot-yellow { background: #eab308; opacity: 0.7; }
-.lp-code-dot-green { background: #22c55e; opacity: 0.7; }
+.lp-code-dot-red {
+  background: #ef4444;
+  opacity: 0.7;
+}
+.lp-code-dot-yellow {
+  background: #eab308;
+  opacity: 0.7;
+}
+.lp-code-dot-green {
+  background: #22c55e;
+  opacity: 0.7;
+}
 
 .lp-code-filename {
   margin-left: 0.5rem;
@@ -707,11 +749,15 @@ html.dark .lp-nav {
   border: none;
   background: transparent;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
   font-family: var(--lp-mono);
 }
 
-.lp-code-tab:hover { color: var(--lp-text-secondary); }
+.lp-code-tab:hover {
+  color: var(--lp-text-secondary);
+}
 .lp-code-tab[data-active='true'] {
   color: var(--lp-text);
   border-bottom-color: var(--lp-purple);
@@ -724,17 +770,36 @@ html.dark .lp-nav {
   line-height: 1.75;
 }
 
-.lp-code-body pre { margin: 0; }
+.lp-code-body pre {
+  margin: 0;
+}
 
 /* Syntax tokens */
-.t-kw  { color: var(--syn-keyword); }
-.t-str { color: var(--syn-string); }
-.t-fn  { color: var(--syn-fn); }
-.t-prm { color: var(--syn-param); }
-.t-cmt { color: var(--syn-comment); font-style: italic; }
-.t-typ { color: var(--syn-type); }
-.t-pun { color: var(--syn-punct); }
-.t-pl  { color: var(--syn-plain); }
+.t-kw {
+  color: var(--syn-keyword);
+}
+.t-str {
+  color: var(--syn-string);
+}
+.t-fn {
+  color: var(--syn-fn);
+}
+.t-prm {
+  color: var(--syn-param);
+}
+.t-cmt {
+  color: var(--syn-comment);
+  font-style: italic;
+}
+.t-typ {
+  color: var(--syn-type);
+}
+.t-pun {
+  color: var(--syn-punct);
+}
+.t-pl {
+  color: var(--syn-plain);
+}
 
 /* ─────────────────────────────────────────
    MIGRATION BANNER
@@ -866,10 +931,17 @@ html.dark .lp-nav {
   transition: color 0.15s;
 }
 
-.lp-footer-links a:hover { color: var(--lp-text); }
+.lp-footer-links a:hover {
+  color: var(--lp-text);
+}
 
-.lp-footer-logo { opacity: 0.65; }
-.lp-footer-logo:hover { opacity: 1; transition: opacity 0.15s; }
+.lp-footer-logo {
+  opacity: 0.65;
+}
+.lp-footer-logo:hover {
+  opacity: 1;
+  transition: opacity 0.15s;
+}
 
 .lp-footer-badge {
   display: inline-flex;

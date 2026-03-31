@@ -11,9 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <DocsLayout
       tree={source.pageTree}
       nav={{
-        title: (
-          <Logo height={26} />
-        ),
+        title: <Logo height={26} />,
         url: '/',
       }}
       links={[

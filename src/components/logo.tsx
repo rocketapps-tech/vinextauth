@@ -34,11 +34,7 @@ export function Logo({ height = 28, className }: LogoProps) {
         opacity="0.22"
       />
       {/* Lightning bolt */}
-      <path
-        d="M16.8 9.5 L12 15.8 H15 L12 20 L19.5 13.5 H16.5 Z"
-        fill="white"
-        opacity="0.95"
-      />
+      <path d="M16.8 9.5 L12 15.8 H15 L12 20 L19.5 13.5 H16.5 Z" fill="white" opacity="0.95" />
       {/* Wordmark */}
       <text
         fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif"
@@ -53,12 +49,26 @@ export function Logo({ height = 28, className }: LogoProps) {
         </tspan>
       </text>
       <defs>
-        <linearGradient id={g1} x1="3.5" y1="1.5" x2="24.5" y2="27.8" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id={g1}
+          x1="3.5"
+          y1="1.5"
+          x2="24.5"
+          y2="27.8"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop offset="0%" stopColor="#6d28d9" />
           <stop offset="55%" stopColor="#9333ea" />
           <stop offset="100%" stopColor="#c084fc" />
         </linearGradient>
-        <linearGradient id={g2} x1="5.5" y1="3.8" x2="22.5" y2="25.8" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id={g2}
+          x1="5.5"
+          y1="3.8"
+          x2="22.5"
+          y2="25.8"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="transparent" />
         </linearGradient>

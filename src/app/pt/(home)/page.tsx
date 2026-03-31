@@ -136,14 +136,20 @@ const authTsCode = (
     <span className="t-pun">=</span>
     <span className="t-pl"> </span>
     <span className="t-fn">VinextAuth</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'  '}providers</span>
     <span className="t-pun">: [</span>
     {'\n'}
     <span className="t-pl">{'    '}</span>
     <span className="t-fn">Google</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'      '}clientId</span>
     <span className="t-pun">:</span>
@@ -163,11 +169,18 @@ const authTsCode = (
     <span className="t-pl">GOOGLE_CLIENT_SECRET</span>
     <span className="t-pun">!,</span>
     {'\n'}
-    <span className="t-pun">{'    '}{'}'}{')'},</span>
+    <span className="t-pun">
+      {'    '}
+      {'}'}
+      {')'},
+    </span>
     {'\n'}
     <span className="t-pl">{'    '}</span>
     <span className="t-fn">GitHub</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     <span className="t-pl"> clientId</span>
     <span className="t-pun">:</span>
     <span className="t-pl"> process</span>
@@ -178,7 +191,10 @@ const authTsCode = (
     <span className="t-pun">!, </span>
     <span className="t-cmt">/* ... */</span>
     <span className="t-pl"> </span>
-    <span className="t-pun">{'}'}{')'},</span>
+    <span className="t-pun">
+      {'}'}
+      {')'},
+    </span>
     {'\n'}
     <span className="t-pun">{'  '}],</span>
     {'\n'}
@@ -188,9 +204,15 @@ const authTsCode = (
     <span className="t-pl">{'    '}</span>
     <span className="t-kw">async </span>
     <span className="t-fn">session</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     <span className="t-prm"> session, token </span>
-    <span className="t-pun">{'}'}{')'}  {'{'}</span>
+    <span className="t-pun">
+      {'}'}
+      {')'} {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'      '}session</span>
     <span className="t-pun">.</span>
@@ -207,13 +229,22 @@ const authTsCode = (
     <span className="t-pl"> session</span>
     <span className="t-pun">;</span>
     {'\n'}
-    <span className="t-pun">{'    '}{'}'}</span>
+    <span className="t-pun">
+      {'    '}
+      {'}'}
+    </span>
     <span className="t-pun">,</span>
     {'\n'}
-    <span className="t-pun">{'  '}{'}'}</span>
+    <span className="t-pun">
+      {'  '}
+      {'}'}
+    </span>
     <span className="t-pun">,</span>
     {'\n'}
-    <span className="t-pun">{'}'}{')'};</span>
+    <span className="t-pun">
+      {'}'}
+      {')'};
+    </span>
   </>
 );
 
@@ -406,8 +437,8 @@ export default function HomePage() {
         </h1>
 
         <p className="lp-description">
-          VinextAuth roda nativamente no Cloudflare Workers sem dependências Node.js.
-          Mesma API do NextAuth v4 — migre com uma única mudança de import.
+          VinextAuth roda nativamente no Cloudflare Workers sem dependências Node.js. Mesma API do
+          NextAuth v4 — migre com uma única mudança de import.
         </p>
 
         <div className="lp-actions">
@@ -469,7 +500,8 @@ export default function HomePage() {
           <span className="lp-section-eyebrow">Diferente por design</span>
           <h2 className="lp-section-title">Tudo que auth precisa. Nada que não precisa.</h2>
           <p className="lp-section-sub">
-            Construído do zero para o runtime do Cloudflare Workers — sem compromissos, sem polyfills.
+            Construído do zero para o runtime do Cloudflare Workers — sem compromissos, sem
+            polyfills.
           </p>
 
           <div className="lp-grid">
@@ -501,7 +533,13 @@ export default function HomePage() {
                 <span className="lp-code-step-num">1</span>
                 <span className="lp-code-step-text">
                   <strong>Instale</strong> o pacote e defina{' '}
-                  <code style={{ fontFamily: 'var(--lp-mono)', fontSize: '0.8em', color: 'var(--lp-purple)' }}>
+                  <code
+                    style={{
+                      fontFamily: 'var(--lp-mono)',
+                      fontSize: '0.8em',
+                      color: 'var(--lp-purple)',
+                    }}
+                  >
                     NEXTAUTH_SECRET
                   </code>
                 </span>
@@ -510,7 +548,15 @@ export default function HomePage() {
                 <span className="lp-code-step-num">2</span>
                 <span className="lp-code-step-text">
                   <strong>Configure</strong> seus providers em{' '}
-                  <code style={{ fontFamily: 'var(--lp-mono)', fontSize: '0.8em', color: 'var(--lp-purple)' }}>auth.ts</code>
+                  <code
+                    style={{
+                      fontFamily: 'var(--lp-mono)',
+                      fontSize: '0.8em',
+                      color: 'var(--lp-purple)',
+                    }}
+                  >
+                    auth.ts
+                  </code>
                 </span>
               </div>
               <div className="lp-code-step">
@@ -528,7 +574,11 @@ export default function HomePage() {
             </div>
 
             <div style={{ marginTop: '2rem' }}>
-              <Link href="/pt/docs/getting-started" className="lp-btn-primary" style={{ display: 'inline-flex', fontSize: '0.8125rem' }}>
+              <Link
+                href="/pt/docs/getting-started"
+                className="lp-btn-primary"
+                style={{ display: 'inline-flex', fontSize: '0.8125rem' }}
+              >
                 Guia completo de configuração &rarr;
               </Link>
             </div>
@@ -554,8 +604,8 @@ export default function HomePage() {
 
           <h2 className="lp-migration-title">Já usa NextAuth v4?</h2>
           <p className="lp-migration-sub">
-            VinextAuth é um substituto direto. Mesmos callbacks, mesma sessão, mesmo formato
-            de cookies. Uma mudança de import e você está no edge.
+            VinextAuth é um substituto direto. Mesmos callbacks, mesma sessão, mesmo formato de
+            cookies. Uma mudança de import e você está no edge.
           </p>
 
           <div className="lp-migration-code">
@@ -571,7 +621,11 @@ export default function HomePage() {
             </div>
           </div>
 
-          <Link href="/pt/docs/getting-started/migration" className="lp-btn-secondary" style={{ display: 'inline-flex' }}>
+          <Link
+            href="/pt/docs/getting-started/migration"
+            className="lp-btn-secondary"
+            style={{ display: 'inline-flex' }}
+          >
             Ver o guia de migração &rarr;
           </Link>
         </div>
@@ -588,7 +642,11 @@ export default function HomePage() {
         <div className="lp-footer-links">
           <Link href="/pt/docs">Docs</Link>
           <Link href="/pt/docs/getting-started/migration">Migração</Link>
-          <a href="https://github.com/rocketapps-tech/vinextauth" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://github.com/rocketapps-tech/vinextauth"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             GitHub
           </a>
           <a href="https://vinext.io" target="_blank" rel="noopener noreferrer">

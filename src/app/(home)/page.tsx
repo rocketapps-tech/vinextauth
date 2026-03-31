@@ -59,7 +59,7 @@ const features = [
     ),
     title: 'NextAuth v4 compatible',
     description:
-      'Same callbacks, same session shape, same cookie format. Change one import and you\'re done — no refactoring required.',
+      "Same callbacks, same session shape, same cookie format. Change one import and you're done — no refactoring required.",
   },
   {
     num: '04',
@@ -136,14 +136,20 @@ const authTsCode = (
     <span className="t-pun">=</span>
     <span className="t-pl"> </span>
     <span className="t-fn">VinextAuth</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'  '}providers</span>
     <span className="t-pun">: [</span>
     {'\n'}
     <span className="t-pl">{'    '}</span>
     <span className="t-fn">Google</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'      '}clientId</span>
     <span className="t-pun">:</span>
@@ -163,11 +169,18 @@ const authTsCode = (
     <span className="t-pl">GOOGLE_CLIENT_SECRET</span>
     <span className="t-pun">!,</span>
     {'\n'}
-    <span className="t-pun">{'    '}{'}'}{')'},</span>
+    <span className="t-pun">
+      {'    '}
+      {'}'}
+      {')'},
+    </span>
     {'\n'}
     <span className="t-pl">{'    '}</span>
     <span className="t-fn">GitHub</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     <span className="t-pl"> clientId</span>
     <span className="t-pun">:</span>
     <span className="t-pl"> process</span>
@@ -178,7 +191,10 @@ const authTsCode = (
     <span className="t-pun">!, </span>
     <span className="t-cmt">/* ... */</span>
     <span className="t-pl"> </span>
-    <span className="t-pun">{'}'}{')'},</span>
+    <span className="t-pun">
+      {'}'}
+      {')'},
+    </span>
     {'\n'}
     <span className="t-pun">{'  '}],</span>
     {'\n'}
@@ -188,9 +204,15 @@ const authTsCode = (
     <span className="t-pl">{'    '}</span>
     <span className="t-kw">async </span>
     <span className="t-fn">session</span>
-    <span className="t-pun">({'('}{'{'}</span>
+    <span className="t-pun">
+      ({'('}
+      {'{'}
+    </span>
     <span className="t-prm"> session, token </span>
-    <span className="t-pun">{'}'}{')'}  {'{'}</span>
+    <span className="t-pun">
+      {'}'}
+      {')'} {'{'}
+    </span>
     {'\n'}
     <span className="t-pl">{'      '}session</span>
     <span className="t-pun">.</span>
@@ -207,13 +229,22 @@ const authTsCode = (
     <span className="t-pl"> session</span>
     <span className="t-pun">;</span>
     {'\n'}
-    <span className="t-pun">{'    '}{'}'}</span>
+    <span className="t-pun">
+      {'    '}
+      {'}'}
+    </span>
     <span className="t-pun">,</span>
     {'\n'}
-    <span className="t-pun">{'  '}{'}'}</span>
+    <span className="t-pun">
+      {'  '}
+      {'}'}
+    </span>
     <span className="t-pun">,</span>
     {'\n'}
-    <span className="t-pun">{'}'}{')'};</span>
+    <span className="t-pun">
+      {'}'}
+      {')'};
+    </span>
   </>
 );
 
@@ -406,8 +437,8 @@ export default function HomePage() {
         </h1>
 
         <p className="lp-description">
-          VinextAuth runs natively on Cloudflare Workers with zero Node.js dependencies.
-          Same API as NextAuth v4 — switch with one import change.
+          VinextAuth runs natively on Cloudflare Workers with zero Node.js dependencies. Same API as
+          NextAuth v4 — switch with one import change.
         </p>
 
         <div className="lp-actions">
@@ -456,10 +487,7 @@ export default function HomePage() {
         <div className="lp-providers-grid">
           {providers.map((p) => (
             <span key={p.name} className="lp-provider-pill">
-              <span
-                className="lp-provider-dot"
-                style={{ background: p.color }}
-              />
+              <span className="lp-provider-dot" style={{ background: p.color }} />
               {p.name}
             </span>
           ))}
@@ -472,8 +500,8 @@ export default function HomePage() {
           <span className="lp-section-eyebrow">Built different</span>
           <h2 className="lp-section-title">Everything auth needs. Nothing it doesn&apos;t.</h2>
           <p className="lp-section-sub">
-            Designed from the ground up for the Cloudflare Workers runtime — no compromises,
-            no polyfills.
+            Designed from the ground up for the Cloudflare Workers runtime — no compromises, no
+            polyfills.
           </p>
 
           <div className="lp-grid">
@@ -497,8 +525,8 @@ export default function HomePage() {
             <span className="lp-section-eyebrow">Quick start</span>
             <h2 className="lp-section-title">Running in under 5 minutes</h2>
             <p className="lp-section-sub">
-              Configure once, use everywhere — server components, client hooks, API routes,
-              and middleware all share the same session.
+              Configure once, use everywhere — server components, client hooks, API routes, and
+              middleware all share the same session.
             </p>
 
             <div className="lp-code-steps">
@@ -506,7 +534,13 @@ export default function HomePage() {
                 <span className="lp-code-step-num">1</span>
                 <span className="lp-code-step-text">
                   <strong>Install</strong> the package and set{' '}
-                  <code style={{ fontFamily: 'var(--lp-mono)', fontSize: '0.8em', color: 'var(--lp-purple)' }}>
+                  <code
+                    style={{
+                      fontFamily: 'var(--lp-mono)',
+                      fontSize: '0.8em',
+                      color: 'var(--lp-purple)',
+                    }}
+                  >
                     NEXTAUTH_SECRET
                   </code>
                 </span>
@@ -514,7 +548,16 @@ export default function HomePage() {
               <div className="lp-code-step">
                 <span className="lp-code-step-num">2</span>
                 <span className="lp-code-step-text">
-                  <strong>Configure</strong> your providers in <code style={{ fontFamily: 'var(--lp-mono)', fontSize: '0.8em', color: 'var(--lp-purple)' }}>auth.ts</code>
+                  <strong>Configure</strong> your providers in{' '}
+                  <code
+                    style={{
+                      fontFamily: 'var(--lp-mono)',
+                      fontSize: '0.8em',
+                      color: 'var(--lp-purple)',
+                    }}
+                  >
+                    auth.ts
+                  </code>
                 </span>
               </div>
               <div className="lp-code-step">
@@ -532,7 +575,11 @@ export default function HomePage() {
             </div>
 
             <div style={{ marginTop: '2rem' }}>
-              <Link href="/docs/getting-started" className="lp-btn-primary" style={{ display: 'inline-flex', fontSize: '0.8125rem' }}>
+              <Link
+                href="/docs/getting-started"
+                className="lp-btn-primary"
+                style={{ display: 'inline-flex', fontSize: '0.8125rem' }}
+              >
                 Full setup guide &rarr;
               </Link>
             </div>
@@ -559,8 +606,8 @@ export default function HomePage() {
 
           <h2 className="lp-migration-title">Already using NextAuth v4?</h2>
           <p className="lp-migration-sub">
-            VinextAuth is a true drop-in replacement. Same callbacks, same session shape,
-            same cookie format. One import change and you&apos;re on the edge.
+            VinextAuth is a true drop-in replacement. Same callbacks, same session shape, same
+            cookie format. One import change and you&apos;re on the edge.
           </p>
 
           <div className="lp-migration-code">
@@ -576,7 +623,11 @@ export default function HomePage() {
             </div>
           </div>
 
-          <Link href="/docs/getting-started/migration" className="lp-btn-secondary" style={{ display: 'inline-flex' }}>
+          <Link
+            href="/docs/getting-started/migration"
+            className="lp-btn-secondary"
+            style={{ display: 'inline-flex' }}
+          >
             Read the migration guide &rarr;
           </Link>
         </div>
@@ -593,7 +644,11 @@ export default function HomePage() {
         <div className="lp-footer-links">
           <Link href="/docs">Docs</Link>
           <Link href="/docs/getting-started/migration">Migration</Link>
-          <a href="https://github.com/rocketapps-tech/vinextauth" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://github.com/rocketapps-tech/vinextauth"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             GitHub
           </a>
           <a href="https://vinext.io" target="_blank" rel="noopener noreferrer">
