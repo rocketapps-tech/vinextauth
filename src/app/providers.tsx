@@ -21,7 +21,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <FumaRootProvider
         theme={{
           attribute: 'class',
-          defaultTheme: 'light',
+          defaultTheme: 'dark',
           disableTransitionOnChange: true,
         }}
       >

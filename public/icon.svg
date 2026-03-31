@@ -1,10 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <path d="M16 2.5 L4.5 7.5 V17 C4.5 23.5 9 28 16 29.5 C23 28 27.5 23.5 27.5 17 V7.5 Z" fill="url(#g)"/>
-  <polyline points="11.5,15 16,21 20.5,15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Shield with subtle inner bevel -->
+  <path d="M16 2 L5 6.8 V16.5 C5 23 9.8 27.6 16 29.5 C22.2 27.6 27 23 27 16.5 V6.8 Z" fill="url(#shield)"/>
+  <!-- Inner shield highlight -->
+  <path d="M16 4.5 L7 8.5 V16.5 C7 21.8 11 25.8 16 27.5 C21 25.8 25 21.8 25 16.5 V8.5 Z" fill="url(#inner)" opacity="0.25"/>
+  <!-- Lightning bolt (edge / speed) -->
+  <path d="M19 11 L13.5 17.5 H17 L13 21.5 L20.5 15 H17 Z" fill="white" opacity="0.95"/>
   <defs>
-    <linearGradient id="g" x1="4.5" y1="2.5" x2="27.5" y2="29.5" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+    <linearGradient id="shield" x1="5" y1="2" x2="27" y2="29.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6d28d9"/>
+      <stop offset="55%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="7" y1="4.5" x2="25" y2="27.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="100%" stop-color="transparent"/>
     </linearGradient>
   </defs>
 </svg>
