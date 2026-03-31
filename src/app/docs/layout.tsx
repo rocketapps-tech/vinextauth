@@ -3,6 +3,7 @@
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { source } from '@/lib/source';
 import { LangSwitch } from '@/components/lang-switch';
+import { Logo } from '@/components/logo';
 import type { ReactNode } from 'react';
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -10,9 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <DocsLayout
       tree={source.pageTree}
       nav={{
-        title: (
-          <img src="/logo.svg" alt="VinextAuth" height={28} style={{ height: 28, width: 'auto' }} />
-        ),
+        title: <Logo height={26} />,
         url: '/',
       }}
       links={[

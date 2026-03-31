@@ -1,15 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 32" fill="none">
   <!-- Shield icon -->
-  <path d="M14 1 L3 5.5 V14 C3 20 7.5 25 14 27 C20.5 25 25 20 25 14 V5.5 Z" fill="url(#g)"/>
-  <polyline points="9.5,13 14,19.5 18.5,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- "VinextAuth" as one text node — bold "Vinext", regular "Auth" -->
-  <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" y="21">
-    <tspan x="33" font-weight="700" fill="currentColor">Vinext</tspan><tspan font-weight="400" fill="currentColor" opacity="0.65">Auth</tspan>
+  <path d="M14 1.5 L3.5 6 V15.5 C3.5 21.5 8 26 14 27.8 C20 26 24.5 21.5 24.5 15.5 V6 Z" fill="url(#sg)"/>
+  <!-- Inner highlight -->
+  <path d="M14 3.8 L5.5 7.8 V15.5 C5.5 20.5 9.2 24.3 14 25.8 C18.8 24.3 22.5 20.5 22.5 15.5 V7.8 Z" fill="url(#si)" opacity="0.2"/>
+  <!-- Bolt -->
+  <path d="M16.8 9.5 L12 15.8 H15 L12 20 L19.5 13.5 H16.5 Z" fill="white" opacity="0.95"/>
+
+  <!-- Wordmark: "Vinext" bold + "Auth" lighter -->
+  <text font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" y="20.5">
+    <tspan x="33" font-weight="700" fill="#fafafa" letter-spacing="-0.3">Vinext</tspan><tspan font-weight="500" fill="#c084fc" letter-spacing="-0.2">Auth</tspan>
   </text>
+
   <defs>
-    <linearGradient id="g" x1="3" y1="1" x2="25" y2="27" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+    <linearGradient id="sg" x1="3.5" y1="1.5" x2="24.5" y2="27.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6d28d9"/>
+      <stop offset="55%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="si" x1="5.5" y1="3.8" x2="22.5" y2="25.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="100%" stop-color="transparent"/>
     </linearGradient>
   </defs>
 </svg>
