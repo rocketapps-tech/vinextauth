@@ -1,0 +1,33 @@
+---
+title: Introduction
+description: Drop-in NextAuth v4 replacement for Vinext + Cloudflare Workers.
+---
+
+**VinextAuth** is a zero-dependency authentication library for the [Vinext](https://vinext.io/) framework and Cloudflare Workers edge runtime.
+
+It is designed to be a drop-in replacement for NextAuth v4 — same API surface, same callbacks, same cookie format — but built entirely on the Web Crypto API with no Node.js dependencies.
+
+## Features
+
+- **Edge-first** — runs natively on Cloudflare Workers and Vinext
+- **Zero dependencies** — pure Web Crypto API, no Node.js `crypto`, `fs`, or `process`
+- **NextAuth v4 compatible** — same API surface, same callback names
+- **JWT-first sessions** — HMAC-SHA256 signed, same format as NextAuth
+- **12 providers** — 10 OAuth (Google, GitHub, Discord, Facebook, LinkedIn, Twitch, Spotify, Microsoft, Twitter/X, Apple) + Credentials + Email magic link
+- **Cloudflare adapters** — KV and D1 for database-backed sessions; KV Rate Limiter for distributed rate limiting
+- **CSRF protection** — double-submit cookie pattern
+- **Rate limiting** — built-in for credentials sign-in (in-memory or KV-backed)
+- **TypeScript-first** — strict generics for custom session/user types
+
+## Quick Start
+
+```package-install
+vinextauth
+```
+
+Then follow the [Getting Started](/docs/getting-started) guide.
+
+## NextAuth Migration
+
+Coming from NextAuth v4? VinextAuth is designed to require minimal changes.
+See the [Migration Guide](/docs/getting-started/migration).

@@ -1,5 +1,7 @@
+.claude/settings.local.json
 node_modules/
 dist/
+**/*.tsbuildinfo
 coverage/
 *.local
 .DS_Store
@@ -8,3 +10,7 @@ coverage/
 apps/**/.vinext/
 apps/**/out/
 bugs/*
+
+# Fumadocs generated output
+docs/.source/
+**/.source/
