@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  const page = ptSource.getPage(slug);
+  const page = ptSource.getPage(slug ?? []);
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -31,7 +31,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const page = ptSource.getPage(slug);
+  const page = ptSource.getPage(slug ?? []);
   if (!page) notFound();
 
   return {
