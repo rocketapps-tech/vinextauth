@@ -17,10 +17,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "collections/*": ["./.source/*"],
-      "next/link": ["./node_modules/vinext/dist/shims/link"],
-      "next/navigation": ["./node_modules/vinext/dist/shims/navigation"],
-      "next/image": ["./node_modules/vinext/dist/shims/image"],
-      "next/server": ["./node_modules/vinext/dist/shims/server"]
+      "next/link": ["../node_modules/vinext/dist/shims/link"],
+      "next/navigation": ["../node_modules/vinext/dist/shims/navigation"],
+      "next/image": ["../node_modules/vinext/dist/shims/image"],
+      "next/server": ["../node_modules/vinext/dist/shims/server"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", ".source/**/*.ts"],
