@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "vinext": "latest",
+    "vinext": "^0.0.38",
     "vinextauth": "*"
   },
   "devDependencies": {
