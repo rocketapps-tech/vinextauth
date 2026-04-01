@@ -433,7 +433,7 @@ export default function HomePage() {
 
         <h1 className="lp-title">
           {'Auth feito para o '}
-          <span className="lp-title-gradient">edge</span>
+          <span className="lp-title-gradient">Vinext</span>
         </h1>
 
         <p className="lp-description">
@@ -605,7 +605,7 @@ export default function HomePage() {
           <h2 className="lp-migration-title">Já usa NextAuth v4?</h2>
           <p className="lp-migration-sub">
             VinextAuth é um substituto direto. Mesmos callbacks, mesma sessão, mesmo formato de
-            cookies. Uma mudança de import e você está no edge.
+            cookies. Uma mudança de import e você está no Vinext.
           </p>
 
           <div className="lp-migration-code">
