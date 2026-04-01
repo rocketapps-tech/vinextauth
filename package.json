@@ -13,6 +13,7 @@
     "dev:docs": "npm run dev --workspace=docs",
     "build:docs": "npm run build --workspace=docs",
     "deploy:docs": "npm run deploy --workspace=docs",
+    "typecheck": "npm run typecheck:pkg && npm run typecheck:docs",
     "typecheck:docs": "npm run typecheck --workspace=docs",
     "build:pkg": "npm run build --workspace=packages/vinext-auth",
     "dev:pkg": "npm run dev --workspace=packages/vinext-auth",
