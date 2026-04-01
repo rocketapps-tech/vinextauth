@@ -12,18 +12,18 @@
   },
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
-    "fumadocs-core": "latest",
-    "fumadocs-ui": "latest",
+    "fumadocs-core": "*",
+    "fumadocs-ui": "*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.2.2",
-    "vinext": "latest",
+    "vinext": "*",
     "vite": "^8.0.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "latest",
+    "@cloudflare/vite-plugin": "^1.30.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
