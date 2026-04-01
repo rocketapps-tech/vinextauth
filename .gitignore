@@ -8,3 +8,7 @@ coverage/
 apps/**/.vinext/
 apps/**/out/
 bugs/*
+
+# Fumadocs generated output
+docs/.source/
+**/.source/
