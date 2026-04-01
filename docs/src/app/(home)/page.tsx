@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { CodeTabs } from '@/components/code-tabs';
 import { Logo } from '@/components/logo';
-import pkg from '../../../../packages/vinext-auth/package.json';
+import { version } from '@/lib/version';
 
 /* ── Provider list ── */
 const providers = [
@@ -639,7 +639,7 @@ export default function HomePage() {
         <div className="lp-footer-brand">
           <Logo height={22} className="lp-footer-logo" />
           <span className="lp-footer-badge">MIT</span>
-          <span style={{ color: 'var(--lp-text-muted)' }}>v{pkg.version}</span>
+          <span style={{ color: 'var(--lp-text-muted)' }}>v{version}</span>
         </div>
 
         <div className="lp-footer-links">
