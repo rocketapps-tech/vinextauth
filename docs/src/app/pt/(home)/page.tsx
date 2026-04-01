@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CodeTabs } from '@/components/code-tabs';
 import { Logo } from '@/components/logo';
+import pkg from '../../../../packages/vinext-auth/package.json';
 
 /* ── Providers ── */
 const providers = [
@@ -636,12 +637,19 @@ export default function HomePage() {
         <div className="lp-footer-brand">
           <Logo height={22} className="lp-footer-logo" />
           <span className="lp-footer-badge">MIT</span>
-          <span style={{ color: 'var(--lp-text-muted)' }}>v0.7.0-beta</span>
+          <span style={{ color: 'var(--lp-text-muted)' }}>v{pkg.version}</span>
         </div>
 
         <div className="lp-footer-links">
           <Link href="/pt/docs">Docs</Link>
           <Link href="/pt/docs/getting-started/migration">Migração</Link>
+          <a
+            href="https://www.npmjs.com/package/vinextauth"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            npm
+          </a>
           <a
             href="https://github.com/rocketapps-tech/vinextauth"
             target="_blank"
