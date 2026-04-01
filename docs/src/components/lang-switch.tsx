@@ -25,10 +25,18 @@ export function LangSwitch() {
 
   return (
     <div className="lp-lang-switch">
-      <Link href={href('en')} className="lp-lang-btn" data-active={mounted ? (!isPt).toString() : 'false'}>
+      <Link
+        href={href('en')}
+        className="lp-lang-btn"
+        data-active={mounted ? (!isPt).toString() : 'false'}
+      >
         EN
       </Link>
-      <Link href={href('pt')} className="lp-lang-btn" data-active={mounted ? isPt.toString() : 'false'}>
+      <Link
+        href={href('pt')}
+        className="lp-lang-btn"
+        data-active={mounted ? isPt.toString() : 'false'}
+      >
         PT
       </Link>
     </div>
