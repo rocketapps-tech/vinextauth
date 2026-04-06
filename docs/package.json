@@ -20,7 +20,7 @@
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.2.2",
     "vinext": "latest",
-    "vite": "^8.0.3"
+    "vite": "^8.0.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "latest",
